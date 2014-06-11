@@ -1,18 +1,22 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFC_Core;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
+
 public class WorldGenCustomCedarTrees extends WorldGenerator
 {
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenCustomCedarTrees(boolean flag, int id)
 	{
@@ -22,6 +26,7 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 	@Override
 	public boolean generate(World world, Random random, int xCoord, int yCoord, int zCoord)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		int treeHeight = random.nextInt(6) + 3;
 		boolean flag = true;
 		if (yCoord < 1 || yCoord + treeHeight + 1 > world.getHeight())
@@ -78,6 +83,7 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 							world.isAirBlock(xPos, treeHeightOffset, zPos))
 					{
 						setBlockAndNotifyAdequately(world, xPos, treeHeightOffset, zPos, TFCBlocks.Leaves, treeId);
+						treeBlocks.put(new intCoord(xPos, treeHeightOffset, zPos), -1);
 					}
 				}
 			}
@@ -87,8 +93,12 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 		{
 			Block k2 = world.getBlock(xCoord, yCoord + l1, zCoord);
 			if (k2 == Blocks.air || k2 == TFCBlocks.Leaves || k2.canBeReplacedByLeaves(world, xCoord, yCoord + l1, zCoord))
+			{
 				setBlockAndNotifyAdequately(world, xCoord, yCoord + l1, zCoord, TFCBlocks.LogNatural, treeId);
+				treeBlocks.put(new intCoord(xCoord, yCoord + l1, zCoord), treeId);
+			}
 		}
+		TreeManager.instance.addTree(new intCoord(xCoord, yCoord, zCoord), treeBlocks);
 		return true;
 	}
 }

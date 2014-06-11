@@ -3,21 +3,25 @@
  */
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.WorldGen.TFCBiome;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.WorldGen.TFCBiome;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
+
 public class WorldGenRedwoodXL extends WorldGenerator
 {
 	final Block blockLeaf, blockWood;
 	final int metaLeaf, metaWood;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenRedwoodXL(boolean doNotify)
 	{
@@ -31,6 +35,7 @@ public class WorldGenRedwoodXL extends WorldGenerator
 	@Override
 	public boolean generate(World world, Random rand, int x, int y, int z)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		final int height = rand.nextInt(20) + 22;
 		final int j = 5 + rand.nextInt(12);
 		final int k = height - j;
@@ -135,6 +140,7 @@ public class WorldGenRedwoodXL extends WorldGenerator
 				l1++;
 			}
 		}
+		TreeManager.instance.addTree(new intCoord(x, y, z), treeBlocks);
 		return true;
 	}
 
@@ -148,6 +154,12 @@ public class WorldGenRedwoodXL extends WorldGenerator
 	{
 		Block b = world.getBlock(x, y, z);
 		if(b == Blocks.air || b.canBeReplacedByLeaves(world, x, y, z) || b.getMaterial().isReplaceable())
+		{
 			setBlockAndNotifyAdequately(world, x, y, z, block, blockMeta);
+			if(block == TFCBlocks.Leaves || block == TFCBlocks.Leaves2)
+				treeBlocks.put(new intCoord(x, y, z), -1);
+			else
+				treeBlocks.put(new intCoord(x, y, z), blockMeta);
+		}
 	}
 }

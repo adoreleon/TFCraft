@@ -1,20 +1,24 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.WorldGen.DataLayer;
-import com.bioxx.tfc.WorldGen.TFCWorldChunkManager;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.WorldGen.DataLayer;
+import com.bioxx.tfc.WorldGen.TFCWorldChunkManager;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
+
 public class WorldGenCustomMapleTallTrees extends WorldGenerator
 {
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenCustomMapleTallTrees(boolean flag, int id)
 	{
@@ -24,6 +28,7 @@ public class WorldGenCustomMapleTallTrees extends WorldGenerator
 	@Override
 	public boolean generate(World world, Random random, int xCoord, int yCoord, int zCoord)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		int l = random.nextInt(3) + 8;
 		boolean flag = true;
 		int x;
@@ -80,7 +85,10 @@ public class WorldGenCustomMapleTallTrees extends WorldGenerator
 				{
 					int j4 = i4 - zCoord;
 					if ((Math.abs(l3) != i3 || Math.abs(j4) != i3 || random.nextInt(2) != 0 && j2 != 0) && world.isAirBlock(k3, k1, i4))
+					{
 						setBlockAndNotifyAdequately(world, k3, k1, i4, TFCBlocks.Leaves, treeId);
+						treeBlocks.put(new intCoord(k3, k1, i4), -1);
+					}
 				}
 			}
 		}
@@ -89,9 +97,13 @@ public class WorldGenCustomMapleTallTrees extends WorldGenerator
 		{
 			Block k2 = world.getBlock(xCoord, yCoord + l1, zCoord);
 			if (k2 == Blocks.air || k2 == TFCBlocks.Leaves || k2.canBeReplacedByLeaves(world, xCoord, yCoord + l1, zCoord))
+			{
 				setBlockAndNotifyAdequately(world, xCoord, yCoord + l1, zCoord, TFCBlocks.LogNatural, treeId);
+				treeBlocks.put(new intCoord(xCoord, yCoord + l1, zCoord), treeId);
+			}
 		}
 
+		TreeManager.instance.addTree(new intCoord(xCoord, yCoord, zCoord), treeBlocks);
 		return true;
 	}
 }

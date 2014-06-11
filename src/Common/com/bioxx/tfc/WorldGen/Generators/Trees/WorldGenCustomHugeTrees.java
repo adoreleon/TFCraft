@@ -1,5 +1,6 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -12,6 +13,8 @@ import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.DataLayer;
 import com.bioxx.tfc.WorldGen.TFCWorldChunkManager;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
 
 public class WorldGenCustomHugeTrees extends WorldGenerator
 {
@@ -22,6 +25,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 
 	/** Sets the metadata for the leaves used in huge trees */
 	private final int leavesMetadata;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenCustomHugeTrees(boolean par1, int par2, int par3, int par4)
 	{
@@ -50,6 +54,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 							!par1World.getBlock(var11, var8, var13).isOpaqueCube())
 					{
 						this.setBlockAndNotifyAdequately(par1World, var11, var8, var13, TFCBlocks.Leaves, this.leavesMetadata);
+						treeBlocks.put(new intCoord(var11, var8, var13), -1);
 					}
 				}
 			}
@@ -58,6 +63,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 
 	public boolean generate(World world, Random rand, int xCoord, int yCoord, int zCoord)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		int var6 = rand.nextInt(3) + this.field_48195_a;
 		boolean canGenHere = true;
 
@@ -128,6 +134,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 							tempZ = xCoord + (int)(1.5F + MathHelper.cos(var15) * (float)var13);
 							var12 = zCoord + (int)(1.5F + MathHelper.sin(var15) * (float)var13);
 							this.setBlockAndNotifyAdequately(world, tempZ, var14 - 3 + var13 / 2, var12, TFCBlocks.LogNatural, this.woodMetadata);
+							treeBlocks.put(new intCoord(tempZ, var14 - 3 + var13 / 2, var12), woodMetadata);
 						}
 					}
 
@@ -137,6 +144,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 						if (id == Blocks.air || id == TFCBlocks.Leaves || id == TFCBlocks.Leaves2)
 						{
 							this.setBlockAndNotifyAdequately(world, xCoord, yCoord + tempX, zCoord, TFCBlocks.LogNatural, this.woodMetadata);
+							treeBlocks.put(new intCoord(xCoord, yCoord + tempX, zCoord), woodMetadata);
 							if (tempX > 0)
 							{
 								if (rand.nextInt(3) > 0 && world.isAirBlock(xCoord - 1, yCoord + tempX, zCoord))
@@ -152,6 +160,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 							if (id == Blocks.air || id == TFCBlocks.Leaves || id == TFCBlocks.Leaves2)
 							{
 								this.setBlockAndNotifyAdequately(world, xCoord + 1, yCoord + tempX, zCoord, TFCBlocks.LogNatural, this.woodMetadata);
+								treeBlocks.put(new intCoord(xCoord + 1, yCoord + tempX, zCoord), woodMetadata);
 								if (tempX > 0)
 								{
 									if (rand.nextInt(3) > 0 && world.isAirBlock(xCoord + 2, yCoord + tempX, zCoord))
@@ -165,6 +174,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 							if (id == Blocks.air || id == TFCBlocks.Leaves || id == TFCBlocks.Leaves2)
 							{
 								this.setBlockAndNotifyAdequately(world, xCoord + 1, yCoord + tempX, zCoord + 1, TFCBlocks.LogNatural, this.woodMetadata);
+								treeBlocks.put(new intCoord(xCoord + 1, yCoord + tempX, zCoord + 1), woodMetadata);
 								if (tempX > 0)
 								{
 									if (rand.nextInt(3) > 0 && world.isAirBlock(xCoord + 2, yCoord + tempX, zCoord + 1))
@@ -178,6 +188,7 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 							if (id == Blocks.air || id == TFCBlocks.Leaves || id == TFCBlocks.Leaves2)
 							{
 								this.setBlockAndNotifyAdequately(world, xCoord, yCoord + tempX, zCoord + 1, TFCBlocks.LogNatural, this.woodMetadata);
+								treeBlocks.put(new intCoord(xCoord, yCoord + tempX, zCoord), woodMetadata);
 								if (tempX > 0)
 								{
 									if (rand.nextInt(3) > 0 && world.isAirBlock(xCoord - 1, yCoord + tempX, zCoord + 1))
@@ -188,6 +199,8 @@ public class WorldGenCustomHugeTrees extends WorldGenerator
 							}
 						}
 					}
+
+					TreeManager.instance.addTree(new intCoord(xCoord, yCoord, zCoord), treeBlocks);
 					return true;
 				}
 				else

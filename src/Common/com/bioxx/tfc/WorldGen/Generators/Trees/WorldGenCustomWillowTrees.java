@@ -1,5 +1,6 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -12,10 +13,13 @@ import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.DataLayer;
 import com.bioxx.tfc.WorldGen.TFCWorldChunkManager;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
 
 public class WorldGenCustomWillowTrees extends WorldGenerator
 {
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenCustomWillowTrees(boolean flag, int id)
 	{
@@ -36,7 +40,10 @@ public class WorldGenCustomWillowTrees extends WorldGenerator
 			for (int a = 0 ; a < length ; a++)
 			{
 				if(world.isAirBlock(X * a / length + x, Y * a / length + y, Z * a / length + z))
-					world.setBlock (X * a / length + x, Y * a / length + y, Z * a / length + z, TFCBlocks.LogNatural, treeId, 0x2);
+				{
+					setBlockAndNotifyAdequately(world, X * a / length + x, Y * a / length + y, Z * a / length + z, TFCBlocks.LogNatural, treeId);
+					treeBlocks.put(new intCoord(X * a / length + x, Y * a / length + y, Z * a / length + z), treeId);
+				}
 			}
 			createLeafGroup (X + x, Y + y, Z + z, random, world);
 		}
@@ -52,12 +59,16 @@ public class WorldGenCustomWillowTrees extends WorldGenerator
 				{
 					if (!world.getBlock(x1, y1 + y, z1).isOpaqueCube())
 					{
-						world.setBlock (x1, y1 + y, z1, TFCBlocks.Leaves, treeId, 0x2);
+						setBlockAndNotifyAdequately(world, x1, y1 + y, z1, TFCBlocks.Leaves, treeId);
+						treeBlocks.put(new intCoord(x1, y1 + y, z1), -1);
 						for (int a = 0 ; a < random.nextInt (2) + 2 ; a++)
 						{
 							Block b = world.getBlock(x1, y1 - 1 - a + y, z1);
 							if (!b.isOpaqueCube() && b == Blocks.air)
-								world.setBlock (x1, y1 - 1 - a + y, z1, TFCBlocks.Leaves, treeId, 0x2);
+							{
+								setBlockAndNotifyAdequately(world, x1, y1 - 1 - a + y, z1, TFCBlocks.Leaves, treeId);
+								treeBlocks.put(new intCoord(x1, y1 - 1 - a + y, z1), -1);
+							}
 						}
 					}
 				}
@@ -80,6 +91,7 @@ public class WorldGenCustomWillowTrees extends WorldGenerator
 	@Override
 	public boolean generate (World world, Random random, int xCoord, int yCoord, int zCoord)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		int height = random.nextInt (2) + 3;
 		for (; world.getBlock(xCoord, yCoord - 1, zCoord).getMaterial() == Material.water ; yCoord--)
 		{
@@ -158,7 +170,10 @@ public class WorldGenCustomWillowTrees extends WorldGenerator
 			for (int a = 0 ; a < length ; a++)
 			{
 				if(world.isAirBlock(X * a / length + x, Y * a / length + y, Z * a / length + z))
-					world.setBlock (X * a / length + x, Y * a / length + y, Z * a / length + z, TFCBlocks.LogNatural, treeId, 0x2);
+				{
+					setBlockAndNotifyAdequately(world, X * a / length + x, Y * a / length + y, Z * a / length + z, TFCBlocks.LogNatural, treeId);
+					treeBlocks.put(new intCoord(X * a / length + x, Y * a / length + y, Z * a / length + z), treeId);
+				}
 				addBranch (X * a / length + x, Y * a / length + y, Z * a / length + z, -1, 0, random, world);
 				addBranch (X * a / length + x, Y * a / length + y, Z * a / length + z, 0, -1, random, world);
 				addBranch (X * a / length + x, Y * a / length + y, Z * a / length + z, 1, 0, random, world);
@@ -173,7 +188,8 @@ public class WorldGenCustomWillowTrees extends WorldGenerator
 			if (l2 == Blocks.air || l2 == TFCBlocks.Leaves || l2 == TFCBlocks.Leaves2 ||
 					l2.canBeReplacedByLeaves(world, xCoord, yCoord + l1, zCoord))
 			{
-				world.setBlock(xCoord, yCoord + l1, zCoord, TFCBlocks.LogNatural, treeId, 0x2);
+				setBlockAndNotifyAdequately(world, xCoord, yCoord + l1, zCoord, TFCBlocks.LogNatural, treeId);
+				treeBlocks.put(new intCoord(xCoord, yCoord + l1, zCoord), treeId);
 			}
 		}
 
@@ -207,6 +223,7 @@ public class WorldGenCustomWillowTrees extends WorldGenerator
 		//			}
 		//		}
 
+		TreeManager.instance.addTree(new intCoord(xCoord, yCoord, zCoord), treeBlocks);
 		return true;
 	}
 }

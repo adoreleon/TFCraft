@@ -1,5 +1,6 @@
 package com.bioxx.tfc.Blocks.Flora;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -18,10 +19,13 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Blocks.BlockTerra;
 import com.bioxx.tfc.Core.Recipes;
+import com.bioxx.tfc.api.TreeManager;
 import com.bioxx.tfc.api.Constant.Global;
+import com.bioxx.tfc.api.Util.intCoord;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -151,10 +155,12 @@ public class BlockLogNatural extends BlockTerra
 						isHammer = true;
 				}
 			}
+
 			if(isAxeorSaw)
 			{
 				damage = -1;
-				ProcessTree(world, x, y, z, meta, equip);
+				//ProcessTree(world, x, y, z, meta, equip);
+				ProcessTree(world, x, y, z, equip);
 
 				if(damage + equip.getItemDamage() > equip.getMaxDamage())
 				{
@@ -204,6 +210,50 @@ public class BlockLogNatural extends BlockTerra
 	{
 		//TODO Rewrite the treecap algorithm using a list of coords instead of the ugly array. Shoudl also use a maxmium list size to prevent 
 		//any memory issues and should take shortcuts to find the top of the tree and search down
+
+		HashMap<intCoord, Integer> treeBlocks = TreeManager.instance.getTreeBlocks(new intCoord(x, y, z));
+		HashMap<intCoord, Integer> treeBlocksLeft = new HashMap<intCoord, Integer>();
+
+		if(treeBlocks != null)
+		{
+			intCoord stump = new intCoord(0, 255, 0);
+			for(intCoord bCoord : treeBlocks.keySet())
+			{
+				if(bCoord.y <= stump.y) stump = bCoord;
+				int meta = treeBlocks.get(bCoord) == null ? -1 : treeBlocks.get(bCoord);
+				if(bCoord.y >= y && damage + is.getItemDamage() <= is.getMaxDamage())
+				{
+					if(meta == -1 && (
+							world.getBlock(bCoord.x, bCoord.y, bCoord.z) == TFCBlocks.Leaves ||
+							world.getBlock(bCoord.x, bCoord.y, bCoord.z) == TFCBlocks.Leaves2))
+					{
+						world.setBlockToAir(bCoord.x, bCoord.y, bCoord.z);
+					}
+					else if(meta >= 0 && (
+							world.getBlock(bCoord.x, bCoord.y, bCoord.z) == TFCBlocks.LogNatural ||
+							world.getBlock(bCoord.x, bCoord.y, bCoord.z) == TFCBlocks.LogNatural2))
+					{
+						world.setBlockToAir(bCoord.x, bCoord.y, bCoord.z);
+						dropBlockAsItem(world, bCoord.x, bCoord.y, bCoord.z, new ItemStack(TFCItems.Logs, 1, meta));
+						damage++;
+					}
+				}
+				else
+				{
+					treeBlocksLeft.put(bCoord, meta);
+				}
+			}
+
+			if(treeBlocksLeft.size() > 0)
+				TreeManager.instance.updateTreeBlocks(stump, treeBlocksLeft);
+			else
+				TreeManager.instance.delTree(stump);
+		}
+		else
+		{
+			System.out.println("OLD WAY TREE CHOP");
+			ProcessTree(world, x, y, z, world.getBlockMetadata(x, y, z), is);
+		}
 	}
 
 	@Deprecated
@@ -214,7 +264,7 @@ public class BlockLogNatural extends BlockTerra
 	}
 
 	@Override
-	public Item getItemDropped(int i, Random random, int j)
+	public Item getItemDropped(int metadata, Random rand, int fortune)
 	{
 		return TFCItems.Logs;
 	}

@@ -1,20 +1,24 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.WorldGen.TFCBiome;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.WorldGen.TFCBiome;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
+
 public class WorldGenPineShort extends WorldGenerator
 {
 	Block blockLeaf, blockWood;
 	final int metaLeaf, metaWood;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenPineShort(boolean par1, int id)
 	{
@@ -27,6 +31,7 @@ public class WorldGenPineShort extends WorldGenerator
 
 	public boolean generate(World world, Random par2Random, int x, int y, int z)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		int var6 = par2Random.nextInt(4) + 6;
 		int var7 = 1 + par2Random.nextInt(2);
 		int var8 = var6 - var7;
@@ -102,6 +107,7 @@ public class WorldGenPineShort extends WorldGenerator
 										(block == null || block.canBeReplacedByLeaves(world, var17, var16, var19)))
 								{
 									this.setBlockAndNotifyAdequately(world, var17, var16, var19, blockLeaf, metaLeaf);
+									treeBlocks.put(new intCoord(var17, var16, var19), -1);
 								}
 							}
 						}
@@ -128,8 +134,11 @@ public class WorldGenPineShort extends WorldGenerator
 								block.canBeReplacedByLeaves(world, x, y + var16, z))
 						{
 							this.setBlockAndNotifyAdequately(world, x, y + var16, z, blockWood, metaWood);
+							treeBlocks.put(new intCoord(x, y + var16, z), metaWood);
 						}
 					}
+
+					TreeManager.instance.addTree(new intCoord(x, y, z), treeBlocks);
 					return true;
 				}
 				else

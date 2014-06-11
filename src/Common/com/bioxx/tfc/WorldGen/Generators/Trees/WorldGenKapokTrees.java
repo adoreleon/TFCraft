@@ -1,5 +1,6 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -10,6 +11,8 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 
 import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
 
 public class WorldGenKapokTrees extends WorldGenerator
 {
@@ -50,6 +53,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 	int[][] leafNodes;
 
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenKapokTrees(boolean par1, int id)
 	{
@@ -111,6 +115,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 	@Override
 	public boolean generate(World par1World, Random par2Random, int par3, int par4, int par5)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		this.worldObj = par1World;
 		long var6 = par2Random.nextLong();
 		this.rand.setSeed(var6);
@@ -134,6 +139,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 			this.generateLeaves();
 			this.generateTrunk();
 			this.generateLeafNodeBases();
+			TreeManager.instance.addTree(new intCoord(par3, par4, par5), treeBlocks);
 			return true;
 		}
 	}
@@ -357,6 +363,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 					else
 					{
 						this.setBlockAndNotifyAdequately(this.worldObj, var11[0], var11[1], var11[2], par6, treeId);
+						treeBlocks.put(new intCoord(var11[0], var11[1], var11[2]), -1);
 						++var13;
 					}
 				}
@@ -441,10 +448,12 @@ public class WorldGenKapokTrees extends WorldGenerator
 				var14[var6] = MathHelper.floor_double(par1ArrayOfInteger[var6] + var15 + 0.5D);
 				var14[var7] = MathHelper.floor_double(par1ArrayOfInteger[var7] + var15 * var10 + 0.5D);
 				var14[var8] = MathHelper.floor_double(par1ArrayOfInteger[var8] + var15 * var12 + 0.5D);
-				if(worldObj.isAirBlock(var14[0], var14[1], var14[2]) || worldObj.getBlock(var14[0], var14[1], var14[2]) == TFCBlocks.Leaves ||
+				if(worldObj.isAirBlock(var14[0], var14[1], var14[2]) ||
+						worldObj.getBlock(var14[0], var14[1], var14[2]) == TFCBlocks.Leaves ||
 						worldObj.getBlock(var14[0], var14[1], var14[2]) == TFCBlocks.Leaves2)
 				{
 					this.setBlockAndNotifyAdequately(this.worldObj, var14[0], var14[1], var14[2], par3, treeId);
+					treeBlocks.put(new intCoord(var14[0], var14[1], var14[2]), treeId);
 				}
 			}
 			if(par1ArrayOfInteger[0]==par2ArrayOfInteger[0] && par1ArrayOfInteger[2]==par2ArrayOfInteger[2] && par1ArrayOfInteger[1]<par2ArrayOfInteger[1])
@@ -458,6 +467,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 								!worldObj.isAirBlock(i + par1ArrayOfInteger[0], par1ArrayOfInteger[1] - 1, par1ArrayOfInteger[2] + k))
 						{
 							this.setBlockAndNotifyAdequately(this.worldObj,i + par1ArrayOfInteger[0], par1ArrayOfInteger[1], par1ArrayOfInteger[2]+k, par3, treeId);
+							treeBlocks.put(new intCoord(i + par1ArrayOfInteger[0], par1ArrayOfInteger[1], par1ArrayOfInteger[2]+k), treeId);
 						}
 					}
 				}
@@ -517,6 +527,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 						placeBlockLineSecondary(currentBlock, destinationBlock,  par3);
 					}
 					this.setBlockAndNotifyAdequately(this.worldObj, var14[0], var14[1], var14[2], par3, treeId);
+					treeBlocks.put(new intCoord(var14[0], var14[1], var14[2]), treeId);
 				}
 			}
 			this.generateLeafNode(par2ArrayOfInteger[0], par2ArrayOfInteger[1], par2ArrayOfInteger[2]);
@@ -570,6 +581,7 @@ public class WorldGenKapokTrees extends WorldGenerator
 						worldObj.getBlock(var14[0], var14[1], var14[2]) == TFCBlocks.Leaves2)
 				{
 					this.setBlockAndNotifyAdequately(this.worldObj, var14[0], var14[1], var14[2], par3, treeId);
+					treeBlocks.put(new intCoord(var14[0], var14[1], var14[2]), treeId);
 				}
 			}
 			this.generateLeafNode(par2ArrayOfInteger[0], par2ArrayOfInteger[1]-1, par2ArrayOfInteger[2]);

@@ -1,15 +1,18 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFC_Core;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
+
+import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
 
 public class WorldGenCustomBigTree extends WorldGenerator
 {
@@ -50,6 +53,7 @@ public class WorldGenCustomBigTree extends WorldGenerator
 	int[][] leafNodes;
 
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenCustomBigTree(boolean par1, int id)
 	{
@@ -112,6 +116,7 @@ public class WorldGenCustomBigTree extends WorldGenerator
 	@Override
 	public boolean generate(World par1World, Random par2Random, int par3, int par4, int par5)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		this.worldObj = par1World;
 		long var6 = par2Random.nextLong();
 		this.rand.setSeed(var6);
@@ -132,6 +137,7 @@ public class WorldGenCustomBigTree extends WorldGenerator
 			this.generateLeaves();
 			this.generateTrunk();
 			this.generateLeafNodeBases();
+			TreeManager.instance.addTree(new intCoord(par3, par4, par5), treeBlocks);
 			return true;
 		}
 	}
@@ -319,6 +325,7 @@ public class WorldGenCustomBigTree extends WorldGenerator
 					else
 					{
 						setBlockAndNotifyAdequately(this.worldObj, var11[0], var11[1], var11[2], par6, treeId);
+						treeBlocks.put(new intCoord(var11[0], var11[1], var11[2]), -1);
 						++var13;
 					}
 				}
@@ -404,7 +411,10 @@ public class WorldGenCustomBigTree extends WorldGenerator
 				var14[var7] = MathHelper.floor_double(par1ArrayOfInteger[var7] + var15 * var10 + 0.5D);
 				var14[var8] = MathHelper.floor_double(par1ArrayOfInteger[var8] + var15 * var12 + 0.5D);
 				if(worldObj.isAirBlock(var14[0], var14[1], var14[2]))
+				{
 					this.setBlockAndNotifyAdequately(this.worldObj, var14[0], var14[1], var14[2], par3, treeId);
+					treeBlocks.put(new intCoord(var14[0], var14[1], var14[2]), treeId);
+				}
 			}
 		}
 	}

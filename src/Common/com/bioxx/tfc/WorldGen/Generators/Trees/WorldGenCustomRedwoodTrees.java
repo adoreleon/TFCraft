@@ -1,17 +1,21 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
-
-import com.bioxx.tfc.TFCBlocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
+
 public class WorldGenCustomRedwoodTrees extends WorldGenerator
 {
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenCustomRedwoodTrees (boolean flag, int id)
 	{
@@ -19,9 +23,9 @@ public class WorldGenCustomRedwoodTrees extends WorldGenerator
 		treeId = id;
 	}
 
-
 	public boolean generate (World world, Random random, int xCoord, int yCoord, int zCoord)
 	{
+		treeBlocks = new HashMap<intCoord, Integer>();
 		int treeHeight = random.nextInt (7) + 20;
 		int w = treeHeight / 24;
 		int treeType = random.nextInt (2);
@@ -98,6 +102,7 @@ public class WorldGenCustomRedwoodTrees extends WorldGenerator
 								world.getBlock (xPos, yPos, zPos) != TFCBlocks.LogNatural)
 						{
 							setBlockAndNotifyAdequately(world, xPos, yPos, zPos, TFCBlocks.Leaves, treeId);
+							treeBlocks.put(new intCoord(xPos, yPos, zPos), -1);
 						}
 					}
 				}
@@ -138,6 +143,7 @@ public class WorldGenCustomRedwoodTrees extends WorldGenerator
 								world.getBlock(xPos, yPos, zPos) != TFCBlocks.LogNatural)
 						{
 							setBlockAndNotifyAdequately(world, xPos, yPos, zPos, TFCBlocks.Leaves, treeId);
+							treeBlocks.put(new intCoord(xPos, yPos, zPos), -1);
 						}
 					}
 				}
@@ -154,6 +160,7 @@ public class WorldGenCustomRedwoodTrees extends WorldGenerator
 					for (int z = zCoord ; z <= zCoord + w ; z++)
 					{
 						setBlockAndNotifyAdequately(world, x, yCoord + j2, z, TFCBlocks.LogNatural, treeId);
+						treeBlocks.put(new intCoord(x, yCoord + j2, z), treeId);
 					}
 				}
 			}
@@ -184,6 +191,7 @@ public class WorldGenCustomRedwoodTrees extends WorldGenerator
 //				}
 //			}
 //		}
+		TreeManager.instance.addTree(new intCoord(xCoord, yCoord, zCoord), treeBlocks);
 		return true;
 	}
 }

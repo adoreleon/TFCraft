@@ -1,5 +1,6 @@
 package com.bioxx.tfc.WorldGen.Generators.Trees;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -10,6 +11,8 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 
 import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TreeManager;
+import com.bioxx.tfc.api.Util.intCoord;
 
 public class WorldGenAcaciaKoaTrees extends WorldGenerator
 {
@@ -50,6 +53,7 @@ public class WorldGenAcaciaKoaTrees extends WorldGenerator
 	int[][] leafNodes;
 
 	private int treeId;
+	private HashMap<intCoord, Integer> treeBlocks;
 
 	public WorldGenAcaciaKoaTrees(boolean par1, int id)
 	{
@@ -110,14 +114,15 @@ public class WorldGenAcaciaKoaTrees extends WorldGenerator
 	}
 
 	@Override
-	public boolean generate(World par1World, Random par2Random, int par3, int par4, int par5)
+	public boolean generate(World world, Random rand, int x, int y, int z)
 	{
-		this.worldObj = par1World;
-		long var6 = par2Random.nextLong();
+		treeBlocks = new HashMap<intCoord, Integer>();
+		this.worldObj = world;
+		long var6 = rand.nextLong();
 		this.rand.setSeed(var6);
-		this.basePos[0] = par3;
-		this.basePos[1] = par4;
-		this.basePos[2] = par5;
+		this.basePos[0] = x;
+		this.basePos[1] = y;
+		this.basePos[2] = z;
 
 		this.heightLimit = 5 + this.rand.nextInt(this.heightLimitLimit/2) + this.heightLimitLimit/2;
 
@@ -131,6 +136,7 @@ public class WorldGenAcaciaKoaTrees extends WorldGenerator
 			this.generateLeaves();
 			this.generateTrunk();
 			this.generateLeafNodeBases();
+			TreeManager.instance.addTree(new intCoord(x, y, z), treeBlocks);
 			return true;
 		}
 	}
@@ -328,6 +334,7 @@ public class WorldGenAcaciaKoaTrees extends WorldGenerator
 					else
 					{
 						this.setBlockAndNotifyAdequately(this.worldObj, var11[0], var11[1], var11[2], par6, treeId);
+						treeBlocks.put(new intCoord(var11[0], var11[1], var11[2]), -1);
 						++var13;
 					}
 				}
@@ -417,6 +424,7 @@ public class WorldGenAcaciaKoaTrees extends WorldGenerator
 						worldObj.getBlock(var14[0], var14[1], var14[2]) == TFCBlocks.Leaves2)
 				{
 					this.setBlockAndNotifyAdequately(this.worldObj, var14[0], var14[1], var14[2], par3, treeId);
+					treeBlocks.put(new intCoord(var14[0], var14[1], var14[2]), treeId + 16);
 				}
 			}
 		}
