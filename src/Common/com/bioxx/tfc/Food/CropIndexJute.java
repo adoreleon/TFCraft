@@ -1,36 +1,35 @@
 package com.bioxx.tfc.Food;
 
-import com.bioxx.tfc.TileEntities.TECrop;
-
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
+import com.bioxx.tfc.TileEntities.TECrop;
 
 public class CropIndexJute extends CropIndex
 {
 
-	public CropIndexJute(int ID, String name, int type, int growth, int stages, float minGTemp, float minATemp, Item seed)
+	public CropIndexJute(int id, String name, int type, int growth, int stages, float minGTemp, float minATemp, Item seed)
 	{
-		super(ID,name,type,growth,stages,minGTemp,minATemp, seed);
+		super(id,name,type,growth,stages,minGTemp,minATemp, seed);
 	}
-	public CropIndexJute(int ID, String name, int type, int growth, int stages, float minGTemp, float minATemp, float nutrientUsageMultiplier, Item seed)
+	public CropIndexJute(int id, String name, int type, int growth, int stages, float minGTemp, float minATemp, float nutrientUsageMultiplier, Item seed)
 	{
-		super(ID,name,type,growth,stages,minGTemp,minATemp, seed);
+		super(id,name,type,growth,stages,minGTemp,minATemp, seed);
 		nutrientUsageMult = nutrientUsageMultiplier;
 	}
-	public CropIndexJute(int ID, String name, int type, int growth, int stages, float minGTemp, float minATemp, float nutrientUsageMultiplier, Item seed, int[] nutriRestore)
+	public CropIndexJute(int id, String name, int type, int growth, int stages, float minGTemp, float minATemp, float nutrientUsageMultiplier, Item seed, int[] nutriRestore)
 	{
-		super(ID,name,type,growth,stages,minGTemp,minATemp, seed);
-		nutrientExtraRestore = nutriRestore;
+		super(id,name,type,growth,stages,minGTemp,minATemp, seed);
+		nutrientExtraRestore = nutriRestore.clone();
 		nutrientUsageMult = nutrientUsageMultiplier;
 	}
 
 	@Override
 	public ItemStack getOutput1(TECrop crop)
 	{
-		if (Output1 != null && crop.growth >= 5)
+		if (output1 != null && crop.growth >= 5)
 		{
-			ItemStack is = new ItemStack(Output1, (int)this.Output1Avg);
-			return is;
+			return new ItemStack(output1, (int) this.output1Avg);
 		}
 		return null;
 	}

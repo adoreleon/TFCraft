@@ -1,10 +1,6 @@
 package com.bioxx.tfc.TileEntities;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.TreeSet;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
@@ -19,15 +15,17 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Blocks.Devices.BlockSluice;
 import com.bioxx.tfc.Blocks.Terrain.BlockOre;
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.TFCOptions;
 
 public class TESluice extends TileEntity implements IInventory
 {
@@ -38,10 +36,10 @@ public class TESluice extends TileEntity implements IInventory
 	public boolean waterInput;
 	public boolean waterOutput;
 	public byte soilType;
-	private boolean initialized = false;
+	private boolean initialized;
 	private Random random = new Random();
-	private TreeSet<Integer> coreSampleTypes = new TreeSet<Integer>();
-	private ArrayList<ItemStack> coreSampleStacks = new ArrayList<ItemStack>();
+	private Set<Integer> coreSampleTypes = new TreeSet<Integer>();
+	private List<ItemStack> coreSampleStacks = new ArrayList<ItemStack>();
 
 	public TESluice()
 	{
@@ -68,7 +66,7 @@ public class TESluice extends TileEntity implements IInventory
 			else
 			{
 				// slot has something, does it match the type and subtype?
-				if((stackInSlot == is) && (stackInSlot.getItemDamage() == is.getItemDamage()))
+				if (stackInSlot == is && stackInSlot.getItemDamage() == is.getItemDamage())
 				{
 					// match, add to this slot but make sure it fits
 					if(stackInSlot.stackSize + is.stackSize > this.getInventoryStackLimit())
@@ -128,8 +126,6 @@ public class TESluice extends TileEntity implements IInventory
 		float f = random.nextFloat() * 0.8F + 0.1F;
 		float f1 = random.nextFloat() * 2.0F + 0.4F;
 		float f2 = random.nextFloat() * 0.8F + 0.1F;
-		int x = xCoord;
-
 		EntityItem entityitem = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, new ItemStack(is.getItem(), is.stackSize, is.getItemDamage()));
 		float f3 = 0.05F;
 		entityitem.motionX = (float)random.nextGaussian() * f3;
@@ -209,7 +205,7 @@ public class TESluice extends TileEntity implements IInventory
 	{
 		int meta = getBlockMetadata();
 		boolean isFoot = BlockSluice.isBlockFootOfBed(meta);
-		if(isFoot)
+		if (isFoot || soilAmount == -1)
 			return;
 
 		/*********************************************************
@@ -225,7 +221,7 @@ public class TESluice extends TileEntity implements IInventory
 					{
 						for(int y = yCoord; y > yCoord-50; y--)
 						{
-							if(worldObj.getBlock(x+xCoord, y, z+zCoord) == TFCBlocks.Ore)
+							if(worldObj.getBlock(x+xCoord, y, z+zCoord) == TFCBlocks.ore)
 							{
 								int m = worldObj.getBlockMetadata(x+xCoord, y, z+zCoord);
 								if(m != 14 && m != 15)
@@ -243,7 +239,6 @@ public class TESluice extends TileEntity implements IInventory
 				initialized = true;
 			}
 
-			int[] dir = BlockSluice.headBlockToFootBlockMap[BlockSluice.getDirectionFromMetadata(meta)];
 			List list = worldObj.getEntitiesWithinAABB(EntityItem.class, AxisAlignedBB.getBoundingBox(
 					xCoord, yCoord, zCoord,
 					xCoord + 1, yCoord + 1.1f, zCoord + 1));
@@ -252,8 +247,8 @@ public class TESluice extends TileEntity implements IInventory
 			{
 				EntityItem entity = (EntityItem)iterator.next();
 				Item item = entity.getEntityItem().getItem();
-				if(item == Item.getItemFromBlock(TFCBlocks.Gravel)|| item == Item.getItemFromBlock(TFCBlocks.Gravel2) || 
-						item == Item.getItemFromBlock(TFCBlocks.Sand) || item == Item.getItemFromBlock(TFCBlocks.Sand2))
+				if(item == Item.getItemFromBlock(TFCBlocks.gravel)|| item == Item.getItemFromBlock(TFCBlocks.gravel2) || 
+						item == Item.getItemFromBlock(TFCBlocks.sand) || item == Item.getItemFromBlock(TFCBlocks.sand2))
 				{
 					int stackSize = entity.getEntityItem().stackSize;
 					int accept = (50 + 19 - soilAmount) / 20;
@@ -263,7 +258,7 @@ public class TESluice extends TileEntity implements IInventory
 						entity.setDead();
 						if(soilAmount > 50)
 							soilAmount = 50;
-						if(item == Item.getItemFromBlock(TFCBlocks.Gravel)|| item == Item.getItemFromBlock(TFCBlocks.Gravel2))
+						if(item == Item.getItemFromBlock(TFCBlocks.gravel)|| item == Item.getItemFromBlock(TFCBlocks.gravel2))
 							soilType = 2;
 						else
 							soilType = 1;
@@ -292,15 +287,17 @@ public class TESluice extends TileEntity implements IInventory
 					processTimeRemaining = 0;
 				}
 
-				while(processTimeRemaining > 100 && soilAmount > 0)
-				{
-					ChunkData cd = TFC_Core.getCDM(worldObj).getData(xCoord >> 4, zCoord >> 4);
-					if(cd.sluicedAmount > 300)
-					{
-						processTimeRemaining = 0;
-						return;
-					}
+				ChunkData cd = TFC_Core.getCDM(worldObj).getData(xCoord >> 4, zCoord >> 4);
 
+				if (TFCOptions.enableOverworkingChunks && cd.sluicedAmount > TFCOptions.sluiceLimit)
+				{
+					processTimeRemaining = 0;
+					soilAmount = -1;
+					return;
+				}
+
+				while (processTimeRemaining > 100 && soilAmount > 0)
+				{
 					float gemMod = 1;
 					float oreMod = 1;
 					if(soilType == 1)
@@ -308,100 +305,100 @@ public class TESluice extends TileEntity implements IInventory
 					else if(soilType == 2)
 						oreMod = 0.6f;
 
-					ArrayList items = new ArrayList<ItemStack>();
+					ArrayList<ItemStack> items = new ArrayList<ItemStack>();
 					if(random.nextInt((int) (200 * oreMod)) == 0 && !coreSampleStacks.isEmpty())
 						addToInventory(coreSampleStacks.get(random.nextInt(coreSampleStacks.size())).copy());
 					else if(random.nextInt((int) (400 * gemMod)) == 0)
 					{
-						items.add(new ItemStack(TFCItems.GemAgate, 1, 0));
-						items.add(new ItemStack(TFCItems.GemAmethyst, 1, 0));
-						items.add(new ItemStack(TFCItems.GemBeryl, 1, 0));
-						items.add(new ItemStack(TFCItems.GemEmerald, 1, 0));
-						items.add(new ItemStack(TFCItems.GemGarnet, 1, 0));
-						items.add(new ItemStack(TFCItems.GemJade, 1, 0));
-						items.add(new ItemStack(TFCItems.GemJasper, 1, 0));
-						items.add(new ItemStack(TFCItems.GemOpal, 1, 0));
-						items.add(new ItemStack(TFCItems.GemRuby, 1, 0));
-						items.add(new ItemStack(TFCItems.GemSapphire, 1, 0));
-						items.add(new ItemStack(TFCItems.GemTourmaline, 1, 0));
-						items.add(new ItemStack(TFCItems.GemTopaz, 1, 0));
+						items.add(new ItemStack(TFCItems.gemAgate, 1, 0));
+						items.add(new ItemStack(TFCItems.gemAmethyst, 1, 0));
+						items.add(new ItemStack(TFCItems.gemBeryl, 1, 0));
+						items.add(new ItemStack(TFCItems.gemEmerald, 1, 0));
+						items.add(new ItemStack(TFCItems.gemGarnet, 1, 0));
+						items.add(new ItemStack(TFCItems.gemJade, 1, 0));
+						items.add(new ItemStack(TFCItems.gemJasper, 1, 0));
+						items.add(new ItemStack(TFCItems.gemOpal, 1, 0));
+						items.add(new ItemStack(TFCItems.gemRuby, 1, 0));
+						items.add(new ItemStack(TFCItems.gemSapphire, 1, 0));
+						items.add(new ItemStack(TFCItems.gemTourmaline, 1, 0));
+						items.add(new ItemStack(TFCItems.gemTopaz, 1, 0));
 						addToInventory((ItemStack)items.toArray()[random.nextInt(items.toArray().length)]);
 					}
 					else if(random.nextInt((int) (800 * gemMod)) == 0)
 					{
-						items.add(new ItemStack(TFCItems.GemAgate, 1, 1));
-						items.add(new ItemStack(TFCItems.GemAmethyst, 1, 1));
-						items.add(new ItemStack(TFCItems.GemBeryl, 1, 1));
-						items.add(new ItemStack(TFCItems.GemEmerald, 1, 1));
-						items.add(new ItemStack(TFCItems.GemGarnet, 1, 1));
-						items.add(new ItemStack(TFCItems.GemJade, 1, 1));
-						items.add(new ItemStack(TFCItems.GemJasper, 1, 1));
-						items.add(new ItemStack(TFCItems.GemOpal, 1, 1));
-						items.add(new ItemStack(TFCItems.GemRuby, 1, 1));
-						items.add(new ItemStack(TFCItems.GemSapphire, 1, 1));
-						items.add(new ItemStack(TFCItems.GemTourmaline, 1, 1));
-						items.add(new ItemStack(TFCItems.GemTopaz, 1, 1));
+						items.add(new ItemStack(TFCItems.gemAgate, 1, 1));
+						items.add(new ItemStack(TFCItems.gemAmethyst, 1, 1));
+						items.add(new ItemStack(TFCItems.gemBeryl, 1, 1));
+						items.add(new ItemStack(TFCItems.gemEmerald, 1, 1));
+						items.add(new ItemStack(TFCItems.gemGarnet, 1, 1));
+						items.add(new ItemStack(TFCItems.gemJade, 1, 1));
+						items.add(new ItemStack(TFCItems.gemJasper, 1, 1));
+						items.add(new ItemStack(TFCItems.gemOpal, 1, 1));
+						items.add(new ItemStack(TFCItems.gemRuby, 1, 1));
+						items.add(new ItemStack(TFCItems.gemSapphire, 1, 1));
+						items.add(new ItemStack(TFCItems.gemTourmaline, 1, 1));
+						items.add(new ItemStack(TFCItems.gemTopaz, 1, 1));
 						addToInventory((ItemStack)items.toArray()[random.nextInt(items.toArray().length)]);
 					}
 					else if(random.nextInt((int) (1600 * gemMod)) == 0)
 					{
-						items.add(new ItemStack(TFCItems.GemAgate, 1, 2));
-						items.add(new ItemStack(TFCItems.GemAmethyst, 1, 2));
-						items.add(new ItemStack(TFCItems.GemBeryl, 1, 2));
-						items.add(new ItemStack(TFCItems.GemEmerald, 1, 2));
-						items.add(new ItemStack(TFCItems.GemGarnet, 1, 2));
-						items.add(new ItemStack(TFCItems.GemJade, 1, 2));
-						items.add(new ItemStack(TFCItems.GemJasper, 1, 2));
-						items.add(new ItemStack(TFCItems.GemOpal, 1, 2));
-						items.add(new ItemStack(TFCItems.GemRuby, 1, 2));
-						items.add(new ItemStack(TFCItems.GemSapphire, 1, 2));
-						items.add(new ItemStack(TFCItems.GemTourmaline, 1, 2));
-						items.add(new ItemStack(TFCItems.GemTopaz, 1, 2));
+						items.add(new ItemStack(TFCItems.gemAgate, 1, 2));
+						items.add(new ItemStack(TFCItems.gemAmethyst, 1, 2));
+						items.add(new ItemStack(TFCItems.gemBeryl, 1, 2));
+						items.add(new ItemStack(TFCItems.gemEmerald, 1, 2));
+						items.add(new ItemStack(TFCItems.gemGarnet, 1, 2));
+						items.add(new ItemStack(TFCItems.gemJade, 1, 2));
+						items.add(new ItemStack(TFCItems.gemJasper, 1, 2));
+						items.add(new ItemStack(TFCItems.gemOpal, 1, 2));
+						items.add(new ItemStack(TFCItems.gemRuby, 1, 2));
+						items.add(new ItemStack(TFCItems.gemSapphire, 1, 2));
+						items.add(new ItemStack(TFCItems.gemTourmaline, 1, 2));
+						items.add(new ItemStack(TFCItems.gemTopaz, 1, 2));
 						addToInventory((ItemStack)items.toArray()[random.nextInt(items.toArray().length)]);
 					}
 					else if(random.nextInt((int) (3200 * gemMod)) == 0)
 					{
-						items.add(new ItemStack(TFCItems.GemAgate, 1, 3));
-						items.add(new ItemStack(TFCItems.GemAmethyst, 1, 3));
-						items.add(new ItemStack(TFCItems.GemBeryl, 1, 3));
-						items.add(new ItemStack(TFCItems.GemEmerald, 1, 3));
-						items.add(new ItemStack(TFCItems.GemGarnet, 1, 3));
-						items.add(new ItemStack(TFCItems.GemJade, 1, 3));
-						items.add(new ItemStack(TFCItems.GemJasper, 1, 3));
-						items.add(new ItemStack(TFCItems.GemOpal, 1, 3));
-						items.add(new ItemStack(TFCItems.GemRuby, 1, 3));
-						items.add(new ItemStack(TFCItems.GemSapphire, 1, 3));
-						items.add(new ItemStack(TFCItems.GemTourmaline, 1, 3));
-						items.add(new ItemStack(TFCItems.GemTopaz, 1, 3));
+						items.add(new ItemStack(TFCItems.gemAgate, 1, 3));
+						items.add(new ItemStack(TFCItems.gemAmethyst, 1, 3));
+						items.add(new ItemStack(TFCItems.gemBeryl, 1, 3));
+						items.add(new ItemStack(TFCItems.gemEmerald, 1, 3));
+						items.add(new ItemStack(TFCItems.gemGarnet, 1, 3));
+						items.add(new ItemStack(TFCItems.gemJade, 1, 3));
+						items.add(new ItemStack(TFCItems.gemJasper, 1, 3));
+						items.add(new ItemStack(TFCItems.gemOpal, 1, 3));
+						items.add(new ItemStack(TFCItems.gemRuby, 1, 3));
+						items.add(new ItemStack(TFCItems.gemSapphire, 1, 3));
+						items.add(new ItemStack(TFCItems.gemTourmaline, 1, 3));
+						items.add(new ItemStack(TFCItems.gemTopaz, 1, 3));
 						addToInventory((ItemStack)items.toArray()[random.nextInt(items.toArray().length)]);
 					}
 					else if(random.nextInt((int) (6400 * gemMod)) == 0)
 					{
-						items.add(new ItemStack(TFCItems.GemAgate, 1, 4));
-						items.add(new ItemStack(TFCItems.GemAmethyst, 1, 4));
-						items.add(new ItemStack(TFCItems.GemBeryl, 1, 4));
-						items.add(new ItemStack(TFCItems.GemEmerald, 1, 4));
-						items.add(new ItemStack(TFCItems.GemGarnet, 1, 4));
-						items.add(new ItemStack(TFCItems.GemJade, 1, 4));
-						items.add(new ItemStack(TFCItems.GemJasper, 1, 4));
-						items.add(new ItemStack(TFCItems.GemOpal, 1, 4));
-						items.add(new ItemStack(TFCItems.GemRuby, 1, 4));
-						items.add(new ItemStack(TFCItems.GemSapphire, 1, 4));
-						items.add(new ItemStack(TFCItems.GemTourmaline, 1, 4));
-						items.add(new ItemStack(TFCItems.GemTopaz, 1, 4));
+						items.add(new ItemStack(TFCItems.gemAgate, 1, 4));
+						items.add(new ItemStack(TFCItems.gemAmethyst, 1, 4));
+						items.add(new ItemStack(TFCItems.gemBeryl, 1, 4));
+						items.add(new ItemStack(TFCItems.gemEmerald, 1, 4));
+						items.add(new ItemStack(TFCItems.gemGarnet, 1, 4));
+						items.add(new ItemStack(TFCItems.gemJade, 1, 4));
+						items.add(new ItemStack(TFCItems.gemJasper, 1, 4));
+						items.add(new ItemStack(TFCItems.gemOpal, 1, 4));
+						items.add(new ItemStack(TFCItems.gemRuby, 1, 4));
+						items.add(new ItemStack(TFCItems.gemSapphire, 1, 4));
+						items.add(new ItemStack(TFCItems.gemTourmaline, 1, 4));
+						items.add(new ItemStack(TFCItems.gemTopaz, 1, 4));
 						addToInventory((ItemStack)items.toArray()[random.nextInt(items.toArray().length)]);
 					}
 					else if(random.nextInt((int) (12800 * gemMod)) == 0)
 					{
 						int r = random.nextInt(50);
 						if(r == 0)
-							addToInventory(new ItemStack(TFCItems.GemDiamond, 1, 3));
+							addToInventory(new ItemStack(TFCItems.gemDiamond, 1, 3));
 						else if(r < 15)
-							addToInventory(new ItemStack(TFCItems.GemDiamond, 1, 2));
+							addToInventory(new ItemStack(TFCItems.gemDiamond, 1, 2));
 						else if(r < 25)
-							addToInventory(new ItemStack(TFCItems.GemDiamond, 1, 1));
+							addToInventory(new ItemStack(TFCItems.gemDiamond, 1, 1));
 						else if(r < 50)
-							addToInventory(new ItemStack(TFCItems.GemDiamond, 1, 0));
+							addToInventory(new ItemStack(TFCItems.gemDiamond, 1, 0));
 					}
 					cd.sluicedAmount++;
 					processTimeRemaining -= 100;

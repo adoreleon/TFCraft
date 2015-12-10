@@ -15,24 +15,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IShearable;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Core.ColorizerFoliageTFC;
-import com.bioxx.tfc.Core.ColorizerGrassTFC;
-import com.bioxx.tfc.Core.Recipes;
-import com.bioxx.tfc.Core.TFC_Climate;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Core.TFC_Sounds;
+import net.minecraftforge.common.IShearable;
+import net.minecraftforge.oredict.OreDictionary;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.*;
+import com.bioxx.tfc.api.TFCItems;
+
 public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 {
-	private static final String[] MetaNames = new String[] {"tallgrass", "fern", "shortgrass"};
+	private static final String[] META_NAMES = new String[] {"tallgrass", "fern", "shortgrass"};
 	@SideOnly(Side.CLIENT)
 	private IIcon[] icons;
 
@@ -41,12 +38,13 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 		super();
 		float var3 = 0.4F;
 		this.setBlockBounds(0.5F - var3, 0.0F, 0.5F - var3, 0.5F + var3, 0.8F, 0.5F + var3);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 	}
 
 	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List list)
 	{
-		for (int i = 0; i < MetaNames.length; ++i)
+		for (int i = 0; i < META_NAMES.length; ++i)
 		{
 			list.add(new ItemStack(item, 1, i));
 		}
@@ -88,21 +86,22 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 	public void harvestBlock(World world, EntityPlayer player, int i, int j, int k, int l)
 	{
 		super.harvestBlock(world, player, i, j, k, l);
-		Random rand = new Random();
+
 		ItemStack is = player.inventory.getCurrentItem();
-		for(int c = 0; c < Recipes.Knives.length && is != null; c++)
+		int[] equipIDs = OreDictionary.getOreIDs(is);
+
+		for (int id : equipIDs)
 		{
-			if(is.getItem() == Recipes.Knives[c])
+			String name = OreDictionary.getOreName(id);
+			if (name.startsWith("itemKnife"))
 			{
 				createStraw(world, player, i, j, k);
 				is.damageItem(1, player);
+				if (is.stackSize == 0)
+					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 				break;
 			}
-		}
-
-		for(int c = 0; c < Recipes.Scythes.length && is != null; c++)
-		{
-			if(is.getItem() == Recipes.Scythes[c])
+			else if (name.startsWith("itemScythe"))
 			{
 				//Spawn the straw for the block that we've already destroyed
 				createStraw(world, player, i, j, k );
@@ -115,6 +114,8 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 						{
 							createStraw(world, player, i + x, j, k + z);
 							is.damageItem(1, player);
+							if (is.stackSize == 0)
+								player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
 							world.setBlockToAir(i + x, j, k + z);
 						}
 					}
@@ -126,13 +127,7 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 
 	private void createStraw(World world, EntityPlayer player, int i, int j, int k)
 	{
-		EntityItem ei = new EntityItem(world, i+0.5F, j+0.5F, k+0.5F, new ItemStack(TFCItems.Straw, 1));
-		world.spawnEntityInWorld(ei);
-	}
-
-	private void createJute(World world, EntityPlayer player, int i, int j, int k)
-	{
-		EntityItem ei = new EntityItem(world, i + 0.5F, j + 0.5F, k + 0.5F, new ItemStack(TFCItems.Jute, 1));
+		EntityItem ei = new EntityItem(world, i+0.5F, j+0.5F, k+0.5F, new ItemStack(TFCItems.straw, 1));
 		world.spawnEntityInWorld(ei);
 	}
 
@@ -141,7 +136,7 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
 		//if (world.rand.nextInt(8) != 0) return ret;
-		ItemStack item = GetSeeds(world.rand);
+		ItemStack item = getSeeds(world.rand);
 		if (item != null)
 			ret.add(item);
 		return ret;
@@ -177,7 +172,7 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 				this.canThisPlantGrowOnThisBlock(world.getBlock(x, y - 1, z));
 	}
 
-	public static ItemStack GetSeeds(Random R)
+	public static ItemStack getSeeds(Random r)
 	{
 		ItemStack is = null;
 		/*if(R.nextInt(100) == 0)
@@ -228,10 +223,10 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 	@Override
 	public void registerBlockIcons(IIconRegister register)
 	{
-		this.icons = new IIcon[MetaNames.length];
+		this.icons = new IIcon[META_NAMES.length];
 		for (int i = 0; i < this.icons.length; ++i)
 		{
-			this.icons[i] = register.registerIcon((i > 1 ? Reference.ModID + ":plants/" : "") + MetaNames[i]);
+			this.icons[i] = register.registerIcon((i > 1 ? Reference.MOD_ID + ":plants/" : "") + META_NAMES[i]);
 		}
 	}
 
@@ -254,7 +249,7 @@ public class BlockCustomTallGrass extends BlockTallGrass implements IShearable
 			if(w.rand.nextInt(Math.max(((int)((160)/(temp-4))),1)) < 2) //chirp intensity grows with higher temperature
 			{
 				float vol = 0.1f + (w.rand.nextFloat() * 0.20F); // keep the volume between 0 and 0.3
-				float pitch = ((temp / 100) * 2) + 0.5F + vol; // the chirp frequency will change depending on the climate temperature
+				float pitch = (temp / 100) * 2 + 0.5F + vol; // the chirp frequency will change depending on the climate temperature
 				w.playSoundEffect(x, y, z, TFC_Sounds.CRICKET, vol, pitch);
 			}
 

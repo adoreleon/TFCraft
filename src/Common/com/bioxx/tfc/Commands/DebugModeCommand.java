@@ -5,6 +5,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Handlers.Network.AbstractPacket;
+import com.bioxx.tfc.Handlers.Network.DebugModePacket;
 import com.bioxx.tfc.api.TFCOptions;
 
 public class DebugModeCommand extends CommandBase
@@ -25,13 +29,16 @@ public class DebugModeCommand extends CommandBase
 			if (TFCOptions.enableDebugMode)
 			{
 				TFCOptions.enableDebugMode = false;
-				player.addChatMessage(new ChatComponentText("Debug Mode Disabled"));
+				TFC_Core.sendInfoMessage(player, new ChatComponentText("Debug Mode Disabled"));
 			}
 			else
 			{
 				TFCOptions.enableDebugMode = true;
-				player.addChatMessage(new ChatComponentText("Debug Mode Enabled"));
+				TFC_Core.sendInfoMessage(player, new ChatComponentText("Debug Mode Enabled"));
 			}
+
+			AbstractPacket pkt = new DebugModePacket(player);
+			TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, player);
 		}
 	}
 

@@ -8,27 +8,27 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import org.lwjgl.opengl.GL11;
 
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Entities.Mobs.EntityFishTFC;
-import com.bioxx.tfc.Render.Models.ModelBass;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class RenderFishTFC extends RenderLiving
 {
-	private static final ResourceLocation Texture = new ResourceLocation(Reference.ModID, "textures/mob/Bass.png");
-	private float scale = 1f;
-	private ModelBass modelbass;
+	private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/mob/Bass.png");
+
+	//private float scale = 1f;
+	//private ModelBass modelbass;
 
 	public RenderFishTFC (ModelBase par1ModelBase, float par2)
 	{
 		super (par1ModelBase, par2);
-		modelbass = (ModelBass) par1ModelBase;
+		//modelbass = (ModelBass) par1ModelBase;
 	}
 
 
@@ -44,7 +44,8 @@ public class RenderFishTFC extends RenderLiving
 		
 		//float pitch = ((EntityFishTFC) par1EntityLiving).currentRenderPitch;
 		//GL11.glRotatef(pitch, 1, 0, 0);
-		if(!par1EntityLiving.isInWater() && (!TFC_Core.isWater(blockBelow))){
+		if (!par1EntityLiving.isInWater() && !TFC_Core.isWater(blockBelow))
+		{
 			GL11.glRotatef(((EntityFishTFC) par1EntityLiving).currentRenderRoll, 0.0F, 0.0F, 1.0F);
 			GL11.glTranslatef(-0.15f, 1.5f, -0.8f);
 		}
@@ -58,11 +59,11 @@ public class RenderFishTFC extends RenderLiving
 	protected void rotateCorpse(EntityLivingBase par1EntityLivingBase, float par2, float par3, float par4)
     {
 		float temp = ((EntityFishTFC)par1EntityLivingBase).currentRenderYaw;
-        GL11.glRotatef(temp/*par3*/, 0.0F, 1.0F, 0.0F);
-
+        GL11.glRotatef(temp, 0.0F, 1.0F, 0.0F);
+        
         if (par1EntityLivingBase.deathTime > 0)
         {
-            float f3 = ((float)par1EntityLivingBase.deathTime + par4 - 1.0F) / 20.0F * 1.6F;
+			float f3 = (par1EntityLivingBase.deathTime + par4 - 1.0F) / 20.0F * 1.6F;
             f3 = MathHelper.sqrt_float(f3);
 
             if (f3 > 1.0F)
@@ -106,6 +107,6 @@ public class RenderFishTFC extends RenderLiving
 	@Override
 	protected ResourceLocation getEntityTexture(Entity entity) {
 		// TODO Auto-generated method stub
-		return Texture;
+		return TEXTURE;
 	}
 }

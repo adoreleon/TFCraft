@@ -5,24 +5,24 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.api.TFCOptions;
-
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import com.bioxx.tfc.Blocks.Devices.BlockGrill;
 
 public class RenderGrill  implements ISimpleBlockRenderingHandler 
 {
-	static float pixel3 = 3f/16f;
-	static float pixel5 = 5f/16f;
-	static float pixel12 = 12f/16f;
-	static float pixel14 = 14f/16f;
+	/*private static float pixel3 = 3f / 16f;
+	private static float pixel5 = 5f / 16f;
+	private static float pixel12 = 12f / 16f;
+	private static float pixel14 = 14f / 16f;*/
 
 	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int i, int j, int k, Block block, int modelId, RenderBlocks renderer)
 	{
-		IBlockAccess blockAccess = renderer.blockAccess;
-		if(!TFCOptions.use2DGrill)
+		//IBlockAccess blockAccess = renderer.blockAccess;
+		/*if(!TFCOptions.use2DGrill)
 		{
 			renderer.renderAllFaces = true;
 			renderer.setRenderBounds(0.0F, -0.05F, 0.0F, 0.05F, 0.0F, 1.0F);//minX edge
@@ -52,10 +52,15 @@ public class RenderGrill  implements ISimpleBlockRenderingHandler
 			renderer.renderAllFaces = false;
 		}
 		else
-		{ 
-			renderer.setRenderBounds(0.0F, -0.05F, 0.0F, 1F, 0.0F, 1.0F);
+		{ */
+			BlockGrill grill = (BlockGrill) block;
+			int meta = world.getBlockMetadata(i, j, k);
+
+			if (!grill.isGrillOpen(meta))
+				renderer.setRenderBounds(0.0F, -0.05F, 0.0F, 1F, 0.0F, 1.0F);
+
 			renderer.renderStandardBlock(block, i, j, k);
-		}
+		//}
 		return true;
 	}
 
@@ -70,7 +75,7 @@ public class RenderGrill  implements ISimpleBlockRenderingHandler
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer)
 	{
-		if(!TFCOptions.use2DGrill)
+		/*if(!TFCOptions.use2DGrill)
 		{
 			renderer.setRenderBounds(0.0F, 0.5F, 0.0F, 0.05F, 0.55F, 1.0F);//minX edge
 			renderInvBlock(block, metadata, renderer);
@@ -98,10 +103,10 @@ public class RenderGrill  implements ISimpleBlockRenderingHandler
 			renderInvBlock(block, metadata, renderer);
 		}
 		else 
-		{
+		{*/
 			renderer.setRenderBounds(0.0F, 0.5F, 0.0F, 1F, 0.55F, 1.0F);
 			renderInvBlock(block, metadata, renderer);
-		};
+		//};
 	}
 
 	@Override

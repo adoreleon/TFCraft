@@ -2,40 +2,37 @@ package com.bioxx.tfc.Containers;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Containers.Slots.SlotBlocked;
 import com.bioxx.tfc.Containers.Slots.SlotFoodOnly;
 import com.bioxx.tfc.Containers.Slots.SlotSize;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.TileEntities.TEFoodPrep;
-import com.bioxx.tfc.api.Enums.EnumFoodGroup;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Enums.EnumSize;
-import com.bioxx.tfc.api.Interfaces.IFood;
 
 public class ContainerFoodPrep extends ContainerTFC
 {
-	private World world;
-	private int posX;
-	private int posY;
-	private int posZ;
+	//private World world;
+	//private int posX;
+	//private int posY;
+	//private int posZ;
 	private TEFoodPrep te;
 	private EntityPlayer player;
-	int guiTab = 0;
+	private int guiTab;
 
 	public ContainerFoodPrep(InventoryPlayer playerinv, TEFoodPrep pile, World world, int x, int y, int z, int tab)
 	{
 		this.player = playerinv.player;
 		this.te = pile;
-		this.world = world;
-		this.posX = x;
-		this.posY = y;
-		this.posZ = z;
+		//this.world = world;
+		//this.posX = x;
+		//this.posY = y;
+		//this.posZ = z;
 		guiTab = tab;
 		pile.openInventory();
 		layoutContainer(playerinv, pile, 0, 0);
@@ -63,29 +60,29 @@ public class ContainerFoodPrep extends ContainerTFC
 	{
 		if(guiTab == 0)
 		{
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 0, 43, 11).addItemInclusion(TFCItems.WheatBread, TFCItems.BarleyBread, TFCItems.OatBread, 
-					TFCItems.RyeBread, TFCItems.RiceBread, TFCItems.CornBread).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 1, 61, 11).addFGException(EnumFoodGroup.Grain).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 2, 79, 11).addFGException(EnumFoodGroup.Grain).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 3, 97, 11).addFGException(EnumFoodGroup.Grain).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 4, 115, 11).addFGException(EnumFoodGroup.Grain).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 0, 44, 24).addItemInclusion(TFCItems.wheatBread, TFCItems.barleyBread, TFCItems.oatBread,
+					TFCItems.ryeBread, TFCItems.riceBread, TFCItems.cornBread).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 1, 62, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 2, 80, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 3, 98, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 4, 116, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
 			/*this.addSlotToContainer(new SlotFoodOnly(chestInventory, 5, 125, 11).addItemInclusion(TFCItems.WheatBread, TFCItems.BarleyBread, TFCItems.OatBread, 
 					TFCItems.RyeBread, TFCItems.RiceBread, TFCItems.CornBread).setSize(EnumSize.HUGE));*/
 		}
 		else if(guiTab == 1)
 		{
-			this.addSlotToContainer(new SlotBlocked(chestInventory, 0, 16, 26));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 1, 53, 11).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 2, 71, 11).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 3, 89, 11).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
-			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 4, 107, 11).addItemException(TFCItems.WoodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotBlocked(chestInventory, 0, 15, 8));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 1, 53, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 2, 71, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 3, 89, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
+			this.addSlotToContainer(new SlotFoodOnly(chestInventory, 4, 107, 24).addItemException(TFCItems.woodenBucketMilk).setSize(EnumSize.HUGE));
 			/*this.addSlotToContainer(new SlotBlocked(chestInventory, 5, 16, 44));*/
 		}
-		this.addSlotToContainer(new SlotBlocked(chestInventory, 6, 80, 35));
-		this.addSlotToContainer(new SlotSize(chestInventory, 7, 53, 59).setSize(EnumSize.SMALL));
-		this.addSlotToContainer(new SlotSize(chestInventory, 8, 71, 59).setSize(EnumSize.SMALL));
-		this.addSlotToContainer(new SlotSize(chestInventory, 9, 89, 59).setSize(EnumSize.SMALL));
-		this.addSlotToContainer(new SlotSize(chestInventory, 10, 107, 59).setSize(EnumSize.SMALL));
+		this.addSlotToContainer(new SlotBlocked(chestInventory, 6, 53, 46));
+		this.addSlotToContainer(new SlotSize(chestInventory, 7, 145, 8).setSize(EnumSize.SMALL));
+		this.addSlotToContainer(new SlotSize(chestInventory, 8, 145, 26).setSize(EnumSize.SMALL));
+		this.addSlotToContainer(new SlotSize(chestInventory, 9, 145, 44).setSize(EnumSize.SMALL));
+		this.addSlotToContainer(new SlotSize(chestInventory, 10, 145, 62).setSize(EnumSize.SMALL));
 	}
 
 	public EntityPlayer getPlayer()
@@ -94,41 +91,40 @@ public class ContainerFoodPrep extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer player, int clickedIndex)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		ItemStack returnedStack = null;
-		Slot clickedSlot = (Slot)this.inventorySlots.get(clickedIndex);
+		ItemStack origStack = null;
+		Slot slot = (Slot)this.inventorySlots.get(slotNum);
 
-		if (clickedSlot != null
-				&& clickedSlot.getHasStack()
-				&& (clickedSlot.getStack().getItem() instanceof IFood || clickedSlot.getStack().getItem() == Items.bowl))
+		if (slot != null && slot.getHasStack())
 		{
-			ItemStack clickedStack = clickedSlot.getStack();
-			returnedStack = clickedStack.copy();
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
 
-			if (clickedIndex < 11)
+			// From food prep to inventory
+			if (slotNum < 10)
 			{
-				if (!this.mergeItemStack(clickedStack, 11, inventorySlots.size(), true))
+				if (!this.mergeItemStack(slotStack, 10, inventorySlots.size(), true))
 					return null;
 			}
-			else if (clickedIndex >= 11 && clickedIndex < inventorySlots.size())
-			{
-				//if (!this.mergeItemStack(clickedStack, 0, 11, false))
-				return null;
-			}
-			else if (!this.mergeItemStack(clickedStack, 11, inventorySlots.size(), false))
-				return null;
-
-			if (clickedStack.stackSize == 0)
-				clickedSlot.putStack((ItemStack)null);
+			// Slot exception lists already handle what should go where
 			else
-				clickedSlot.onSlotChanged();
+			{
+				if (!this.mergeItemStack(slotStack, 0, 10, false))
+					return null;
+			}
 
-			if (clickedStack.stackSize == returnedStack.stackSize)
+			if (slotStack.stackSize <= 0)
+				slot.putStack(null);
+			else
+				slot.onSlotChanged();
+
+			if (slotStack.stackSize == origStack.stackSize)
 				return null;
 
-			clickedSlot.onPickupFromSlot(player, clickedStack);
+			slot.onPickupFromSlot(player, slotStack);
 		}
-		return returnedStack;
+
+		return origStack;
 	}
 }

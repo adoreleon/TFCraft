@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.util.IIcon;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class RenderBlocksLightCache extends RenderBlocksFixUV
@@ -16,8 +17,8 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 	
 	private static class RenderPointData
 	{
-		int brightness;
-		float r,g,b;
+		private int brightness;
+		private float r, g, b;
 	};
 	
 	private static class RenderFaceData
@@ -88,8 +89,8 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 			double highBottom = (cacheBrightnessBottomLeft >> 16 & 0xff) * leftRight + (1.0d - leftRight) * (cacheBrightnessBottomRight >> 16 & 0xff);
 			int high = ((int) (highTop * topBottom + highBottom * (1.0d - topBottom))) & 0xff;
 			
-			double lowTop = ((cacheBrightnessTopLeft & 0xff)) * leftRight + (1.0d - leftRight) * ((cacheBrightnessTopRight & 0xff));
-			double lowBottom = ((cacheBrightnessBottomLeft & 0xff)) * leftRight + (1.0d - leftRight) * ((cacheBrightnessBottomRight & 0xff));
+			double lowTop = (cacheBrightnessTopLeft & 0xff) * leftRight + (1.0d - leftRight) * (cacheBrightnessTopRight & 0xff);
+			double lowBottom = (cacheBrightnessBottomLeft & 0xff) * leftRight + (1.0d - leftRight) * (cacheBrightnessBottomRight & 0xff);
 			int low = ((int) (lowTop * topBottom + lowBottom * (1.0d - topBottom))) & 0xff;
 			
 			// merge sky and block light.
@@ -230,7 +231,7 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 		colorBlueBottomLeft		= rpd.b;
 		brightnessBottomLeft	= rpd.brightness;
 		
-		renderFaceXPos(block, (double)i, (double)j, (double)k, myTexture );
+		renderFaceXPos(block, i, j, k, myTexture);
 		
 		
 		rpd = sides[ ForgeDirection.WEST.ordinal() ].getCachedValue( renderMaxY, renderMaxZ );
@@ -257,7 +258,7 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 		colorBlueTopRight	= rpd.b;
 		brightnessTopRight	= rpd.brightness;
 		
-		renderFaceXNeg(block, (double)i, (double)j, (double)k, myTexture );
+		renderFaceXNeg(block, i, j, k, myTexture);
 		
 		
 		rpd = sides[ ForgeDirection.SOUTH.ordinal() ].getCachedValue( 1.0d - renderMinX, renderMaxY );
@@ -284,7 +285,7 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 		colorBlueTopRight	= rpd.b;
 		brightnessTopRight	= rpd.brightness;
 		
-		renderFaceZPos(block, (double)i, (double)j, (double)k, myTexture );
+		renderFaceZPos(block, i, j, k, myTexture);
 		
 		
 		rpd = sides[ ForgeDirection.NORTH.ordinal() ].getCachedValue( renderMaxY, 1.0d - renderMinX );
@@ -311,7 +312,7 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 		colorBlueBottomLeft		= rpd.b;
 		brightnessBottomLeft	= rpd.brightness;
 		
-		renderFaceZNeg(block, (double)i, (double)j, (double)k, myTexture );
+		renderFaceZNeg(block, i, j, k, myTexture);
 		
 		
 		rpd = sides[ ForgeDirection.UP.ordinal() ].getCachedValue( renderMaxX, renderMaxZ );
@@ -338,7 +339,7 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 		colorBlueTopRight	= rpd.b;
 		brightnessTopRight	= rpd.brightness;
 		
-		renderFaceYPos(block, (double)i, (double)j, (double)k, myTexture );
+		renderFaceYPos(block, i, j, k, myTexture);
 		
 		
 		rpd = sides[ ForgeDirection.DOWN.ordinal() ].getCachedValue( 1.0d - renderMinX, renderMaxZ );
@@ -365,7 +366,7 @@ public class RenderBlocksLightCache extends RenderBlocksFixUV
 		colorBlueTopRight	= rpd.b;
 		brightnessTopRight	= rpd.brightness;
 		
-		renderFaceYNeg(block, (double)i, (double)j, (double)k, myTexture );
+		renderFaceYNeg(block, i, j, k, myTexture);
 		
 		
 		enableAO = false;

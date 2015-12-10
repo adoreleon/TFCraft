@@ -8,36 +8,37 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFC_Sounds;
 import com.bioxx.tfc.Core.Player.SkillStats.SkillRank;
 import com.bioxx.tfc.Items.ItemTerra;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
 
 public class ItemGoldPan extends ItemTerra
 {
-	public static String[] MetaNames = {"", "Sand", "Gravel", "Clay", "Dirt"};
-	public IIcon[] icons = new IIcon[MetaNames.length];
+	public static String[] metaNames = {"", "Sand", "Gravel", "Clay", "Dirt"};
+	public IIcon[] icons = new IIcon[metaNames.length];
 
-	private int useTimer = 0;
+	//private int useTimer = 0;
 	public ItemGoldPan() 
 	{
 		super();
 		setMaxDamage(0);
 		setHasSubtypes(true);
-		setCreativeTab(TFCTabs.TFCTools);
+		setCreativeTab(TFCTabs.TFC_TOOLS);
 	}
 
 	@Override
@@ -50,6 +51,12 @@ public class ItemGoldPan extends ItemTerra
 	public int getItemStackLimit()
 	{
 		return 1;
+	}
+
+	@Override
+	public boolean canStack()
+	{
+		return false;
 	}
 
 	@Override
@@ -70,11 +77,11 @@ public class ItemGoldPan extends ItemTerra
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		icons[0] = registerer.registerIcon(Reference.ModID + ":" + "tools/GoldPan_0");
-		icons[1] = registerer.registerIcon(Reference.ModID + ":" + "tools/GoldPan_1");
-		icons[2] = registerer.registerIcon(Reference.ModID + ":" + "tools/GoldPan_2");
-		icons[3] = registerer.registerIcon(Reference.ModID + ":" + "tools/GoldPan_3");
-		icons[4] = registerer.registerIcon(Reference.ModID + ":" + "tools/GoldPan_4");
+		icons[0] = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/GoldPan_0");
+		icons[1] = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/GoldPan_1");
+		icons[2] = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/GoldPan_2");
+		icons[3] = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/GoldPan_3");
+		icons[4] = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/GoldPan_4");
 	}
 
 	@Override
@@ -83,7 +90,7 @@ public class ItemGoldPan extends ItemTerra
 		if(world.isRemote)
 			return is;
 
-		float distMod = 1.0F;
+		//float distMod = 1.0F;
 		MovingObjectPosition mop = getMovingObjectPositionFromPlayer(world, player, true);
 
 		if (mop == null)
@@ -100,18 +107,25 @@ public class ItemGoldPan extends ItemTerra
 			{
 				if(is.getItemDamage() == 0)
 				{
+					// Prevents "quick-panning"
+					if (world.getBlock(x, y + 1, z).getMaterial() == Material.water)
+					{
+						return is;
+					}
+
 					ChunkData cd = TFC_Core.getCDM(world).getData(x >> 4, z >> 4);
 
 					// Make sure our chunk data isn't null.
 					if(cd == null)
 					{
-						player.addChatMessage(new ChatComponentText("The ChunkData returned null, please report this to the developer."));
+						TFC_Core.sendInfoMessage(player, new ChatComponentText("The ChunkData returned null, please report this to the developer."));
 						return is;
 					}
 
-					if(cd.sluicedAmount < 50)
+					// Overworking is disabled, or the cap has not yet been reached.
+					if (cd.sluicedAmount < TFCOptions.goldPanLimit || !TFCOptions.enableOverworkingChunks)
 					{
-						if(world.getBlock(x, y, z) == TFCBlocks.Gravel || world.getBlock(x, y, z) == TFCBlocks.Gravel2)
+						if (TFC_Core.isGravel(blockHit))
 						{
 							is.setItemDamage((5 << 4) + 2);
 							if(world.rand.nextInt(10) == 0)
@@ -119,7 +133,7 @@ public class ItemGoldPan extends ItemTerra
 							TFC_Core.addPlayerExhaustion(player, 0.0005f);
 							cd.sluicedAmount++;
 						}
-						else if(world.getBlock(x, y, z) == TFCBlocks.Sand || world.getBlock(x, y, z) == TFCBlocks.Sand2)
+						else if (TFC_Core.isSand(blockHit))
 						{
 							is.setItemDamage((5 << 4) + 1);
 							if(world.rand.nextInt(10) == 0)
@@ -127,44 +141,25 @@ public class ItemGoldPan extends ItemTerra
 							TFC_Core.addPlayerExhaustion(player, 0.0005f);
 							cd.sluicedAmount++;
 						}
-						else if(world.getBlock(x, y, z).getMaterial() == Material.water)
-						{
-							/*if(world.getBlock(x, y-1, z) == Blocks.gravel)
-							{
-								is.setItemDamage((5 << 4) + 2);
-								if(world.rand.nextInt(10) == 0)
-									world.setBlockToAir(x, y-1, z);
-								TFC_Core.addPlayerExhaustion(player, 0.0005f);
-								cd.sluicedAmount++;
-							}
-							else if(world.getBlock(x, y-1, z) == TFCBlocks.Sand || world.getBlock(x, y-1, z) == TFCBlocks.Sand2)
-							{
-								is.setItemDamage((5 << 4) + 1);
-								if(world.rand.nextInt(10) == 0)
-									world.setBlockToAir(x, y-1, z);
-								TFC_Core.addPlayerExhaustion(player, 0.0005f);
-								cd.sluicedAmount++;
-							}*/
-						}
 					}
 					else
 					{
-						player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("gui.goldpan.overused")));
+						TFC_Core.sendInfoMessage(player, new ChatComponentTranslation("gui.goldpan.overused"));
 					}
 				}
 				else
 				{
 					int bMeta = world.getBlockMetadata(x, y + 1, z);
-					if(world.getBlock(x, y + 1, z).getMaterial() == Material.water && bMeta > 0)
+					if (world.getBlock(x, y + 1, z).getMaterial() == Material.water && bMeta > 0 && mop.sideHit == 1)
 					{
-						int uses = (is.getItemDamage() >> 4);
+						int uses = is.getItemDamage() >> 4;
 						if(uses > 0)
 						{
 							int type = getMetalToDrop(world, player, x, y + 1, z);
 
 							if(type != -1)
 							{
-								ItemStack out = new ItemStack(TFCItems.SmallOreChunk, 1, type);
+								ItemStack out = new ItemStack(TFCItems.smallOreChunk, 1, type);
 								world.playSoundAtEntity(player, "random.pop", 0.7F, world.rand.nextFloat() + 1);
 								if(!player.inventory.addItemStackToInventory(out))
 								{
@@ -174,10 +169,22 @@ public class ItemGoldPan extends ItemTerra
 							}
 							uses--;
 							if(uses > 0)
-								is.setItemDamage((is.getItemDamage() & 15) + (uses << 4));
+								is.setItemDamage((is.getItemDamage() & 15) + (uses << 4)); //NOPMD
 							else
-								is.setItemDamage(0);
+							{
+								if (world.rand.nextInt(100) == 0)
+								{
+									world.playSoundAtEntity(player, TFC_Sounds.CERAMICBREAK, 0.7f, player.worldObj.rand.nextFloat() * 0.2F + 0.8F);
+									is.stackSize--;
+								}
+								else
+									is.setItemDamage(0);
+							}
 						}
+					}
+					else
+					{
+						TFC_Core.sendInfoMessage(player, new ChatComponentTranslation("gui.goldpan.useFlowing"));
 					}
 				}
 			}
@@ -188,9 +195,9 @@ public class ItemGoldPan extends ItemTerra
 	private int getMetalToDrop(World world, EntityPlayer player, int x, int y, int z)
 	{
 		int type = -1;
-		int chunk_X = (x >> 4) << 4;
-		int chunk_Z = (z >> 4) << 4;
-		Random rand = new Random(world.getSeed() + ((chunk_X >> 3) - (chunk_Z >> 3)) * (chunk_Z >> 3));
+		int chunkX = (x >> 4) << 4;
+		int chunkZ = (z >> 4) << 4;
+		Random rand = new Random(world.getSeed() + ((chunkX >> 3) - (chunkZ >> 3)) * (chunkZ >> 3));
 		int randType = rand.nextInt(100);
 		SkillRank rank = TFC_Core.getSkillStats(player).getSkillRank(Global.SKILL_PROSPECTING);
 		float skillMod = 1-rank.ordinal()*0.111f;

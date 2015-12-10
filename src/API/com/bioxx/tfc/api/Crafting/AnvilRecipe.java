@@ -1,6 +1,7 @@
 package com.bioxx.tfc.api.Crafting;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,31 +13,33 @@ import com.bioxx.tfc.api.Constant.Global;
 
 public class AnvilRecipe
 {
-	ItemStack result;
-	String plan = "";
-	ItemStack input1;
-	ItemStack input2;
-	boolean flux;
-	int craftingValue;
-	int anvilreq;
-	boolean inheritsDamage;
+	public ItemStack result;
+	public String plan = "";
+	public ItemStack input1;
+	public ItemStack input2;
+	public boolean flux;
+	public int craftingValue;
+	public int anvilreq;
+	public boolean inheritsDamage;
 	public int craftingXP = 1;
-	public ArrayList<String> skillsList = new ArrayList<String>();
-	private static int craftingBoundDefault = 50;
+	public List<String> skillsList = new ArrayList<String>();
+	public static int craftingBoundDefault = 50;
 
 	public AnvilRecipe(ItemStack in, ItemStack in2, String p, boolean flux, AnvilReq req, ItemStack result)
 	{
-		this(in, in2, p.toLowerCase(), 70 + new Random((in != null ? Item.getIdFromItem(in.getItem()) : 0) + (result != null ? Item.getIdFromItem(result.getItem()) : 0)).nextInt(craftingBoundDefault), flux, req.Tier, result);
+		this(in, in2, p.toLowerCase(), 0, flux, req.Tier, result);
+		this.craftingValue = 70 + new Random(TFC_Core.getSuperSeed(AnvilManager.world)+(in != null ? Item.getIdFromItem(in.getItem()) : 0) + (result != null ? Item.getIdFromItem(result.getItem()) : 0)).nextInt(craftingBoundDefault);
 	}
 
 	public AnvilRecipe(ItemStack in, ItemStack in2, String p, AnvilReq req, ItemStack result)
 	{
-		this(in, in2, p.toLowerCase(), 70 + new Random((in != null ? Item.getIdFromItem(in.getItem()) : 0) + (result != null ? Item.getIdFromItem(result.getItem()) : 0)).nextInt(craftingBoundDefault), false, req.Tier, result);
+		this(in, in2, p.toLowerCase(), 0, false, req.Tier, result);
+		this.craftingValue = 70 + new Random(TFC_Core.getSuperSeed(AnvilManager.world)+(in != null ? Item.getIdFromItem(in.getItem()) : 0) + (result != null ? Item.getIdFromItem(result.getItem()) : 0)).nextInt(craftingBoundDefault);
 	}
 
-	public AnvilRecipe SetCraftingBound(int max)
+	public AnvilRecipe setCraftingBound(int max)
 	{
-		craftingValue = 70 + new Random((input1 != null ? Item.getIdFromItem(input1.getItem()) : 0) + (result != null ? Item.getIdFromItem(result.getItem()) : 0)).nextInt(max);
+		craftingValue = 70 + new Random(TFC_Core.getSuperSeed(AnvilManager.world)+(input1 != null ? Item.getIdFromItem(input1.getItem()) : 0) + (result != null ? Item.getIdFromItem(result.getItem()) : 0)).nextInt(max);
 		return this;
 	}
 
@@ -115,40 +118,38 @@ public class AnvilRecipe
 	/**
 	 * Used to check if a recipe matches current crafting inventory
 	 */    
-	public boolean matches(AnvilRecipe A)
+	public boolean matches(AnvilRecipe recipe)
 	{   
-		if(     areItemStacksEqual(input1, A.input1) && 
-				areItemStacksEqual(input2, A.input2) &&
-				plan.equals(A.plan) &&
-				AnvilReq.matches(anvilreq, A.anvilreq))
+		if(     areItemStacksEqual(input1, recipe.input1) && 
+				areItemStacksEqual(input2, recipe.input2) &&
+				plan.equals(recipe.plan) &&
+				AnvilReq.matches(anvilreq, recipe.anvilreq))
 		{
-			if(this.flux && !A.flux)
-				return false;
-			return true;
+			return !this.flux || recipe.flux;
 		}
 		return false;
 	}
 
-	public boolean isComplete(AnvilManager am, AnvilRecipe A, int[] rules)
+	public boolean isComplete(AnvilManager am, AnvilRecipe recipe, int[] rules)
 	{
-		PlanRecipe pr = am.getPlan(A.plan);
-		if(     areItemStacksEqual(input1, A.input1) && 
-				areItemStacksEqual(input2, A.input2) &&
-				plan.equals(A.plan) &&
+		PlanRecipe pr = am.getPlan(recipe.plan);
+		if(     areItemStacksEqual(input1, recipe.input1) && 
+				areItemStacksEqual(input2, recipe.input2) &&
+				plan.equals(recipe.plan) &&
 				pr.rules[0].matches(rules, 0) && pr.rules[1].matches(rules, 1) && pr.rules[2].matches(rules, 2) && 
-				craftingValue == A.craftingValue && AnvilReq.matches(anvilreq, A.anvilreq))
-			if(this.flux && A.flux)
+				craftingValue == recipe.craftingValue && AnvilReq.matches(anvilreq, recipe.anvilreq))
+			if(this.flux && recipe.flux)
 				return true;
 			else if (!this.flux)
 				return true;
 		return false;
 	}
 
-	public boolean isComplete(AnvilRecipe A)
+	public boolean isComplete(AnvilRecipe recipe)
 	{
-		if(A.input1 == this.input1 && A.input2 == input2 && 
-				craftingValue == A.craftingValue && plan.equals(A.plan) && AnvilReq.matches(anvilreq, A.anvilreq))
-			if(this.flux && A.flux)
+		if(recipe.input1 == this.input1 && recipe.input2 == input2 && 
+				craftingValue == recipe.craftingValue && plan.equals(recipe.plan) && AnvilReq.matches(anvilreq, recipe.anvilreq))
+			if(this.flux && recipe.flux)
 				return true;
 			else if (!this.flux)
 				return true;
@@ -157,16 +158,15 @@ public class AnvilRecipe
 
 	private boolean areItemStacksEqual(ItemStack is1, ItemStack is2)
 	{
-		if(is1 == null && is2 == null)
-			return true;
+		if (is1 != null && is2 != null)
+		{
+			if (is1.getItem() != is2.getItem())
+				return false;
 
-		if((is1 == null && is2 != null) || (is1 != null && is2 == null)) 
-			return false;
-
-		if(is1.getItem() != is2.getItem())
-			return false;
-
-		if(is1.getItemDamage() != 32767 && is1.getItemDamage() != is2.getItemDamage())
+			if (is1.getItemDamage() != 32767 && is1.getItemDamage() != is2.getItemDamage())
+				return false;
+		}
+		else if (is1 == null && is2 != null || is1 != null && is2 == null) // XOR, if both are null return true
 			return false;
 
 		return true;
@@ -210,6 +210,46 @@ public class AnvilRecipe
 		if(total > 0)
 			return skill/total;
 		return 0;
+	}
+
+	public String getPlan()
+	{
+		return plan;
+	}
+
+	public ItemStack getInput1()
+	{
+		return input1;
+	}
+
+	public ItemStack getInput2()
+	{
+		return input2;
+	}
+
+	public boolean isFlux()
+	{
+		return flux;
+	}
+
+	public int getAnvilreq()
+	{
+		return anvilreq;
+	}
+
+	public boolean isInheritsDamage()
+	{
+		return inheritsDamage;
+	}
+
+	public int getCraftingXP()
+	{
+		return craftingXP;
+	}
+
+	public List<String> getSkillsList()
+	{
+		return skillsList;
 	}
 }
 

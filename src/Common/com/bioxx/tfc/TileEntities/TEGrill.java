@@ -8,33 +8,32 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+
 import net.minecraftforge.common.MinecraftForge;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.api.Food;
-import com.bioxx.tfc.api.HeatIndex;
-import com.bioxx.tfc.api.HeatRegistry;
-import com.bioxx.tfc.api.TFC_ItemHeat;
+import com.bioxx.tfc.api.*;
 import com.bioxx.tfc.api.Enums.EnumFuelMaterial;
 import com.bioxx.tfc.api.Events.ItemCookEvent;
 import com.bioxx.tfc.api.Interfaces.ICookableFood;
 import com.bioxx.tfc.api.Interfaces.IFood;
 import com.bioxx.tfc.api.TileEntities.TEFireEntity;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class TEGrill extends NetworkTileEntity implements IInventory
 {
 	public ItemStack[] storage = new ItemStack[6];
+	public byte data;
 
 	@Override
 	public void updateEntity()
 	{
 		TFC_Core.handleItemTicking(this, worldObj, xCoord, yCoord, zCoord);
-		boolean oven = isOven();
+		//boolean oven = isOven();
 		for (int i = 0; i < 6; i++)
 		{
 			careForInventorySlot(storage[i]);
@@ -46,8 +45,7 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord +1, yCoord + 1, zCoord + 1);
-		return bb;
+		return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1);
 	}
 
 	public boolean isOven()
@@ -65,35 +63,32 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 		if(TFC_Core.isBottomFaceSolid(worldObj, xCoord, yCoord+1, zCoord))//Top Block
 			wallCount++;
 
-		if(worldObj.getBlock(xCoord-1, yCoord, zCoord) == TFCBlocks.MetalTrapDoor)
+		if(worldObj.getBlock(xCoord-1, yCoord, zCoord) == TFCBlocks.metalTrapDoor)
 		{
 			TEMetalTrapDoor te = (TEMetalTrapDoor) worldObj.getTileEntity(xCoord-1, yCoord, zCoord);
 			if(te.getSide() == 4)
 				wallCount++;
 		}
-		else if(worldObj.getBlock(xCoord+1, yCoord, zCoord) == TFCBlocks.MetalTrapDoor)
+		else if(worldObj.getBlock(xCoord+1, yCoord, zCoord) == TFCBlocks.metalTrapDoor)
 		{
 			TEMetalTrapDoor te = (TEMetalTrapDoor) worldObj.getTileEntity(xCoord+1, yCoord, zCoord);
 			if(te.getSide() == 5)
 				wallCount++;
 		}
-		else if(worldObj.getBlock(xCoord, yCoord, zCoord-1) == TFCBlocks.MetalTrapDoor)
+		else if(worldObj.getBlock(xCoord, yCoord, zCoord-1) == TFCBlocks.metalTrapDoor)
 		{
 			TEMetalTrapDoor te = (TEMetalTrapDoor) worldObj.getTileEntity(xCoord, yCoord, zCoord-1);
 			if(te.getSide() == 2)
 				wallCount++;
 		}
-		else if(worldObj.getBlock(xCoord, yCoord, zCoord+1) == TFCBlocks.MetalTrapDoor)
+		else if(worldObj.getBlock(xCoord, yCoord, zCoord+1) == TFCBlocks.metalTrapDoor)
 		{
 			TEMetalTrapDoor te = (TEMetalTrapDoor) worldObj.getTileEntity(xCoord, yCoord, zCoord+1);
 			if(te.getSide() == 3)
 				wallCount++;
 		}
 
-		if(wallCount < 5)
-			return false;
-
-		return true;
+		return wallCount >= 5;
 	}
 
 	public boolean isDoor(int x, int y, int z)
@@ -104,58 +99,66 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 
 	public void careForInventorySlot(ItemStack is)
 	{
-		if(is != null && worldObj.getTileEntity(xCoord, yCoord-1, zCoord) != null)
+		TileEntity te = worldObj.getTileEntity(xCoord, yCoord-1, zCoord);
+		if(is != null && te instanceof TEFireEntity)
 		{
-			TEFireEntity te = (TEFireEntity)worldObj.getTileEntity(xCoord, yCoord-1, zCoord);
-			float temp = TFC_ItemHeat.GetTemp(is);
-			if(te.fuelTimeLeft > 0 && is.getItem() instanceof IFood)
-			{
-				float inc = Food.getCooked(is)+Math.min((te.fireTemp/700), 2f);
-				Food.setCooked(is, inc);
-				temp = inc;
-			}
-			else if(te.fireTemp > temp)
-			{
-				temp += TFC_ItemHeat.getTempIncrease(is);
-			}
+			HeatRegistry manager = HeatRegistry.getInstance();
+			HeatIndex index = manager.findMatchingIndex(is);
 
-			if(te.fireTemp > temp)
-				temp += TFC_ItemHeat.getTempIncrease(is);
-			else
-				temp -= TFC_ItemHeat.getTempDecrease(is);
-			TFC_ItemHeat.SetTemp(is, temp);
+			if (index != null)
+			{
+				float temp = TFC_ItemHeat.getTemp(is);
+				TEFireEntity fire = (TEFireEntity) te;
+				if (fire.fuelTimeLeft > 0 && is.getItem() instanceof IFood)
+				{
+					float inc = Food.getCooked(is) + Math.min(fire.fireTemp / 700, 2f);
+					Food.setCooked(is, inc);
+					temp = inc;
+				}
+				else if (fire.fireTemp > temp)
+				{
+					temp += TFC_ItemHeat.getTempIncrease(is);
+				}
+
+				if (fire.fireTemp > temp)
+					temp += TFC_ItemHeat.getTempIncrease(is);
+				else
+					temp -= TFC_ItemHeat.getTempDecrease(is);
+				TFC_ItemHeat.setTemp(is, temp);
+			}
 		}
 	}
 
 	public void cookItem(int i)
 	{
 		HeatRegistry manager = HeatRegistry.getInstance();
-		Random R = new Random();
+		Random r = new Random();
 		if(storage[i] != null)
 		{
-			TEFireEntity te = (TEFireEntity) worldObj.getTileEntity(xCoord, yCoord-1, zCoord);
 			HeatIndex index = manager.findMatchingIndex(storage[i]);
 			if(index != null && Food.isCooked(storage[i]))
 			{
-				int[] fuelTasteProfile = new int[] {0,0,0,0,0};
+				//int[] fuelTasteProfile = new int[] {0,0,0,0,0};
 				int[] cookedTasteProfile = new int[] {0,0,0,0,0};
-				R = new Random(((ICookableFood)storage[i].getItem()).getFoodID()+(((int)Food.getCooked(storage[i])-600)/120));
-				cookedTasteProfile[0] = R.nextInt(30)-15;
-				cookedTasteProfile[1] = R.nextInt(30)-15;
-				cookedTasteProfile[2] = R.nextInt(30)-15;
-				cookedTasteProfile[3] = R.nextInt(30)-15;
-				cookedTasteProfile[4] = R.nextInt(30)-15;
+				r = new Random(((ICookableFood)storage[i].getItem()).getFoodID()+(((int)Food.getCooked(storage[i])-600)/120));
+				cookedTasteProfile[0] = r.nextInt(31) - 15;
+				cookedTasteProfile[1] = r.nextInt(31) - 15;
+				cookedTasteProfile[2] = r.nextInt(31) - 15;
+				cookedTasteProfile[3] = r.nextInt(31) - 15;
+				cookedTasteProfile[4] = r.nextInt(31) - 15;
 				Food.setCookedProfile(storage[i], cookedTasteProfile);
-				if(te != null)
+				TileEntity te = worldObj.getTileEntity(xCoord, yCoord-1, zCoord);
+				if(te instanceof TEFireEntity)
 				{
-					Food.setFuelProfile(storage[i], EnumFuelMaterial.getFuelProfile(te.fuelTasteProfile));
+					TEFireEntity fire = (TEFireEntity) te;
+					Food.setFuelProfile(storage[i], EnumFuelMaterial.getFuelProfile(fire.fuelTasteProfile));
 				}
 			}
 
-			if(index != null && TFC_ItemHeat.GetTemp(storage[i]) > index.meltTemp)
+			if(index != null && TFC_ItemHeat.getTemp(storage[i]) > index.meltTemp)
 			{
-				float temp = TFC_ItemHeat.GetTemp(storage[i]);
-				ItemStack output = index.getOutput(storage[i], R);
+				float temp = TFC_ItemHeat.getTemp(storage[i]);
+				ItemStack output = index.getOutput(storage[i], r);
 
 				ItemCookEvent eventMelt = new ItemCookEvent(storage[i], output, this);
 				MinecraftForge.EVENT_BUS.post(eventMelt);
@@ -166,16 +169,33 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 				if(storage[i] != null && manager.findMatchingIndex(storage[i]) != null)
 				{
 					//if the input is a new item, then apply the old temperature to it
-					TFC_ItemHeat.SetTemp(storage[i], temp);
+					TFC_ItemHeat.setTemp(storage[i], temp);
 				}
 			}
 		}
+	}
+
+	public int getSide()
+	{
+		return data & 7;
+	}
+
+	public boolean isEmpty()
+	{
+		for (ItemStack is : storage)
+		{
+			if (is != null)
+				return false;
+		}
+
+		return true;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
 		super.readFromNBT(nbt);
+		data = nbt.getByte("data");
 		NBTTagList nbttaglist = nbt.getTagList("Items", 10);
 		storage = new ItemStack[getSizeInventory()];
 		for(int i = 0; i < nbttaglist.tagCount(); i++)
@@ -191,6 +211,7 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 	public void writeToNBT(NBTTagCompound nbt)
 	{
 		super.writeToNBT(nbt);
+		nbt.setByte("data", data);
 		NBTTagList nbttaglist = new NBTTagList();
 		for(int i = 0; i < storage.length; i++)
 		{
@@ -228,7 +249,7 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 
 	public void ejectContents()
 	{
-		float f3 = 0.05F;
+		//float f3 = 0.05F;
 		EntityItem entityitem;
 		Random rand = new Random();
 		float f = rand.nextFloat() * 0.8F + 0.1F;
@@ -248,7 +269,7 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 
 	public void ejectItem(int index)
 	{
-		float f3 = 0.05F;
+		//float f3 = 0.05F;
 		EntityItem entityitem;
 		Random rand = new Random();
 		float f = rand.nextFloat() * 0.8F + 0.1F;
@@ -334,6 +355,7 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 	@Override
 	public void handleInitPacket(NBTTagCompound nbt) {
 		NBTTagList nbttaglist = nbt.getTagList("Items", 10);
+		data = nbt.getByte("data");
 		storage = new ItemStack[getSizeInventory()];
 		for(int i = 0; i < nbttaglist.tagCount(); i++)
 		{
@@ -347,6 +369,7 @@ public class TEGrill extends NetworkTileEntity implements IInventory
 	@Override
 	public void createInitNBT(NBTTagCompound nbt) {
 		NBTTagList nbttaglist = new NBTTagList();
+		nbt.setByte("data", this.data);
 		for(int i = 0; i < storage.length; i++)
 		{
 			if(storage[i] != null)

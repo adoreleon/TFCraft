@@ -1,14 +1,20 @@
 package com.bioxx.tfc.Handlers;
 
+import java.util.List;
+
+import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
+import net.minecraftforge.oredict.OreDictionary;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
+
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.Recipes;
 import com.bioxx.tfc.Core.TFC_Achievements;
@@ -24,195 +30,152 @@ import com.bioxx.tfc.Items.ItemBlocks.ItemAnvil2;
 import com.bioxx.tfc.Items.Tools.ItemCustomPickaxe;
 import com.bioxx.tfc.Items.Tools.ItemCustomSaw;
 import com.bioxx.tfc.Items.Tools.ItemMiscToolHead;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFC_ItemHeat;
+import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
 
 public class CraftingHandler
 {
 	@SubscribeEvent
 	public void onCrafting(ItemCraftedEvent e)//(EntityPlayer player, ItemStack itemstack, IInventory iinventory)
 	{
-		//EntityPlayer player = e.player;
-		Item item = e.crafting.getItem();
+		EntityPlayer player = e.player;
 		ItemStack itemstack = e.crafting;
-		int isDmg = e.crafting.getItemDamage();
+		Item item = itemstack.getItem();
+		int itemDamage = itemstack.getItemDamage();
 		IInventory iinventory = e.craftMatrix;
 
-		int index = 0;
+		//int index = 0;
 		if(iinventory != null)
 		{
-			if(item == TFCItems.StoneBrick)
-				HandleItem(e.player, e.craftMatrix, Recipes.Chisels);
-			else if(item == Item.getItemFromBlock(TFCBlocks.Workbench))
+			// Tool Damaging
+			if(item == TFCItems.stoneBrick)
 			{
-				if (!e.player.getEntityData().hasKey("craftingTable"))
-					e.player.inventory.clearInventory(Item.getItemFromBlock(TFCBlocks.Workbench), -1);
-
-				if(!e.player.worldObj.isRemote)
+				List<ItemStack> chisels = OreDictionary.getOres("itemChisel", false);
+				handleItem(player, iinventory, chisels);
+			}
+			else if(item == TFCItems.singlePlank ||
+					item == Item.getItemFromBlock(TFCBlocks.woodSupportH) || item == Item.getItemFromBlock(TFCBlocks.woodSupportH2) ||
+					item == Item.getItemFromBlock(TFCBlocks.woodSupportV) || item == Item.getItemFromBlock(TFCBlocks.woodSupportV2))
+			{
+				List<ItemStack> axes = OreDictionary.getOres("itemAxe", false);
+				List<ItemStack> saws = OreDictionary.getOres("itemSaw", false);
+				handleItem(player, iinventory, axes);
+				handleItem(player, iinventory, saws);
+			}
+			else if (item == TFCItems.wool)
+			{
+				List<ItemStack> knives = OreDictionary.getOres("itemKnife", false);
+				handleItem(player, iinventory, knives);
+				int size = 0;
+				for (int i = 0; i < iinventory.getSizeInventory(); i++)
 				{
-					if(!e.player.getEntityData().hasKey("craftingTable"))
+					if (iinventory.getStackInSlot(i) == null)
+						continue;
+					if (iinventory.getStackInSlot(i).getItem() == TFCItems.sheepSkin)
+						size = iinventory.getStackInSlot(i).getItemDamage();
+				}
+				boolean add = !player.inventory.addItemStackToInventory(new ItemStack(TFCItems.hide, 1, size));
+				if (add)
+					player.entityDropItem(new ItemStack(TFCItems.hide, 1, size), 1);
+			}
+			else if(item == TFCItems.woolYarn)
+			{
+				handleItem(player, iinventory, Recipes.spindle);
+			}
+			else if (item == TFCItems.powder && itemDamage == 0)
+			{
+				List<ItemStack> hammers = OreDictionary.getOres("itemHammer", false);
+				handleItem(player, iinventory, hammers);
+			}
+
+			// Achievements
+			triggerAchievements(player, itemstack, item, itemDamage);
+
+			// Packet Sending
+			if (item == Item.getItemFromBlock(TFCBlocks.workbench))
+			{
+				if (!player.getEntityData().hasKey("craftingTable"))
+					player.inventory.clearInventory(Item.getItemFromBlock(TFCBlocks.workbench), -1);
+
+				if (!player.worldObj.isRemote)
+				{
+					if (!player.getEntityData().hasKey("craftingTable"))
 					{
-						e.player.getEntityData().setBoolean("craftingTable", true);
+						player.getEntityData().setBoolean("craftingTable", true);
 						try
 						{
-							AbstractPacket pkt = new PlayerUpdatePacket(e.player, 2);
-							TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) e.player);
-						}
-						catch (Exception e1)
+							AbstractPacket pkt = new PlayerUpdatePacket(player, 2);
+							TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) player);
+						} catch (Exception e1)
 						{
-							System.out.println("--------------------------------------------------");
-							e1.printStackTrace();
-							System.out.println("--------------------------------------------------");
+							TerraFirmaCraft.LOG.info("--------------------------------------------------");
+							TerraFirmaCraft.LOG.catching(e1);
+							TerraFirmaCraft.LOG.info("--------------------------------------------------");
 						}
-						PlayerInventory.upgradePlayerCrafting(e.player);
+						PlayerInventory.upgradePlayerCrafting(player);
 					}
 				}
 			}
-			else if(item == TFCItems.SinglePlank ||
-					item == Item.getItemFromBlock(TFCBlocks.WoodSupportH) || item == Item.getItemFromBlock(TFCBlocks.WoodSupportH2) ||
-					item == Item.getItemFromBlock(TFCBlocks.WoodSupportV) || item == Item.getItemFromBlock(TFCBlocks.WoodSupportV2))
+
+			if (!player.worldObj.isRemote && item instanceof ItemIngot)
 			{
-				HandleItem(e.player, e.craftMatrix, Recipes.Axes);
-				HandleItem(e.player, e.craftMatrix, Recipes.Saws);
-			}
-			else if(itemstack.getItem() instanceof ItemCustomPickaxe)
-			{
-				e.player.triggerAchievement(TFC_Achievements.achPickaxe);
-			}
-			else if(itemstack.getItem() instanceof ItemCustomSaw)
-			{
-				e.player.triggerAchievement(TFC_Achievements.achSaw);
-			}
-			else if(itemstack.getItem() == Items.bowl || 
-					/*itemstack.getItem() instanceof ItemTerraFood ||*/ itemstack.getItem() == TFCItems.ScrapedHide
-					|| itemstack.getItem() == TFCItems.Wool||itemstack.getItem() == TFCItems.Leather)
-			{
-				HandleItem(e.player, e.craftMatrix, Recipes.Knives);
-				if (item == TFCItems.Wool /*&& !player.worldObj.isRemote*/)
+				for (int i = 0; i < iinventory.getSizeInventory(); i++)
 				{
-					int size = 0;
-					for(int i = 0; i < iinventory.getSizeInventory(); i++) 
-					{
-						if(iinventory.getStackInSlot(i) == null)
-							continue;
-						if(iinventory.getStackInSlot(i).getItem() == TFCItems.SheepSkin)
-							size = iinventory.getStackInSlot(i).getItemDamage();
-					}
-					boolean add =!e.player.inventory.addItemStackToInventory(new ItemStack(TFCItems.Hide, 1, size));
-					if(add)
-						e.player.entityDropItem(new ItemStack(TFCItems.Hide, 1, size), 1);
-				}
-				/*else if(item == TFCItems.TerraLeather)
-				{
-					boolean openGui = false;
-					for(int i = 0; i < iinventory.getSizeInventory(); i++)
-					{
-						if(iinventory.getStackInSlot(i) == null)
-							continue;
-						if(true)//iinventory.getStackInSlot(i) == TFCItems.TerraLeather.shiftedIndex)
-						{
-							if(iinventory.getStackInSlot(i).stackSize == 1)
-								iinventory.setInventorySlotContents(i, null);
-							else
-							{
-								ItemStack is = iinventory.getStackInSlot(i);
-								is.stackSize -= 1;
-								if(is.stackSize > 0)
-									iinventory.setInventorySlotContents(i, is);
-							}
-							openGui = true;
-							//itemstack.stackSize = -1;
-						}
-					}
-					if(openGui)
-					{
-						PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(player);
-						pi.specialCraftingType = new ItemStack(TFCItems.FlatLeather, 1, itemstack.getItemDamage());
-						player.openGui(TerraFirmaCraft.instance, 28, player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
-					}
-				}*/
-			}
-			else if(item == TFCItems.WoolYarn)
-			{
-				HandleItem(e.player,e.craftMatrix,Recipes.Spindle);
-			}
-			else if(item == TFCItems.Powder && isDmg == 0)
-			{
-				HandleItem(e.player, e.craftMatrix, Recipes.Hammers);
-			}
-			else if((itemstack.getItem() instanceof ItemAnvil1 && itemstack.getItemDamage() == 2) ||
-					(itemstack.getItem() instanceof ItemAnvil2 && (itemstack.getItemDamage() == 1 || itemstack.getItemDamage() == 2)))
-			{
-				e.player.triggerAchievement(TFC_Achievements.achBronzeAge);
-			}
-			else if(itemstack.getItem() instanceof ItemIngot)
-			{
-				float temperature = 0;
-				for(int i = 0; i < iinventory.getSizeInventory(); i++)
-				{
-					if(iinventory.getStackInSlot(i) == null)
+					ItemStack is = iinventory.getStackInSlot(i);
+					if (is == null)
 						continue;
-					if(iinventory.getStackInSlot(i).getItem() instanceof ItemMeltedMetal)
+					else if (is.getItem() instanceof ItemMeltedMetal)
 					{
-						temperature = TFC_ItemHeat.GetTemp(iinventory.getStackInSlot(i));
-						if(e.player.worldObj.rand.nextInt(20) == 0)
-							e.player.worldObj.playSoundAtEntity(e.player, TFC_Sounds.CERAMICBREAK, 0.7f, e.player.worldObj.rand.nextFloat() * 0.2F + 0.8F);
+						if (player.worldObj.rand.nextInt(20) == 0)
+							player.worldObj.playSoundAtEntity(player, TFC_Sounds.CERAMICBREAK, 0.7f, player.worldObj.rand.nextFloat() * 0.2F + 0.8F);
 						else
-							TFC_Core.giveItemToPlayer(new ItemStack(TFCItems.CeramicMold, 1, 1), e.player);
+							TFC_Core.giveItemToPlayer(new ItemStack(TFCItems.ceramicMold, 1, 1), player);
+
+						break;
 					}
-				}
-				TFC_ItemHeat.SetTemp(e.crafting, temperature);
-			}
-			else if(item instanceof ItemMeltedMetal)
-			{
-				float temperature = 0;
-				for(int i = 0; i < iinventory.getSizeInventory(); i++)
-				{
-					if(iinventory.getStackInSlot(i) == null)
-						continue;
-					if(iinventory.getStackInSlot(i).getItem() instanceof ItemIngot )
-						temperature = TFC_ItemHeat.GetTemp(iinventory.getStackInSlot(i));
-				}
-				TFC_ItemHeat.SetTemp(e.crafting, temperature);
-			}
-			else if(itemstack.getItem() instanceof ItemMiscToolHead &&
-					((ItemMiscToolHead)(itemstack.getItem())).getMaterial()!= null &&
-					(((ItemMiscToolHead)(itemstack.getItem())).getMaterial() == TFCItems.IgInToolMaterial ||
-					((ItemMiscToolHead)(itemstack.getItem())).getMaterial() == TFCItems.SedToolMaterial ||
-					((ItemMiscToolHead)(itemstack.getItem())).getMaterial() == TFCItems.IgExToolMaterial ||
-					((ItemMiscToolHead)(itemstack.getItem())).getMaterial() == TFCItems.MMToolMaterial))
-			{
-				e.player.triggerAchievement(TFC_Achievements.achStoneAge);
-			}
-
-			for(int i = 0; i < iinventory.getSizeInventory(); i++)
-			{
-				if(iinventory.getStackInSlot(i) == null)
-					continue;
-				/*if(iinventory.getStackInSlot(i).getItem() == TFCItems.WoodenBucketWater)
-				{
-					if(!e.player.inventory.addItemStackToInventory(new ItemStack(TFCItems.WoodenBucketEmpty,1)))
-						e.player.dropItem(TFCItems.WoodenBucketEmpty, 1);
-				}
-								else if(iinventory.getStackInSlot(i).getItem() == TFCItems.RedSteelBucketWater)
-									if(!player.inventory.addItemStackToInventory(new ItemStack(TFCItems.RedSteelBucketEmpty,1)))
-										player.dropItem(TFCItems.RedSteelBucketEmpty, 1);*/
-
-				if(iinventory.getStackInSlot(i).hasTagCompound() && 
-						iinventory.getStackInSlot(i).getTagCompound().hasKey("craftingTag"))
-				{
-					AnvilManager.setCraftTag(itemstack, AnvilManager.getCraftTag(iinventory.getStackInSlot(i)));
 				}
 			}
 		}
 	}
 
-	public static void preCraft(EntityPlayer player, ItemStack craftResult, IInventory iinventory)
+	public static void preCraft(EntityPlayer player, ItemStack itemstack, IInventory iinventory)
 	{
-		if(craftResult.getItem() instanceof ItemIngot)
+		triggerAchievements(player, itemstack, itemstack.getItem(), itemstack.getItemDamage());
+	}
+
+	public static void triggerAchievements(EntityPlayer player, ItemStack itemstack, Item item, int itemDamage)
+	{
+		if (item instanceof ItemCustomPickaxe)
+		{
+			player.triggerAchievement(TFC_Achievements.achPickaxe);
+		}
+		else if (item instanceof ItemCustomSaw)
+		{
+			player.triggerAchievement(TFC_Achievements.achSaw);
+		}
+		else if (item instanceof ItemAnvil1 && itemDamage == 2 || item instanceof ItemAnvil2 && (itemDamage == 1 || itemDamage == 2))
+		{
+			player.triggerAchievement(TFC_Achievements.achBronzeAge);
+		}
+		else if (item == Item.getItemFromBlock(TFCBlocks.blastFurnace))
+			player.triggerAchievement(TFC_Achievements.achBlastFurnace);
+		else if (item == TFCItems.clayBall && itemDamage == 1)
+			player.triggerAchievement(TFC_Achievements.achFireClay);
+		else if (item == TFCItems.unknownIngot)
+			player.triggerAchievement(TFC_Achievements.achUnknown);
+	}
+
+	/*
+	 * Called during ContainerPlayerTFC's onCraftMatrixChanged to update the item in the output slot.
+	 */
+	public static void transferNBT(boolean clearContents, EntityPlayer player, ItemStack itemstack, IInventory iinventory)
+	{
+		Item item = itemstack.getItem();
+		int itemDamage = itemstack.getItemDamage();
+		if (item instanceof ItemIngot)
 		{
 			float temperature = 0;
 			for(int i = 0; i < iinventory.getSizeInventory(); i++)
@@ -221,17 +184,12 @@ public class CraftingHandler
 					continue;
 				if(iinventory.getStackInSlot(i).getItem() instanceof ItemMeltedMetal)
 				{
-					temperature = TFC_ItemHeat.GetTemp(iinventory.getStackInSlot(i));
-					if(player.worldObj.rand.nextInt(20) == 0)
-						player.playSound(TFC_Sounds.CERAMICBREAK, 0.7f, player.worldObj.rand.nextFloat() * 0.2F + 0.8F);
-					else
-						TFC_Core.giveItemToPlayer(new ItemStack(TFCItems.CeramicMold, 1, 1), player);
-					iinventory.setInventorySlotContents(i, null);
+					temperature = TFC_ItemHeat.getTemp(iinventory.getStackInSlot(i));
 				}
 			}
-			TFC_ItemHeat.SetTemp(craftResult, temperature);
+			TFC_ItemHeat.setTemp(itemstack, temperature);
 		}
-		else if(craftResult.getItem() instanceof ItemMeltedMetal)
+		else if (item instanceof ItemMeltedMetal)
 		{
 			float temperature = 0;
 			for(int i = 0; i < iinventory.getSizeInventory(); i++)
@@ -239,9 +197,70 @@ public class CraftingHandler
 				if(iinventory.getStackInSlot(i) == null)
 					continue;
 				if(iinventory.getStackInSlot(i).getItem() instanceof ItemIngot)
-					temperature = TFC_ItemHeat.GetTemp(iinventory.getStackInSlot(i));
+					temperature = TFC_ItemHeat.getTemp(iinventory.getStackInSlot(i));
 			}
-			TFC_ItemHeat.SetTemp(craftResult, temperature);
+			TFC_ItemHeat.setTemp(itemstack, temperature);
+		}
+		else if (item == TFCItems.potterySmallVessel && itemDamage == 0)
+		{
+			int color = -1;
+			for (int i = 0; i < iinventory.getSizeInventory(); i++)
+			{
+				if (iinventory.getStackInSlot(i) == null)
+					continue;
+
+				int[] ids = OreDictionary.getOreIDs(iinventory.getStackInSlot(i));
+				float[] c = null;
+				for (int id : ids)
+				{
+					String name = OreDictionary.getOreName(id);
+					for (int j = 0; j < Global.DYE_NAMES.length; j++)
+					{
+						if (name.equals(Global.DYE_NAMES[j]))
+						{
+							c = EntitySheep.fleeceColorTable[j];
+							break;
+						}
+					}
+				}
+
+				if (c != null)
+				{
+					int r = (int) (c[0] * 255);
+					int g = (int) (c[1] * 255);
+					int b = (int) (c[2] * 255);
+					r = r << 16;
+					g = g << 8;
+
+					color += r += g += b;
+				}
+			}
+
+			if (color != -1)
+			{
+				NBTTagCompound nbt = null;
+				if (itemstack.hasTagCompound())
+					nbt = itemstack.getTagCompound();
+				else
+					nbt = new NBTTagCompound();
+
+				nbt.setInteger("color", color);
+				itemstack.setTagCompound(nbt);
+			}
+		}
+
+		for (int i = 0; i < iinventory.getSizeInventory(); i++)
+		{
+			if (iinventory.getStackInSlot(i) == null)
+				continue;
+
+			// Only transfer the tag when making something out of a tool head. Don't transfer when crafting things with the completed tool.
+			// Note: If crafting recipes with armor or completed tools to further refine them are ever added, the instanceof will need to be updated. -Kitty
+			if (iinventory.getStackInSlot(i).getItem() instanceof ItemMiscToolHead && 
+					iinventory.getStackInSlot(i).hasTagCompound() && iinventory.getStackInSlot(i).getTagCompound().hasKey("craftingTag"))
+			{
+				AnvilManager.setCraftTag(itemstack, AnvilManager.getCraftTag(iinventory.getStackInSlot(i)));
+			}
 		}
 	}
 
@@ -257,18 +276,29 @@ public class CraftingHandler
 		return false;
 	}
 
-	public static void HandleItem(EntityPlayer entityplayer, IInventory iinventory, Item[] Items)
+	public static void handleItem(EntityPlayer entityplayer, IInventory iinventory, Item[] items)
 	{
 		for(int i = 0; i < iinventory.getSizeInventory(); i++)
 		{
 			if(iinventory.getStackInSlot(i) == null)
 				continue;
-			for(int j = 0; j < Items.length; j++)
-				DamageItem(entityplayer, iinventory, i, Items[j]);
+			for(int j = 0; j < items.length; j++)
+				damageItem(entityplayer, iinventory, i, items[j]);
 		}
 	}
 
-	public static void DamageItem(EntityPlayer entityplayer, IInventory iinventory, int i, Item shiftedindex)
+	public static void handleItem(EntityPlayer entityplayer, IInventory iinventory, List<ItemStack> items)
+	{
+		for (int i = 0; i < iinventory.getSizeInventory(); i++ )
+		{
+			if (iinventory.getStackInSlot(i) == null)
+				continue;
+			for (ItemStack is : items)
+				damageItem(entityplayer, iinventory, i, is.getItem());
+		}
+	}
+
+	public static void damageItem(EntityPlayer entityplayer, IInventory iinventory, int i, Item shiftedindex)
 	{
 		if(iinventory.getStackInSlot(i).getItem() == shiftedindex)
 		{

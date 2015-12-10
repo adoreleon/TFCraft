@@ -10,27 +10,30 @@ import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.ArrowNockEvent;
 
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.Player.InventoryPlayerTFC;
 import com.bioxx.tfc.Entities.EntityProjectileTFC;
 import com.bioxx.tfc.Items.ItemQuiver;
 import com.bioxx.tfc.Items.ItemTerra;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Enums.EnumAmmo;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
 import com.bioxx.tfc.api.Interfaces.ISize;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class ItemCustomBow extends ItemBow implements ISize
 {
+	private String[] bowPullIconNameArray = new String[] {"pulling_0", "pulling_1", "pulling_2", "pulling_3"};
 	private IIcon[] iconArray;
 
 	public ItemCustomBow()
@@ -38,7 +41,7 @@ public class ItemCustomBow extends ItemBow implements ISize
 		super();
 		this.maxStackSize = 1;
 		this.setMaxDamage(384);
-		setCreativeTab(TFCTabs.TFCWeapons);
+		setCreativeTab(TFCTabs.TFC_WEAPONS);
 		setNoRepair();
 	}
 
@@ -70,7 +73,7 @@ public class ItemCustomBow extends ItemBow implements ISize
 		if (event.isCanceled())
 			return event.result;
 
-		if (player.capabilities.isCreativeMode || player.inventory.hasItem(TFCItems.Arrow) || consumeArrowInQuiver(player, false))
+		if (player.capabilities.isCreativeMode || player.inventory.hasItem(TFCItems.arrow) || consumeArrowInQuiver(player, false))
 			player.setItemInUse(is, this.getMaxItemUseDuration(is));
 
 		return is;
@@ -90,7 +93,7 @@ public class ItemCustomBow extends ItemBow implements ISize
 		boolean flag = player.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, is) > 0;
 
 		//First we run the normal ammo check to see if the arrow is in the players inventory
-		boolean hasAmmo = flag || player.inventory.hasItem(TFCItems.Arrow);
+		boolean hasAmmo = flag || player.inventory.hasItem(TFCItems.arrow);
 		boolean hasAmmoInQuiver = false;
 		//If there was no ammo in the inventory then we need to check if there is a quiver and if there is ammo inside of it.
 		if(!hasAmmo)
@@ -131,7 +134,7 @@ public class ItemCustomBow extends ItemBow implements ISize
 			if (flag)
 				entityarrow.canBePickedUp = 2;
 			else if(hasAmmo)
-				player.inventory.consumeInventoryItem(TFCItems.Arrow);
+				player.inventory.consumeInventoryItem(TFCItems.arrow);
 			else if(hasAmmoInQuiver)
 				consumeArrowInQuiver(player, true);
 
@@ -140,7 +143,7 @@ public class ItemCustomBow extends ItemBow implements ISize
 		}
 	}
 
-	public float getUseSpeed(EntityPlayer player)
+	public static float getUseSpeed(EntityPlayer player)
 	{
 		float speed = 60.0f;
 		ItemStack[] armor = player.inventory.armorInventory;
@@ -184,11 +187,11 @@ public class ItemCustomBow extends ItemBow implements ISize
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister par1IconRegister)
 	{
-		this.itemIcon = par1IconRegister.registerIcon(this.getIconString() + "_standby");
+		this.itemIcon = par1IconRegister.registerIcon(Reference.MOD_ID + ":" + this.getIconString() + "_standby");
 		iconArray = new IIcon[bowPullIconNameArray.length];
 
 		for (int i = 0; i < iconArray.length; ++i)
-			iconArray[i] = par1IconRegister.registerIcon(this.getIconString() + "_" + bowPullIconNameArray[i]);
+			iconArray[i] = par1IconRegister.registerIcon(Reference.MOD_ID + ":" + this.getIconString() + "_" + bowPullIconNameArray[i]);
 
 	}
 
@@ -207,17 +210,19 @@ public class ItemCustomBow extends ItemBow implements ISize
             int j = usingItem.getMaxItemUseDuration() - useRemaining;
             float force = j / getUseSpeed(player);
 
-            if (force >= 1.25)
+			if (force >= 1.25) // Fully drawn
             {
-                return getItemIconForUseDuration(2);
+				return getItemIconForUseDuration(3);
+			}
+			else if (force > 0.75)
+            {
+				return getItemIconForUseDuration(2);
             }
-
-            if (force > 0.625)
+			else if (force > 0.25) // Minimum required force to fire
             {
                 return getItemIconForUseDuration(1);
             }
-
-            if (force > 0)
+			else if (force > 0)
             {
                 return getItemIconForUseDuration(0);
             }

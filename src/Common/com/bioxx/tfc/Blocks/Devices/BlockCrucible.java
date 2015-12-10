@@ -2,14 +2,6 @@ package com.bioxx.tfc.Blocks.Devices;
 
 import java.util.Iterator;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Core.Metal.MetalPair;
-import com.bioxx.tfc.TileEntities.TECrucible;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,18 +15,27 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Blocks.BlockTerraContainer;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.Metal.MetalPair;
+import com.bioxx.tfc.TileEntities.TECrucible;
+import com.bioxx.tfc.api.TFCBlocks;
+
 public class BlockCrucible extends BlockTerraContainer 
 {
-	IIcon[] icons;
+	private IIcon[] icons;
 
 	public BlockCrucible()
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCDevices);
-		this.setBlockBounds(0.0625f, 0f, 0.0625f, 0.9375f, 0.9375f, 0.9375f);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
+		this.setBlockBounds(0.0625f, 0.25f, 0.0625f, 0.9375f, 0.9375f, 0.9375f);
 	}
 
 	@Override
@@ -42,8 +43,8 @@ public class BlockCrucible extends BlockTerraContainer
 	{
 		if(!world.isRemote && (TECrucible)world.getTileEntity(i, j, k) != null)
 		{
-			TECrucible te = (TECrucible)world.getTileEntity(i, j, k);
-			ItemStack is = entityplayer.getCurrentEquippedItem();
+			//TECrucible te = (TECrucible)world.getTileEntity(i, j, k);
+			//ItemStack is = entityplayer.getCurrentEquippedItem();
 
 			entityplayer.openGui(TerraFirmaCraft.instance, 37, world, i, j, k);
 		}
@@ -53,10 +54,10 @@ public class BlockCrucible extends BlockTerraContainer
 	@Override
 	public void breakBlock(World world, int i, int j, int k, Block block, int par6)
 	{
-		TECrucible te = (TECrucible)world.getTileEntity(i, j, k);
-
-		if (te != null)
+		if (world.getTileEntity(i, j, k) instanceof TECrucible)
 		{
+			TECrucible te = (TECrucible) world.getTileEntity(i, j, k);
+
 			ItemStack is = new ItemStack(Item.getItemFromBlock(block), 1);
 			NBTTagCompound nbt = writeCrucibleToNBT(te);
 			is.setTagCompound(nbt);
@@ -107,7 +108,7 @@ public class BlockCrucible extends BlockTerraContainer
 			if(m != null)
 			{
 				NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-				nbttagcompound1.setInteger("ID", Item.getIdFromItem(m.type.Ingot));
+				nbttagcompound1.setInteger("ID", Item.getIdFromItem(m.type.ingot));
 				nbttagcompound1.setFloat("AmountF", m.amount);
 				nbttaglist.appendTag(nbttagcompound1);
 			}
@@ -154,8 +155,8 @@ public class BlockCrucible extends BlockTerraContainer
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
 		icons = new IIcon[2];
-		icons[0] = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Crucible Top");
-		icons[1] = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Crucible Side");
+		icons[0] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Crucible Top");
+		icons[1] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Crucible Side");
 	}
 
 	@Override

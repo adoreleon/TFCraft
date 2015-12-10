@@ -7,7 +7,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Containers.Slots.SlotAnvilFlux;
 import com.bioxx.tfc.Containers.Slots.SlotAnvilHammer;
 import com.bioxx.tfc.Containers.Slots.SlotAnvilIn;
@@ -15,6 +14,7 @@ import com.bioxx.tfc.Containers.Slots.SlotAnvilWeldOut;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.Items.Tools.ItemHammer;
 import com.bioxx.tfc.TileEntities.TEAnvil;
+import com.bioxx.tfc.api.TFCItems;
 
 public class ContainerAnvil extends ContainerTFC
 {
@@ -63,28 +63,31 @@ public class ContainerAnvil extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer entityplayer, int i)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
 		ItemStack origStack = null;
-		Slot slot = (Slot)inventorySlots.get(i);
+		Slot slot = (Slot)inventorySlots.get(slotNum);
 		Slot slothammer = (Slot)inventorySlots.get(0);
 		Slot[] slotinput = {(Slot)inventorySlots.get(1), (Slot)inventorySlots.get(2), (Slot)inventorySlots.get(3), (Slot)inventorySlots.get(5)};
-		Slot slotflux = (Slot)inventorySlots.get(6);
 
 		if(slot != null && slot.getHasStack())
 		{
 			ItemStack slotStack = slot.getStack();
 			origStack = slotStack.copy();
-			if(i <= 6)
+
+			// From anvil to inventory
+			if (slotNum < 7)
 			{
-				if(!this.mergeItemStack(slotStack, 7, inventorySlots.size(), false))
+				if (!this.mergeItemStack(slotStack, 7, inventorySlots.size(), true))
 					return null;
 			}
-			else if(slotStack.getItem() == TFCItems.Powder && slotStack.getItemDamage() == 0)
+			// Flux
+			else if(slotStack.getItem() == TFCItems.powder && slotStack.getItemDamage() == 0)
 			{
 				if (!this.mergeItemStack(slotStack, 6, 7, false))
 					return null;
 			}
+			// Hammer
 			else if(slotStack.getItem() instanceof ItemHammer)
 			{
 				if(slothammer.getHasStack())
@@ -94,6 +97,7 @@ public class ContainerAnvil extends ContainerTFC
 				slothammer.putStack(stack);
 				slotStack.stackSize--;
 			}
+			// Input & Weld Slots
 			else
 			{
 				int j = 0;
@@ -111,19 +115,18 @@ public class ContainerAnvil extends ContainerTFC
 					}
 				}
 			}
+
 			if(slotStack.stackSize <= 0)
-			{
 				slot.putStack(null);
-			} else
-			{
+			else
 				slot.onSlotChanged();
-			}
 
 			if (slotStack.stackSize == origStack.stackSize)
 				return null;
 
 			slot.onPickupFromSlot(player, slotStack);
 		}
+
 		return origStack;
 	}
 
@@ -137,7 +140,7 @@ public class ContainerAnvil extends ContainerTFC
 			ICrafting var2 = (ICrafting)this.crafters.get(var1);
 			int cv = anvil.getCraftingValue();
 			int icv = anvil.getItemCraftingValueNoSet(1);
-			int t = this.anvil.AnvilTier;
+			int t = this.anvil.anvilTier;
 
 			if (this.redIndicator != cv)
 				var2.sendProgressBarUpdate(this, 0, cv);
@@ -149,7 +152,7 @@ public class ContainerAnvil extends ContainerTFC
 
 		redIndicator = anvil.craftingValue;
 		greenIndicator = anvil.itemCraftingValue;
-		this.tier = this.anvil.AnvilTier;
+		this.tier = this.anvil.anvilTier;
 	}
 
 	/**
@@ -166,7 +169,7 @@ public class ContainerAnvil extends ContainerTFC
 			else if (par1 == 1)
 				this.anvil.itemCraftingValue = par2;
 			else if (par1 == 2)
-				this.anvil.AnvilTier = par2;
+				this.anvil.anvilTier = par2;
 		}
 	}
 

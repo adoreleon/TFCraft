@@ -13,25 +13,25 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Items.Tools.ItemHammer;
-import com.bioxx.tfc.api.Constant.Global;
-import com.bioxx.tfc.api.Tools.IToolChisel;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Items.Tools.ItemHammer;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
+import com.bioxx.tfc.api.Tools.IToolChisel;
+
 public class BlockPlanks extends BlockTerra
 {
-	String[] woodNames;
-	IIcon[] icons;
+	protected String[] woodNames;
+	protected IIcon[] icons;
 
 	public BlockPlanks(Material material)
 	{
 		super(Material.wood);
-		this.setCreativeTab(TFCTabs.TFCBuilding);
+		this.setCreativeTab(TFCTabs.TFC_BUILDING);
 		woodNames = new String[16];
 		System.arraycopy(Global.WOOD_ALL, 0, woodNames, 0, 16);
 		icons = new IIcon[woodNames.length];
@@ -61,14 +61,14 @@ public class BlockPlanks extends BlockTerra
 			return icons[0];
 		if(j<icons.length)
 			return icons[j];
-		return TFCBlocks.Planks2.getIcon(i, j-16);
+		return TFCBlocks.planks2.getIcon(i, j-16);
 	}
 
 	@Override
 	public void registerBlockIcons(IIconRegister registerer)
 	{
 		for(int i = 0; i < woodNames.length; i++)
-			icons[i] = registerer.registerIcon(Reference.ModID + ":" + "wood/"+woodNames[i]+" Plank");
+			icons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "wood/"+woodNames[i]+" Plank");
 		Blocks.planks.registerBlockIcons(registerer);
 	}
 

@@ -7,23 +7,25 @@ import java.util.Map;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 public class AnvilManager
 {
-	private static final AnvilManager instance = new AnvilManager();
+	private static final AnvilManager INSTANCE = new AnvilManager();
 	public static final AnvilManager getInstance()
 	{
-		return instance;
+		return INSTANCE;
 	}
+	public static World world;
 
-	private List recipes;
-	private List recipesWeld;
-	private Map plans;
+	private List<AnvilRecipe> recipes;
+	private List<AnvilRecipe> recipesWeld;
+	private Map<String, PlanRecipe> plans;
 
 	private AnvilManager()
 	{
-		recipes = new ArrayList();
-		recipesWeld = new ArrayList();
+		recipes = new ArrayList<AnvilRecipe>();
+		recipesWeld = new ArrayList<AnvilRecipe>();
 		plans = new HashMap<String, PlanRecipe>();
 	}
 
@@ -58,15 +60,15 @@ public class AnvilManager
 
 	public PlanRecipe getPlan(String s)
 	{
-		return (PlanRecipe) plans.get(s);
+		return plans.get(s);
 	}
 
 	public AnvilRecipe findMatchingRecipe(AnvilRecipe recipe)
 	{
 		for (int k = 0; k < recipes.size(); k++)
 		{
-			AnvilRecipe irecipe = (AnvilRecipe)recipes.get(k);
-			if (irecipe.matches(recipe))
+			AnvilRecipe irecipe = recipes.get(k);
+			if (irecipe != null && irecipe.matches(recipe))
 				return irecipe;
 		}
 
@@ -77,8 +79,8 @@ public class AnvilManager
 	{
 		for (int k = 0; k < recipesWeld.size(); k++)
 		{
-			AnvilRecipe irecipe = (AnvilRecipe)recipesWeld.get(k);
-			if (irecipe.matches(recipe))
+			AnvilRecipe irecipe = recipesWeld.get(k);
+			if (irecipe != null && irecipe.matches(recipe))
 				return irecipe;
 		}
 
@@ -89,8 +91,8 @@ public class AnvilManager
 	{
 		for (int k = 0; k < recipes.size(); k++)
 		{
-			AnvilRecipe irecipe = (AnvilRecipe)recipes.get(k);
-			if (irecipe.isComplete(instance, recipe, rules))
+			AnvilRecipe irecipe = recipes.get(k);
+			if (irecipe != null && irecipe.isComplete(INSTANCE, recipe, rules))
 				return new Object[] {irecipe, irecipe.getCraftingResult(recipe.input1)};
 		}
 
@@ -101,23 +103,25 @@ public class AnvilManager
 	{
 		for (int k = 0; k < recipesWeld.size(); k++)
 		{
-			AnvilRecipe irecipe = (AnvilRecipe)recipesWeld.get(k);
-			if (irecipe.matches(recipe))
+			AnvilRecipe irecipe = recipesWeld.get(k);
+			if (irecipe != null && irecipe.matches(recipe))
 				return irecipe.getCraftingResult(recipe.input1);
 		}
 
 		return null;
 	}
 
-	public List getRecipeList()
+	public List<AnvilRecipe> getRecipeList()
 	{
 		return recipes;
 	}
-	public List getWeldRecipeList()
+
+	public List<AnvilRecipe> getWeldRecipeList()
 	{
 		return recipesWeld;
 	}
-	public Map getPlans()
+
+	public Map<String, PlanRecipe> getPlans()
 	{
 		return plans;
 	}

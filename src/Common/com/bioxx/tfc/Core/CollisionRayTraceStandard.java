@@ -3,13 +3,13 @@ package com.bioxx.tfc.Core;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bioxx.tfc.api.Interfaces.ICustomCollision;
-
 import net.minecraft.block.Block;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import com.bioxx.tfc.api.Interfaces.ICustomCollision;
 
 public class CollisionRayTraceStandard
 {
@@ -52,6 +52,7 @@ public class CollisionRayTraceStandard
 		return null;
 	}
 
+	@SuppressWarnings("null")
 	public static Object[] rayTraceBound(AxisAlignedBB bound, int i, int j, int k, Vec3 player, Vec3 view)
 	{
 		Vec3 minX = player.getIntermediateWithXValue(view, bound.minX);
@@ -156,39 +157,39 @@ public class CollisionRayTraceStandard
 		return returns;
 	}
 
-	private static boolean isVecInsideYZBounds(AxisAlignedBB bound, Vec3 Vec3)
+	private static boolean isVecInsideYZBounds(AxisAlignedBB bound, Vec3 vec3)
 	{
-		if (Vec3 == null)
+		if (vec3 == null)
 		{
 			return false;
 		}
 		else
 		{
-			return Vec3.yCoord >= bound.minY && Vec3.yCoord <= bound.maxY && Vec3.zCoord >= bound.minZ && Vec3.zCoord <= bound.maxZ;
+			return vec3.yCoord >= bound.minY && vec3.yCoord <= bound.maxY && vec3.zCoord >= bound.minZ && vec3.zCoord <= bound.maxZ;
 		}
 	}
 
-	private static boolean isVecInsideXZBounds(AxisAlignedBB bound, Vec3 Vec3)
+	private static boolean isVecInsideXZBounds(AxisAlignedBB bound, Vec3 vec3)
 	{
-		if (Vec3 == null)
+		if (vec3 == null)
 		{
 			return false;
 		}
 		else
 		{
-			return Vec3.xCoord >= bound.minX && Vec3.xCoord <= bound.maxX && Vec3.zCoord >= bound.minZ && Vec3.zCoord <= bound.maxZ;
+			return vec3.xCoord >= bound.minX && vec3.xCoord <= bound.maxX && vec3.zCoord >= bound.minZ && vec3.zCoord <= bound.maxZ;
 		}
 	}
 
-	private static boolean isVecInsideXYBounds(AxisAlignedBB bound, Vec3 Vec3)
+	private static boolean isVecInsideXYBounds(AxisAlignedBB bound, Vec3 vec3)
 	{
-		if (Vec3 == null)
+		if (vec3 == null)
 		{
 			return false;
 		}
 		else
 		{
-			return Vec3.xCoord >= bound.minX && Vec3.xCoord <= bound.maxX && Vec3.yCoord >= bound.minY && Vec3.yCoord <= bound.maxY;
+			return vec3.xCoord >= bound.minX && vec3.xCoord <= bound.maxX && vec3.yCoord >= bound.minY && vec3.yCoord <= bound.maxY;
 		}
 	}
 }

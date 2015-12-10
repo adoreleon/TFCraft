@@ -3,11 +3,11 @@ package com.bioxx.tfc.Render;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 
-import com.bioxx.tfc.TileEntities.TEChest;
-import com.bioxx.tfc.api.Constant.Global;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.TileEntities.TEChest;
+import com.bioxx.tfc.api.Constant.Global;
 
 @SideOnly(Side.CLIENT)
 public class TESRChestHelper
@@ -27,7 +27,7 @@ public class TESRChestHelper
 	/**
 	 * Renders a chest at 0,0,0 - used for item rendering
 	 */
-	public void renderChest(Block block, int meta, float p_147715_3_)
+	public void renderChest(Block block, int meta, float modelID)
 	{
 		TileEntityRendererDispatcher.instance.renderTileEntityAt(chestTypes[meta], 0.0D, 0.0D, 0.0D, 0.0F);
 	}

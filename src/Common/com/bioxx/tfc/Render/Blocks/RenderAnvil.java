@@ -5,12 +5,12 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
 import com.bioxx.tfc.Blocks.Devices.BlockAnvil;
 import com.bioxx.tfc.TileEntities.TEAnvil;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Crafting.AnvilReq;
-
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class RenderAnvil implements ISimpleBlockRenderingHandler
 {
@@ -25,7 +25,7 @@ public class RenderAnvil implements ISimpleBlockRenderingHandler
 			breaking = true;
 
 		TEAnvil te = (TEAnvil)blockAccess.getTileEntity(i, j, k);
-		if(te.AnvilTier != AnvilReq.STONE.Tier)
+		if(te.anvilTier != AnvilReq.STONE.Tier)
 		{
 			if(direction == 0)//x
 			{
@@ -84,7 +84,7 @@ public class RenderAnvil implements ISimpleBlockRenderingHandler
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelId, RenderBlocks renderer)
 	{
-		if(modelId == TFCBlocks.AnvilRenderId)
+		if(modelId == TFCBlocks.anvilRenderId)
 		{
 			renderer.setRenderBounds(0.3F, 0.4F, 0.1F, 0.7F, 0.6F, 0.9F);
 			renderInvBlock(block, metadata, renderer);
@@ -104,7 +104,7 @@ public class RenderAnvil implements ISimpleBlockRenderingHandler
 	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
 	{
-		if(modelId == TFCBlocks.AnvilRenderId)
+		if(modelId == TFCBlocks.anvilRenderId)
 			return renderAnvil(block,x,y,z,renderer);
 		return false;
 	}

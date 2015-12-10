@@ -1,14 +1,14 @@
 package com.bioxx.tfc.api.Crafting;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+
 import net.minecraftforge.oredict.OreDictionary;
 
 public class LoomRecipe
 {
-	ItemStack inItemStack;
-	ItemStack outItemStack;
-	int inSize;
+	public ItemStack inItemStack;
+	public ItemStack outItemStack;
+	public int inSize;
 
 	public LoomRecipe(ItemStack inputItem, ItemStack outIS)
 	{
@@ -25,6 +25,15 @@ public class LoomRecipe
 
 		return iStack && itemsEqual;
 	}
+
+	public Boolean resultMatches(ItemStack item)
+	{
+		boolean iStack = outItemStack != null && item != null && item.stackSize == outItemStack.stackSize;
+
+		boolean itemsEqual = OreDictionary.itemMatches(outItemStack, item, false);
+
+		return iStack && itemsEqual;
+	}
 	
 	public Boolean partiallyMatches(ItemStack item)
 	{
@@ -37,7 +46,7 @@ public class LoomRecipe
 
 	public ItemStack getInItem()
 	{
-		return inItemStack.copy();
+		return inItemStack;
 	}
 
 	public int getReqSize(){
@@ -62,4 +71,9 @@ public class LoomRecipe
 		}
 		return is;
 	}
+
+    public ItemStack getOutItemStack()
+    {
+        return outItemStack;
+    }
 }

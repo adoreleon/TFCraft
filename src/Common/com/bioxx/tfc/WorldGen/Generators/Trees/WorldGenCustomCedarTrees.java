@@ -3,16 +3,15 @@ package com.bioxx.tfc.WorldGen.Generators.Trees;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class WorldGenCustomCedarTrees extends WorldGenerator
 {
-	private int treeId;
+	private final int treeId;
 
 	public WorldGenCustomCedarTrees(boolean flag, int id)
 	{
@@ -23,10 +22,10 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 	public boolean generate(World world, Random random, int xCoord, int yCoord, int zCoord)
 	{
 		int treeHeight = random.nextInt(6) + 3;
-		boolean flag = true;
 		if (yCoord < 1 || yCoord + treeHeight + 1 > world.getHeight())
 			return false;
 
+		boolean flag = true;
 		for (int y = yCoord; y <= yCoord + 1 + treeHeight; y++)
 		{
 			byte byte0 = 1;
@@ -42,7 +41,7 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 					if (y >= 0 && y < world.getHeight())
 					{
 						Block j3 = world.getBlock(x, y, z);
-						if (j3 != Blocks.air && !j3.canBeReplacedByLeaves(world, x, y, z))
+						if (!j3.isAir(world, x, y, z) && !j3.canBeReplacedByLeaves(world, x, y, z))
 							flag = false;
 					}
 					else
@@ -74,7 +73,7 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 					if ((Math.abs(l3) != treeRadius || Math.abs(j4) != treeRadius || random.nextInt(2) != 0 && treeDiameter != 0) && 
 							world.getBlock(xPos, treeHeightOffset, zPos).canBeReplacedByLeaves(world, xPos, treeHeightOffset, zPos))
 					{
-						setBlockAndNotifyAdequately(world, xPos, treeHeightOffset, zPos, TFCBlocks.Leaves, treeId);
+						setBlockAndNotifyAdequately(world, xPos, treeHeightOffset, zPos, TFCBlocks.leaves, treeId);
 					}
 				}
 			}
@@ -82,9 +81,7 @@ public class WorldGenCustomCedarTrees extends WorldGenerator
 		//Here we crate the tree trunk
 		for (int l1 = 0; l1 < treeHeight; l1++)
 		{
-			Block k2 = world.getBlock(xCoord, yCoord + l1, zCoord);
-			if (k2 == Blocks.air || k2 == TFCBlocks.Leaves || k2.canBeReplacedByLeaves(world, xCoord, yCoord + l1, zCoord))
-				setBlockAndNotifyAdequately(world, xCoord, yCoord + l1, zCoord, TFCBlocks.LogNatural, treeId);
+			setBlockAndNotifyAdequately(world, xCoord, yCoord + l1, zCoord, TFCBlocks.logNatural, treeId);
 		}
 		return true;
 	}

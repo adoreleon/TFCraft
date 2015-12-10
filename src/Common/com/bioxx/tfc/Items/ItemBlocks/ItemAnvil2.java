@@ -1,21 +1,21 @@
 package com.bioxx.tfc.Items.ItemBlocks;
 
-import com.bioxx.tfc.api.Metal;
-import com.bioxx.tfc.api.Constant.Global;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+
+import com.bioxx.tfc.api.Metal;
+import com.bioxx.tfc.api.Constant.Global;
 
 public class ItemAnvil2 extends ItemAnvil
 {
 	public ItemAnvil2(Block par1) 
 	{
 		super(par1);
-		this.MetaNames = new String[]{ "Rose Gold", "Bismuth Bronze", "Black Bronze"};
+		this.metaNames = new String[]{ "Rose Gold", "Bismuth Bronze", "Black Bronze"};
 	}
 	
 	@Override
-	public Metal GetMetalType(ItemStack is) 
+	public Metal getMetalType(ItemStack is) 
 	{
 		int meta = is.getItemDamage();
 		switch(meta)

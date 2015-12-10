@@ -13,11 +13,11 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.gen.layer.IntCache;
 
-import com.bioxx.tfc.Core.TFC_Climate;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerTFC;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.WorldGen.GenLayers.GenLayerTFC;
 
 public class TFCWorldChunkManager extends WorldChunkManager
 {
@@ -29,21 +29,21 @@ public class TFCWorldChunkManager extends WorldChunkManager
 	protected BiomeCache biomeCache;
 
 	/** A list of biomes that the player can spawn in. */
-	protected List biomesToSpawnIn;
+	protected List<BiomeGenBase> biomesToSpawnIn;
 
-	public long seed = 0;
+	public long seed;
 	public TFCWorldChunkManager()
 	{
 		super();
 		biomeCache = new BiomeCache(this);
-		this.biomesToSpawnIn = new ArrayList();
+		this.biomesToSpawnIn = new ArrayList<BiomeGenBase>();
 		//this.biomesToSpawnIn.add(TFCBiome.beach);
-		this.biomesToSpawnIn.add(TFCBiome.forest);
-		this.biomesToSpawnIn.add(TFCBiome.plains);
-		this.biomesToSpawnIn.add(TFCBiome.rollingHills);
-		this.biomesToSpawnIn.add(TFCBiome.swampland);
-		this.biomesToSpawnIn.add(TFCBiome.Mountains);
-		this.biomesToSpawnIn.add(TFCBiome.HighPlains);
+		this.biomesToSpawnIn.add(BiomeGenBase.forest); // There is no TFCBiome.forest
+		this.biomesToSpawnIn.add(TFCBiome.PLAINS);
+		this.biomesToSpawnIn.add(TFCBiome.ROLLING_HILLS);
+		this.biomesToSpawnIn.add(TFCBiome.SWAMPLAND);
+		this.biomesToSpawnIn.add(TFCBiome.MOUNTAINS);
+		this.biomesToSpawnIn.add(TFCBiome.HIGH_PLAINS);
 	}
 
 	public TFCWorldChunkManager(World world)
@@ -52,17 +52,17 @@ public class TFCWorldChunkManager extends WorldChunkManager
 		worldObj = world;
 	}
 
-	public TFCWorldChunkManager(long Seed, WorldType worldtype)
+	public TFCWorldChunkManager(long genSeed, WorldType worldtype)
 	{
 		this();
-		seed = Seed;
-		//System.out.println("================= "+worldtype.getWorldTypeName()+" =================");
+		seed = genSeed;
+		//TerraFirmaCraft.log.info("================= "+worldtype.getWorldTypeName()+" =================");
 		// Making sure that only TFC World Types can be used
 		GenLayerTFC[] var4;
-		if(worldtype == TFCWorldType.FLAT)
-			var4 = GenLayerTFC.initialize(Seed, TFCWorldType.FLAT);
+		if(worldtype == TFCWorldType.flatWorldType)
+			var4 = GenLayerTFC.initialize(genSeed, TFCWorldType.flatWorldType);
 		else
-			var4 = GenLayerTFC.initialize(Seed, TFCWorldType.DEFAULT);
+			var4 = GenLayerTFC.initialize(genSeed, TFCWorldType.defaultWorldType);
 
 		this.genBiomes = var4[0];
 		this.biomeIndexLayer = var4[1];
@@ -72,7 +72,7 @@ public class TFCWorldChunkManager extends WorldChunkManager
 	 * Gets the list of valid biomes for the player to spawn in.
 	 */
 	@Override
-	public List getBiomesToSpawnIn()
+	public List<BiomeGenBase> getBiomesToSpawnIn()
 	{
 		return this.biomesToSpawnIn;
 	}
@@ -83,7 +83,9 @@ public class TFCWorldChunkManager extends WorldChunkManager
 	@Override
 	public float[] getRainfall(float[] par1ArrayOfFloat, int par2, int par3, int par4, int par5)
 	{
-		return TFC_Climate.getCacheManager(worldObj).getRainfall(par1ArrayOfFloat, par2, par3, par4, par5);
+		if (TFC_Climate.getCacheManager(worldObj) != null)
+			return TFC_Climate.getCacheManager(worldObj).getRainfall(par1ArrayOfFloat, par2, par3, par4, par5);
+		return par1ArrayOfFloat;
 	}
 
 	/**
@@ -215,8 +217,7 @@ public class TFCWorldChunkManager extends WorldChunkManager
 	{
 		int x = (int)Math.floor(Minecraft.getMinecraft().thePlayer.posX);
 		int z = (int)Math.floor(Minecraft.getMinecraft().thePlayer.posZ);
-		float temp = TFC_Climate.getHeightAdjustedTemp(Minecraft.getMinecraft().theWorld, x, y, z);
-		return temp;
+		return TFC_Climate.getHeightAdjustedTemp(Minecraft.getMinecraft().theWorld, x, y, z);
 	}
 
 	@Override

@@ -10,9 +10,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Achievements;
 import com.bioxx.tfc.TileEntities.TEAnvil;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
@@ -24,12 +24,12 @@ import com.google.common.collect.Sets;
 
 public class ItemHammer extends ItemTerraTool implements ICausesDamage
 {
-	private static final Set blocks = Sets.newHashSet( new Block[] {});
+	private static final Set<Block> BLOCKS = Sets.newHashSet(new Block[] {});
 	private float damageVsEntity;
 
 	public ItemHammer(ToolMaterial e, float damage)
 	{
-		super(0, e, blocks);
+		super(0, e, BLOCKS);
 		this.damageVsEntity = damage;
 	}
 
@@ -39,11 +39,11 @@ public class ItemHammer extends ItemTerraTool implements ICausesDamage
 		Block id2 = player.worldObj.getBlock(x, y, z);
 		int meta2 = player.worldObj.getBlockMetadata(x, y, z);
 
-		if(id2 == TFCBlocks.StoneIgEx || id2 == TFCBlocks.StoneIgIn)
+		if(id2 == TFCBlocks.stoneIgEx || id2 == TFCBlocks.stoneIgIn)
 		{
 			if(side == 1)
 			{
-				world.setBlock(x, y, z, TFCBlocks.Anvil);
+				world.setBlock(x, y, z, TFCBlocks.anvil);
 				player.triggerAchievement(TFC_Achievements.achAnvil);
 				TEAnvil te = (TEAnvil) world.getTileEntity(x, y, z);
 				if(te == null)
@@ -73,7 +73,7 @@ public class ItemHammer extends ItemTerraTool implements ICausesDamage
 	}
 
 	@Override
-	public EnumDamageType GetDamageType()
+	public EnumDamageType getDamageType()
 	{
 		return EnumDamageType.CRUSHING;
 	}

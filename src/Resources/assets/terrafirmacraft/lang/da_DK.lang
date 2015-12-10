@@ -1,62 +1,68 @@
 ﻿#da_DK
-#Dette er den danske sprog-konfigurationsfil, oversat af gufferdk og efterset af DukeJuke; This is the Danish language configuration file, translated by gufferdk and rewiewed by DukeJuke
+#Dette er den danske sprogkonfigurationsfil, oversat af gufferdk og korrekturlæst af DukeJuke.
 
 
 
 
 
 generator.TFCDefault=TFC Standard
-generator.TFCFlat=TFC Flad
+generator.TFCFlat=TFC Flad (ubenyttet)
+generator.TFCAmplified=TFC Opløftet(ubenyttet)
+generator.TFCLargeBiomes=TFC Store biotoper (ubenyttet)
 
 key.ToolMode=Skift Værktøjstilstand
 key.LockTool=Lås Værktøjsplacering
 
 effect.bleed=Blødning
+death.attack.alcohol=%1$s døde af alkoholforgiftning
+death.attack.heatStroke=%1$s døde af hedeslag
 
 #==============
-#= Spawn Eggs =
+#= Entities = 
 #==============
-entity.squidTFC.name=Blæksprutte
-entity.cowTFC.name=Ko
-entity.wolfTFC.name=Ulv
 entity.bearTFC.name=Bjørn
-entity.deerTFC.name=Rådyr
 entity.chickenTFC.name=Kylling
-entity.pigTFC.name=Gris
-entity.skeletonTFC.name=Skelet
-entity.zombieTFC.name=Zombie
-entity.spiderTFC.name=Edderkop
-entity.slimeTFC.name=Slim
-entity.silverfishTFC.name=Sølvfisk
-entity.ghastTFC.name=Ghast
-entity.caveSpiderTFC.name=Huleedderkop
-entity.blazeTFC.name=Ildånd
-entity.endermanTFC.name=Endermand
-entity.pigZombieTFC.name=Grisezombie
-entity.creeperTFC.name=Creeper
-entity.sheepTFC.name=Får
-entity.pheasantTFC.name=Fasan
-entity.horseTFC.name=Hest
-entity.irongolemTFC.name=Jerngolem
+entity.cowTFC.name=Ko
+entity.deerTFC.name=Rådyr
 entity.fishTFC.name=Aborre
+entity.horseTFC.name=Hest
+entity.pheasantTFC.name=Fasan
+entity.pigTFC.name=Gris
+entity.sheepTFC.name=Får
+entity.squidTFC.name=Blæksprutte
+entity.wolfTFC.name=Ulv
 
+entity.blazeTFC.name=Ildånd
+entity.caveSpiderTFC.name=Huleedderkop
+entity.creeperTFC.name=Creeper
+entity.endermanTFC.name=Endermand
+entity.ghastTFC.name=Ghast
+entity.irongolemTFC.name=Jerngolem
+entity.pigZombieTFC.name=Grisezombie
+entity.silverfishTFC.name=Sølvfisk
+entity.skeletonTFC.name=Skelet
+entity.slimeTFC.name=Slim
+entity.spiderTFC.name=Edderkop
+entity.zombieTFC.name=Zombie
 
-#==========
-#= Entity =
-#==========
-entity.notFamiliar=Dyret vil ikke være med til det der.
+entity.arrowTFC.name=Pil
+entity.standTFC.name=Rustningsstativ
+entity.barrel.name=Tønde
+entity.fallingBlock.name=Fallende Blok
+
+entity.notFamiliar=Det der vil dyret ikke være med til.
 fishingRod.lineTension=Linen er ved at knække!
 fishingRod.lineSnap=Linen knækkede!
 fishingRod.bite=Bid!
-fishingRod.gotAway=Den slap væk...
+fishingRod.gotAway=Den slap væk…
 
 #================
 #= Achievements =
 #================
 achievement.achLooseRock=Tid til at stene!
 achievement.achLooseRock.desc=Saml en sten op
-achievement.achSmallOre=§No stone unturned
-achievement.achSmallOre.desc=Find en malm-klump
+achievement.achSmallOre=§oNo stone unturned
+achievement.achSmallOre.desc=Find en malmklump
 achievement.achWildVegetable=Samler
 achievement.achWildVegetable.desc=Find en vild grøntsag
 achievement.achRutabaga=Åndssvage løg...
@@ -90,10 +96,33 @@ achievement.achPokeCreeper.desc=Slå den med en pind
 commands.transferTamed.noTamed=Ingen gyldige dyr inden for rækkevidde!
 commands.transferTamed.tooMany=For mange dyr inden for rækkevidde!
 commands.transferTamed.wrongOwner=Det/den tilhører ikke dig!
-commands.transferTamed.sameTarget=Du kan ikke overdrage dig selv!
+commands.transferTamed.sameTarget=Du kan ikke overdrage til dig selv!
 commands.transferTamed.display.incoming=Et dyr er blevet overdraget til dig af %s!
-commands.transferTamed.display.outgoing=Du overdraget et dyr til %s!
-commands.transferTamed.wrongSender=Du kan ikke overføre dyr!
+commands.transferTamed.display.outgoing=Du har overdraget et dyr til %s!
+commands.transferTamed.wrongSender=Du kan ikke overdrage dyr!
+
+#==========
+#= Fluids =
+#==========
+fluid.freshwater=Ferskvand
+fluid.saltwater=Saltvand
+fluid.lavatfc=Lava
+fluid.hotwater=Varmt Vand
+fluid.beer=Øl
+fluid.cider=Cider
+fluid.rum=Rom
+fluid.ryewhiskey=Rugwhisky
+fluid.sake=Sake
+fluid.vodka=Vodka
+fluid.whiskey=Whisky
+fluid.cornwhiskey=Majswhisky
+fluid.milk=Mælk
+fluid.milkcurdled=Syrnet Mælk
+fluid.milkvinegar=Mælk/Eddike-blanding
+fluid.limewater=Kalkvand
+fluid.tannin=Tannin
+fluid.vinegar=Eddike
+fluid.brine=Lage
 
 #========
 #= Food =
@@ -101,10 +130,15 @@ commands.transferTamed.wrongSender=Du kan ikke overføre dyr!
 item.MealGeneric.name=Måltid
 item.meal.terrible=Forfærdeligt
 item.meal.poor=Ringe
-item.meal.decent=Middelmådigt
+item.meal.decent=Acceptabelt
 item.meal.good=Godt
 item.meal.great=Storartet
 item.meal.fantastic=Fantastisk
+item.Sandwich.name=Sandwich
+item.Salad.name=Salat
+item.Soup.name=Suppe
+item.Sugar.name=Sukker
+item.Sea Weed.name=Havtang
 
 #== Grains ==
 item.Barley Bread.name=Bygbrød
@@ -112,7 +146,7 @@ item.Corn Bread.name=Majsbrød
 item.Oat Bread.name=Havrebrød
 item.Rice Bread.name=Risbrød
 item.Rye Bread.name=Rugbrød
-item.Wheat Bread.name=Hvedebrød
+item.Wheat Bread.name=Franskbrød
 
 item.Barley Whole.name=Byg
 item.Maize Ear.name=Majskolbe
@@ -212,8 +246,8 @@ item.Calamari.name=Blækspruttekød
 item.egg.name=Æg
 item.Fish.name=Fisk
 item.Mutton.name=Fårekød
-item.Porkchop.name=Svinekotelet
-item.Chicken.name=Kylling
+item.Porkchop.name=Svinekød
+item.Chicken.name=Fjerkræ
 item.Venison.name=Vildtkød
 item.HorseMeat.name=Hestekød
 item.Egg Cooked.name=Spejlæg
@@ -267,10 +301,10 @@ item.CornWhiskey.name=Majswhisky
 item.Clay.Clay.name=Ler
 item.Clay.Fire Clay.name=Chamotte
 
-item.clay.clayflatlight.name=Lyst Fladt Ler
-item.clay.clayflatdark.name=Mørkt Fladt Ler
-item.clay.clayflatfire.name=Flad Chamotte
-item.clay.clayflatdarkfire.name=Mørk Flad Chamotte
+item.Flat Clay.clay flat light.name=Lyst Fladt Ler
+item.Flat Clay.clay flat dark.name=Mørkt Fladt Ler
+item.Flat Clay.clay flat fire.name=Flad Chamotte
+item.Flat Clay.clay flat dark fire.name=Mørk Flad Chamotte
 
 item.Jug.Clay Jug.name=Lerkande
 item.Jug.Ceramic Jug.name=Keramik-kande
@@ -324,11 +358,11 @@ item.Knife Mold.Ceramic Mold Knife Black Bronze.name=Knivsstøbeform (Sort Bronz
 item.Knife Mold.Ceramic Mold Knife Bismuth Bronze.name=Knivsstøbeform (Bismuthbronze)
 
 item.Javelin Mold.Clay Mold Javelin.name=Lerstøbeform Til Spydspid
-item.Javelin Mold.Ceramic Mold Javelin.name=Spydspids-støbeform
-item.Javelin Mold.Ceramic Mold Javelin Copper.name=Spydspids-støbeform (Kobber)
-item.Javelin Mold.Ceramic Mold Javelin Bronze.name=Spydspids-støbeform (Bronze)
-item.Javelin Mold.Ceramic Mold Javelin Black Bronze.name=Spydspids-støbeform (Sort Bronze)
-item.Javelin Mold.Ceramic Mold Javelin Bismuth Bronze.name=Spydspids-støbeform (Bismuthbronze)
+item.Javelin Mold.Ceramic Mold Javelin.name=Spydspidsstøbeform
+item.Javelin Mold.Ceramic Mold Javelin Copper.name=Spydspidsstøbeform (Kobber)
+item.Javelin Mold.Ceramic Mold Javelin Bronze.name=Spydspidsstøbeform (Bronze)
+item.Javelin Mold.Ceramic Mold Javelin Black Bronze.name=Spydspidsstøbeform (Sort Bronze)
+item.Javelin Mold.Ceramic Mold Javelin Bismuth Bronze.name=Spydspidsstøbeform (Bismuthbronze)
 
 item.Mace Mold.Clay Mold Mace.name=Lerstøbeform Til Morgenstjerne
 item.Mace Mold.Ceramic Mold Mace.name=Morgenstjernestøbeform
@@ -380,12 +414,16 @@ item.Sword Mold.Ceramic Mold Sword Black Bronze.name=Sværdstøbeform (Sort Bron
 item.Sword Mold.Ceramic Mold Sword Bismuth Bronze.name=Sværdstøbeform (Bismuthbronze)
 
 item.Spindle.name=Ten
-item.Spindle Head.Clay Spindle.name=Ler-ten
-item.Spindle Head.Spindle Head.name=Ten-hoved
+item.Spindle Head.Clay Spindle.name=Lerten
+item.Spindle Head.Spindle Head.name=Tenhoved
 
 item.Fire Brick.Fire Brick.name=Ildfast Mursten
 item.Fire Brick.Clay Fire Brick.name=Ubrændt Ildfast Mursten
 tile.FireBrick.name=Ildfast Murstensblok
+tile.Pottery.name=Lertøj
+
+item.ClayBowl.Ceramic Bowl.name=Keramikskål
+item.ClayBowl.Clay Bowl.name=Lerskål
 
 #= Gems =
 item.Agate.Chipped.name=Hakket Agat
@@ -462,19 +500,19 @@ item.Tourmaline.Exquisite.name=Udsøgt Turmalin
 #= Powders =
 #===========
 item.dyePowder.black.name=Blæksæk
-item.dyePowder.blue.name=Lapis Lazuli
+item.dyePowder.blue.name=Blå Farve
 item.dyePowder.brown.name=Kakaobønner
 item.dyePowder.cyan.name=Cyan Farve
 item.dyePowder.gray.name=Grå Farve
-item.dyePowder.green.name=Grøn farve
-item.dyePowder.lightBlue.name=Lyseblå farve
+item.dyePowder.green.name=Grøn Farve
+item.dyePowder.lightBlue.name=Lyseblå Farve
 item.dyePowder.lime.name=Limegrøn Farve
-item.dyePowder.magenta.name=Magenta farve
+item.dyePowder.magenta.name=Magenta Farve
 item.dyePowder.orange.name=Orange Farve
 item.dyePowder.pink.name=Lyserød Farve
 item.dyePowder.purple.name=Lilla Farve
-item.dyePowder.red.name=Rød farve
-item.dyePowder.silver.name=Lysegrå farve
+item.dyePowder.red.name=Rød Farve
+item.dyePowder.silver.name=Lysegrå Farve
 item.dyePowder.white.name=Benmel
 item.dyePowder.yellow.name=Gul Farve
 
@@ -824,6 +862,7 @@ item.Small Ore.Sphalerite.name=Lille Zinkblende
 item.Small Ore.Tetrahedrite.name=Lille Tetrahedrit
 
 #== Ore Blocks ==
+tile.Ore.name=Malm
 tile.Ore.Bituminous Coal.name=Bituminøst Kul
 tile.Ore.Borax.name=Boraks
 tile.Ore.Cinnabar.name=Cinnabarit
@@ -956,7 +995,24 @@ item.Loom.White Elm.name=Hvidelmetræsvæv
 item.Loom.Willow.name=Piletræsvæv
 
 #== Wood Blocks ==
-tile.log.Acacia.name=Akaciestamme
+tile.Chest.Acacia.name=Akacietræskiste
+tile.Chest.Ash.name=Asketræskiste
+tile.Chest.Aspen.name=Aspetræskiste
+tile.Chest.Birch.name=Birketræskiste
+tile.Chest.Chestnut.name=Kastanjetræskiste
+tile.Chest.Douglas Fir.name=Douglasgrantræskiste
+tile.Chest.Hickory.name=Valnøddetræskiste
+tile.Chest.Kapok.name=Kapoktræskiste
+tile.Chest.Maple.name=Ahorntræskiste
+tile.Chest.Oak.name=Egetræskiste
+tile.Chest.Pine.name=Fyrretræskiste
+tile.Chest.Sequoia.name=Kæmpefyrretræskiste
+tile.Chest.Spruce.name=Grantræskiste
+tile.Chest.Sycamore.name=Morbærtræskiste
+tile.Chest.White Cedar.name=Hvid Cedertræskiste
+tile.Chest.White Elm.name=Hvidelmetræskiste
+tile.Chest.Willow.name=Piletræskiste
+
 tile.log2.Acacia.name=Akaciestamme
 tile.log.Ash.name=Askestamme
 tile.log.Aspen.name=Aspestamme
@@ -1029,7 +1085,8 @@ tile.sapling.White Cedar.name=Hvid Cederstikling
 tile.sapling.White Elm.name=Hvidelmsstilking
 tile.sapling.Willow.name=Pilestikling
 
-tile.leaves.Acacia.name=Akacieblade
+tile.leaves2.name=Akacieblade
+tile.leaves2.Acacia.name=Akacieblade
 tile.leaves.Ash.name=Askeblade
 tile.leaves.Aspen.name=Aspeblade
 tile.leaves.Birch.name=Birkeblade
@@ -1064,6 +1121,10 @@ tile.wood.Sycamore.name=Morbærtræsplanker
 tile.wood.White Cedar.name=Hvid Cedertræsplanker
 tile.wood.White Elm.name=Hvidelmetræsplanker
 tile.wood.Willow.name=Piletræsplanker
+
+tile.fruitTreeWood.name=Frugttræ
+tile.fruitTreeLeaves.name=Frugttræsblade
+tile.fruitTreeLeaves2.name=Frugttræsblade
 
 tile.Door Acacia.name=Akacietræsdør
 tile.Door Ash.name=Asketræsdør
@@ -1191,6 +1252,25 @@ tile.WoodSupportV.White Cedar.name=Hvid Cedertræsunderstøttelsesbjælke
 tile.WoodSupportV.White Elm.name=Hvidelmetræsunderstøttelsesbjælke
 tile.WoodSupportV.Willow.name=Piletræsunderstøttelsesbjælke
 
+tile.WoodSupportH2.name=Træunderstøttelsesbjælke
+tile.WoodSupportH2.Acacia.name=Akacietræsunderstøttelsesbjælke
+tile.WoodSupportH.Ash.name=Asketræsunderstøttelsesbjælke
+tile.WoodSupportH.Aspen.name=Aspetræsunderstøttelsesbjælke
+tile.WoodSupportH.Birch.name=Birketræsunderstøttelsesbjælke
+tile.WoodSupportH.Chestnut.name=Kastanjetræsunderstøttelsesbjælke
+tile.WoodSupportH.Douglas Fir.name=Douglasgrantræsunderstøttelsesbjælke
+tile.WoodSupportH.Hickory.name=Valnøddetræsunderstøttelsesbjælke
+tile.WoodSupportH.Kapok.name=Kapoktræsunderstøttelsesbjælke
+tile.WoodSupportH.Maple.name=Ahorntræsunderstøttelsesbjælke
+tile.WoodSupportH.Oak.name=Egetræsunderstøttelsesbjælke
+tile.WoodSupportH.Pine.name=Fyrretræsunderstøttelsesbjælke
+tile.WoodSupportH.Sequoia.name=Kæmpefyrretræsunderstøttelsesbjælke
+tile.WoodSupportH.Spruce.name=Grantræsunderstøttelsesbjælke
+tile.WoodSupportH.Sycamore.name=Morbærtræsunderstøttelsesbjælke
+tile.WoodSupportH.White Cedar.name=Hvid Cedertræsunderstøttelsesbjælke
+tile.WoodSupportH.White Elm.name=Hvidelmetræsunderstøttelsesbjælke
+tile.WoodSupportH.Willow.name=Piletræsunderstøttelsesbjælke
+
 tile.Toolrack.Acacia.name=Akacietræs-værktøjsstativ
 tile.Toolrack.Ash.name=Asketræs-værktøjsstativ
 tile.Toolrack.Aspen.name=Aspetræs-værktøjsstativ
@@ -1218,27 +1298,27 @@ item.Stone Hammer Head.name=Stenhammerhoved
 item.Stone Knife Blade.name=Sten-knivsblad
 
 item.IgIn Stone Axe Head.name=Stenøksehoved
-item.IgIn Stone Chisel Head.name=Sten-mejselhoved
+item.IgIn Stone Chisel Head.name=Stenmejselhoved
 item.IgIn Stone Hoe Head.name=Stenhakkejernshoved
-item.IgIn Stone Javelin Head.name=Sten-spydspids
+item.IgIn Stone Javelin Head.name=Stenspydspids
 item.IgIn Stone Shovel Head.name=Stenskovlshoved
 
 item.Sed Stone Axe Head.name=Stenøksehoved
-item.Sed Stone Chisel Head.name=Sten-mejselhoved
+item.Sed Stone Chisel Head.name=Stenmejselhoved
 item.Sed Stone Hoe Head.name=Stenhakkejernshoved
-item.Sed Stone Javelin Head.name=Sten-spydspids
+item.Sed Stone Javelin Head.name=Stenspydspids
 item.Sed Stone Shovel Head.name=Stenskovlshoved
 
 item.IgEx Stone Axe Head.name=Stenøksehoved
-item.IgEx Stone Chisel Head.name=Sten-mejselhoved
+item.IgEx Stone Chisel Head.name=Stenmejselhoved
 item.IgEx Stone Hoe Head.name=Stenhakkejernshoved
-item.IgEx Stone Javelin Head.name=Sten-spydspids
+item.IgEx Stone Javelin Head.name=Stenspydspids
 item.IgEx Stone Shovel Head.name=Stenskovlshoved
 
 item.MM Stone Axe Head.name=Stenøksehoved
-item.MM Stone Chisel Head.name=Sten-mejselhoved
+item.MM Stone Chisel Head.name=Stenmejselhoved
 item.MM Stone Hoe Head.name=Stenhakkejernshoved
-item.MM Stone Javelin Head.name=Sten-spydspids
+item.MM Stone Javelin Head.name=Stenspydspids
 item.MM Stone Shovel Head.name=Stenskovlshoved
 
 #== Stone Tools ==
@@ -1794,6 +1874,9 @@ item.Tin Double Sheet.name=Dobbelt Tinplade
 item.Wrought Iron Double Sheet.name=Dobbelt Smedejernsplade
 item.Zinc Double Sheet.name=Dobbelt Zinkplade
 
+#== Misc ==
+item.Blueprint=Arbejdstegning
+
 #===========
 #= Devices =
 #===========
@@ -1802,11 +1885,17 @@ tile.Forge.name=Esse
 tile.BlastFurnace.name=Højovn
 tile.SpawnMeter.name=Beskyttelsesmåler
 tile.Quern.name=Kværnstensbase
-tile.EarlyBloomery.name=Grubeovn
-tile.Crucible.name=Digel
+tile.EarlyBloomery.name=Blæsterovn
+tile.Molten.name=Smeltet Malm
+tile.Crucible.name=Smeltedigel
 tile.NestBox.name=Redekasse
 item.SluiceItem.name=Guldvaskningssliske
+tile.Sluice.name=Guldvaskningssliske
 tile.LeatherRack.name=Læderstativ
+tile.FoodPrep.name=Madlavning
+tile.MetalSheet.name=Metalplade
+tile.ingotpile.name=Metalbarrestak
+tile.SmokeRack.name=Rygningsstativ
 
 #== Anvils ==
 tile.Anvil.Stone.name=Stenambolt
@@ -1905,17 +1994,35 @@ item.fishingRod.name=Fiskestang
 
 item.Quiver.name=Pilekogger
 item.Rope.name=Reb
+item.Mud Brick.name=Muddermursten
+item.Wet Mud Brick.name=Våd muddermursten
 
 #======== Misc. Blocks========
 tile.Straw Hide Bed.name=Strå- & Skindseng
+tile.StrawHideBed.name=Strå- & Skindseng
 tile.customBed.sleep=Denne seng er så ukomfortabel at du ikke kan falde i søvn
 tile.BasicPipe.name=Rør
 tile.ValvePipe.name=Rør Med Ventil
+tile.Smoke.name=Røg
 tile.Torch.name=Fakkel
 tile.Chest.name=Kiste
 tile.Bookshelf.name=Bogreol
 tile.Workbench.name=Arbejdsbord
 tile.ButtonWood.name=Træknap
+tile.Firepit.name=Bålplads
+tile.LogPile.name=Brændestabel
+tile.Charcoal.name=Trækul
+tile.StoneDetailed.name=Detaljeret
+tile.stoneStairs.name=Trappe
+tile.stoneSlabs.name=Plade
+tile.stoneStalac.name=Stalaktit
+tile.WoodConstruct.name=Tømmer
+tile.MetalTrapDoor.name=Gulvlem
+tile.Vessel.name=Stort Lerkar
+tile.Grill.name=Grill
+
+tile.Sulfur.name=Svovl
+tile.Reeds.name=Sukkerør
 
 #= Misc. Plants =
 item.Sugarcane.name=Sukkerrør
@@ -1928,6 +2035,7 @@ tile.Fungi.mushroom_brown.name=Brun Svamp
 tile.Fungi.mushroom_red.name=Rød Svamp
 tile.Cactus.name=Kaktus
 tile.Pumpkin.name=Græskar
+tile.LitPumpkin.name=
 tile.Moss.name=Mos
 tile.Thatch.name=Høballe
 tile.Flora.Golden Rod.name=Gyldenris
@@ -1961,10 +2069,18 @@ tile.Flowers2.flower_tulip_white.name=Hvid Tulipan
 tile.Flowers2.flower_tulip_pink.name=Lyserød Tulipan
 tile.Flowers2.flower_oxeye_daisy.name=Marguerit
 
+tile.SaltWater.name=Strømmende Saltvand
+tile.SaltWaterStationary.name=Saltvand
+tile.FreshWater.name=Strømmende Ferskvand
+tile.FreshWaterStationary.name=Ferskvand
+tile.HotWater.name=Strømmende Varmt Vand
+tile.HotWaterStationary.name=Varmt Vand
+tile.Lava.name=Strømmende Lava
+tile.LavaStationary.name=Lava
+
 #=======
 #= GUI =
 #=======
-gui.badnbt=DÅRLIGT Info
 
 #== Anvil GUI ==
 gui.Anvil.Plans=Planer
@@ -2026,15 +2142,11 @@ gui.Anvil.Rule42=Bøj, Sidste Tre
 gui.Anvil.Rule43=Bøj, Ikke Sidst
 
 #== Tools/Weapons/Armor GUI ==
-gui.Armor.Advanced=Avanceret
-gui.Armor.Shift=Skift
 gui.Armor.ForgedBy=Smedet af
-gui.Armor.Hold=Tryk
 gui.Armor.Crush=Smadrende
 gui.Armor.Pierce=Gennemtrængende
 gui.Armor.Slash=Skærende
 
-gui.Bow.Advanced=Avanceret
 gui.Bow.Javelins=Spyd
 gui.Bow.Arrows=Pile
 gui.Bow.ForgedBy=Lavet af
@@ -2053,11 +2165,13 @@ gui.Barrel.ToggleOn=Ind
 gui.Barrel.SealedOn=Forseglet den
 gui.Barrel.Solid=Opbevaring af faste ting
 gui.Barrel.Liquid=Væskeopbevaring
+gui.barrel.pickling=Syltning
+gui.barrel.brining=Lagesaltning
+gui.barrel.preserving=Konservering
 
 #== Bloomery GUI ==
 gui.Bloomery.Charcoal=Trækul
 gui.Bloomery.Ore=Malm
-gui.Bloomery.Output=Produkt
 
 #== Calendar GUI ==
 gui.Calendar.Calendar=Kalender
@@ -2111,12 +2225,14 @@ gui.Calendar.1Week=1 Uge
 gui.Calendar.1Month=1 Måned
 gui.Calendar.1Year=1 År
 
-#== Food Prep GUI ==
+#== Food GUI ==
 gui.FoodPrep.CreateMeal=Lav Måltid
 gui.FoodPrep.Effect=Effekt
 gui.FoodPrep.Energy=Energi
 gui.FoodPrep.Filling=Mætning
 gui.FoodPrep.Power=Styrke
+gui.FoodPrep.Sandwich=Sandwich
+gui.FoodPrep.Salad=Salat
 
 #== Metals ==
 gui.metal.Bismuth=Bismuth
@@ -2174,6 +2290,7 @@ gui.plans.sword=Sværd
 gui.plans.tuyere=Indblæsningsrør
 gui.plans.grill=Grill
 gui.plans.shears=Saks
+gui.plans.trapdoor=Gulvlem
 
 #== Misc GUI ==
 gui.Blueprint=Arbejdstegning
@@ -2182,16 +2299,28 @@ gui.fertilized=Gødet
 gui.Inventory=Beholdning
 gui.ClearSlot=Tøm et produktfelt
 gui.LogPile=Brændestabel
+gui.Output=Produkt
 gui.done=Færdig
+gui.cancel=Annuler
 gui.Sluice.Soil=Jord
-gui.Sluice=Guldvaskning
+gui.Sluice.Overworked=Overbebyrdet
 gui.Workbench.Crafting=Fremstilling
+gui.overburdened=*Overbelastet*
+
+gui.badnbt=DÅRLIGT Info
 
 #== Tooltips ==
+gui.Advanced=Avanceret
+gui.Shift=Skift
+gui.Hold=Tryk
+
+gui.slot=Felt
+gui.slot.back=Tilbage
+
 gui.ShowHelp=§8Hjælp: (Hold §fSkift§8)
 gui.Help=§8Hjælp:
 gui.Clay.Inst0=§bHøjreklik §7med 5 i en bunke for at forme.
-gui.Knife.Inst0=§bHøjreklik §7 toppen af en blok for
+gui.Knife.Inst0=§bHøjreklik §7 toppen af en blok (ikke jord) for
 gui.Knife.Inst1=at lave et måltidsforberedelsesområde
 gui.Leather.Inst0=§bHøjreklik §7 med en kniv i dit inventar for at skære.
 gui.LooseRock.Inst0=§bHøjreklik §7med 2 i en bunke for at tilsnitte.
@@ -2199,7 +2328,15 @@ gui.MeltedMetal.Inst0=§bHøjreklik §7for at hælde i en anden støbeform.
 gui.PotteryBase.Inst0=Snig og §bHøjreklik §7for at placere objekt.
 gui.PotteryVesselSmall.Inst0=Eller §bHøjreklik §7for at åbne inventar.
 gui.RawHide.Inst0=?????
+gui.Chisel.Inst0=Den handling kræver en hammer i den altid tilgængelige del af inventaret.
 gui.Barrel.MoreItems=§8Med mere... (Tryk §fSkift§8)
+
+gui.Nutrient.A=Næringsstof A
+gui.Nutrient.B=Næringsstof B
+gui.Nutrient.C=Næringsstof C
+
+gui.stage1=Trin 1
+gui.stage2=Trin 2
 
 gui.Size.Tiny=Mini
 gui.Size.VerySmall=Meget Lille
@@ -2217,6 +2354,11 @@ gui.Reach.Short=Kort
 gui.Reach.Medium=Medium
 gui.Reach.Far=Land
 
+gui.hoursRemaining=
+gui.daysRemaining=
+gui.infinite=
+
+#== Food ==
 gui.food.fruit=Frugt
 gui.food.vegetable=Grøntsag
 gui.food.grain=Korn
@@ -2228,90 +2370,6 @@ gui.food.salted=Salted
 
 gui.FoodHeat.Cold=Kold
 gui.FoodHeat.Warm=Lun
-
-gui.Torch.CatchingFire=Antændes
-gui.Torch.Lit=Tændt
-
-gui.ItemHeat.Liquid=Flydende
-gui.ItemHeat.Solidified=Størknet
-gui.ItemHeat.Caution=Advarsel
-gui.ItemHeat.Warming=Lunt
-gui.ItemHeat.Hot=Varmt
-gui.ItemHeat.VeryHot=Meget Varmt
-gui.ItemHeat.FaintRed=Svag Rød
-gui.ItemHeat.DarkRed=Mørkerød
-gui.ItemHeat.BrightRed=Klar Rød
-gui.ItemHeat.Orange=Orange
-gui.ItemHeat.Yellow=Gul
-gui.ItemHeat.YellowWhite=Hvidgul
-gui.ItemHeat.White=Hvid
-gui.ItemHeat.BrilliantWhite=Strålende Hvid
-
-gui.ingot.workable=Kan Bearbejdes
-gui.ingot.weldable=Kan Sammensvejses
-gui.ingot.danger=**FARE**
-
-gui.milk.fresh=Frisk
-gui.milk.old=Gammel
-gui.milk.sour=Sur
-
-gui.units=Enheder
-
-#== Chat Messages ==
-gui.GoldPan.UseFull=Skal bruges under flydende vand
-gui.goldpan.overused=Dette område ser ud til at være udtømt for malm der kan udvindes på denne måde. Du vil sandsyneligvis ikke finde ret meget!
-
-gui.ProPick.Found=Fandt
-gui.ProPick.FoundTraces=Fandt spor af
-gui.ProPick.FoundSmall=Fandt en lille mængde
-gui.ProPick.FoundMedium=Fandt en mellemstor mængde
-gui.ProPick.FoundLarge=Fandt en stor mængde
-gui.ProPick.FoundVeryLarge=Fandt en meget stor mængde
-gui.ProPick.FoundNothing=Fandt intet af interresse
-
-#== Creative Tabs ==
-itemGroup.TFCArmor=(TFC) Rustning
-itemGroup.TFCMaterials=(TFC) Materialer
-itemGroup.TFCMisc=(TFC) Blandet
-itemGroup.TFCPottery=(TFC) Keramik
-itemGroup.TFCTools=(TFC) Værktøjer
-itemGroup.TFCWeapons=(TFC) Våben
-itemGroup.TFCDevices=(TFC) Apparater
-itemGroup.TFCFoods=(TFC) Mad
-itemGroup.TFCBuilding=(TFC) Byggeblokke
-itemGroup.TFCDecoration=(TFC) Dekorative Blokke
-
-#== Skill GUI ==
-skill.armorsmith=Rustningssmedning
-skill.gensmith=Smedning
-skill.toolsmith=Værktøjssmedning
-skill.weaponsmith=Våbensmedning
-skill.agriculture=Landbrug
-skill.cooking=Madlavning
-skill.prospecting=Prospektering
-skill.butchering=Slagtning
-
-#=====================================================
-#========Add New Stuff Here To Be Sorted Later========
-#=====================================================
-fluid.freshwater=Ferskvand
-fluid.saltwater=Saltvand
-fluid.lavatfc=Lava
-fluid.hotwater=Varmt Vand
-fluid.beer=Øl
-fluid.cider=Cider
-fluid.rum=Rom
-fluid.ryewhiskey=Rugwhisky
-fluid.sake=Sake
-fluid.vodka=Vodka
-fluid.whiskey=Whisky
-fluid.cornwhiskey=Majswhisky
-fluid.milk=Mælk
-fluid.milkcurdled=Syrnet Mælk
-fluid.limewater=Kalkvand
-fluid.tannin=Tannin
-fluid.vinegar=Eddike
-fluid.brine=Lage
 
 gui.showtaste=§8Smag: (Tryk §fL-Ctrl§8)
 gui.taste=§8Smag:
@@ -2373,27 +2431,13 @@ gui.taste.6=Meget
 gui.taste.7=Ekstremt
 gui.taste.8=Overdrevet
 
-gui.skill.novice=Begynder
-gui.skill.adept=Erfaren
-gui.skill.expert=Ekspert
-gui.skill.master=Mester
-gui.skillpage=Færdigheder
-tile.MetalTrapDoor.name=Gulv-lem
-item.Mud Brick.name=Muddermursten
-item.Wet Mud Brick.name=Våd muddermursten
-gui.overburdened=*Overbelastet*
-gui.slot=Felt
-gui.slot.back=Tilbage
 word.pickled=Syltet
 word.brined=Lagesaltet
 word.cooked=Tilberedt
 word.salted=Tørsaltet
 word.smoked=Røget
 word.dried=Tørret
-gui.barrel.pickling=Syltning
-gui.barrel.brining=Lagesaltning
-tile.Vessel.name=Stort Lerkar
-tile.Grill.name=Grill
+
 food.cooked.rare=Halvstegt
 food.cooked.medrare=Medium/halvstegt
 food.cooked.med=Medium
@@ -2404,13 +2448,117 @@ food.cooked.1=Lyst
 food.cooked.2=Medium
 food.cooked.3=Mørkt
 food.cooked.4=Meget mørkt
-gui.FoodPrep.Sandwich=Sandwich
-gui.FoodPrep.Salad=Salat
-item.Sandwich.name=Sandwich
-item.Salad.name=Salat
-item.ClayBowl.Ceramic Bowl.name=Keramikskål
-item.ClayBowl.Clay Bowl.name=Lerskål
-item.Sugar.name=Sukker
-item.Sea Weed.name=Tang
-word.stage1=Trin 1
-word.stage2=Trin 2
+
+gui.Torch.CatchingFire=Antændes
+gui.Torch.Lit=Tændt
+
+gui.ItemHeat.Liquid=Flydende
+gui.ItemHeat.Solidified=Størknet
+gui.ItemHeat.Caution=Advarsel
+gui.ItemHeat.Warming=Lunt
+gui.ItemHeat.Hot=Varmt
+gui.ItemHeat.VeryHot=Meget Varmt
+gui.ItemHeat.FaintRed=Svag Rød
+gui.ItemHeat.DarkRed=Mørkerød
+gui.ItemHeat.BrightRed=Klar Rød
+gui.ItemHeat.Orange=Orange
+gui.ItemHeat.Yellow=Gul
+gui.ItemHeat.YellowWhite=Hvidgul
+gui.ItemHeat.White=Hvid
+gui.ItemHeat.BrilliantWhite=Strålende Hvid
+
+gui.ingot.workable=Kan Bearbejdes
+gui.ingot.weldable=Kan Sammensvejses
+gui.ingot.danger=**FARE**
+
+gui.milk.fresh=Frisk
+gui.milk.old=Gammel
+gui.milk.sour=Sur
+
+gui.units=Enheder
+
+#== WAILA ==
+gui.useless=Ubrugelig
+gui.growth=Vækst
+gui.mature=Moden
+gui.metal.Iron=Jern
+gui.tier=Niveau
+gui.fuel=
+gui.Green Apple=
+gui.Red Apple=
+gui.Banana=
+gui.Cherry=
+gui.Lemon=
+gui.Olive=
+gui.Orange=
+gui.Peach=
+gui.Plum=
+gui.pile=
+gui.weaving=
+gui.eggs=
+gui.fertEggs=
+gui.logs=
+gui.gems=
+
+#== Chat Messages ==
+gui.GoldPan.UseFull=Skal bruges under flydende vand.
+gui.goldpan.overused=Dette område ser ud til at være udtømt for malm der kan udvindes på denne måde. Du vil sandsynligvis ikke finde ret meget!
+gui.seeds.failedTemp=Det er for koldt for denne plante, den ville ikke have overlevet længe.
+gui.seeds.failedSun=Der er ikke tilstrækkeligt med sollys for denne plante, den ville ikke have overlevet længe.
+
+gui.ProPick.Found=Fandt
+gui.ProPick.FoundTraces=Fandt spor af
+gui.ProPick.FoundSmall=Fandt en lille mængde
+gui.ProPick.FoundMedium=Fandt en mellemstor mængde
+gui.ProPick.FoundLarge=Fandt en stor mængde
+gui.ProPick.FoundVeryLarge=Fandt en meget stor mængde
+gui.ProPick.FoundNothing=Fandt intet af interresse
+
+#== Creative Tabs ==
+itemGroup.TFCArmor=(TFC) Rustning
+itemGroup.TFCMaterials=(TFC) Materialer
+itemGroup.TFCMisc=(TFC) Blandet
+itemGroup.TFCPottery=(TFC) Keramik
+itemGroup.TFCTools=(TFC) Værktøjer
+itemGroup.TFCWeapons=(TFC) Våben
+itemGroup.TFCDevices=(TFC) Apparater
+itemGroup.TFCFoods=(TFC) Mad
+itemGroup.TFCBuilding=(TFC) Byggeblokke
+itemGroup.TFCDecoration=(TFC) Dekorative Blokke
+
+#== Skill GUI ==
+skill.armorsmith=Rustningssmedning
+skill.gensmith=Smedning
+skill.toolsmith=Værktøjssmedning
+skill.weaponsmith=Våbensmedning
+skill.agriculture=Landbrug
+skill.cooking=Madlavning
+skill.prospecting=Prospektering
+skill.butchering=Slagtning
+gui.skill.novice=Begynder
+gui.skill.adept=Erfaren
+gui.skill.expert=Ekspert
+gui.skill.master=Mester
+gui.skillpage=Færdigheder
+
+#==================
+#= Error Messages =
+#==================
+error.error=FEJL:
+error.NBT=mangler NBT-information!
+error.OreCFG=Den følgende blok-indtastning i TFCOre.cfg er ugyldig:
+error.Contact=Rapporter venligst dette i Support-sektionen på TerraFirmaCrafts forum.
+
+#=====================================================
+#========Add New Stuff Here To Be Sorted Later========
+#=====================================================
+tile.Hopper.name=
+fluid.oliveoil=
+tile.OilLamp.Gold.name=
+tile.OilLamp.Platinum.name=
+tile.OilLamp.RoseGold.name=
+tile.OilLamp.Silver.name=
+tile.OilLamp.SterlingSilver.name=
+tile.OilLamp.BlueSteel.name=
+gui.plans.hopper=
+gui.plans.oillamp=

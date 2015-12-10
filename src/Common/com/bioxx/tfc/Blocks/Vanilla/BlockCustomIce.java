@@ -11,28 +11,28 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.WorldGen.TFCBiome;
-import com.bioxx.tfc.WorldGen.TFCProvider;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.WorldGen.TFCProvider;
+import com.bioxx.tfc.api.TFCBlocks;
+
 public class BlockCustomIce extends BlockIce
 {
-	IIcon seaIce;
+	private IIcon seaIce;
 
 	public BlockCustomIce()
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCBuilding);
+		this.setCreativeTab(TFCTabs.TFC_BUILDING);
 	}
 
 	/**
@@ -99,33 +99,33 @@ public class BlockCustomIce extends BlockIce
 	public boolean canSustainPlant(IBlockAccess world, int x, int y, int z, ForgeDirection direction, IPlantable plantable)
 	{
 		Block plant = plantable.getPlant(world, x, y + 1, z);
-		EnumPlantType plantType = plantable.getPlantType(world, x, y + 1, z);
-		int meta = world.getBlockMetadata(x,y,z);
 
-		if (plant == TFCBlocks.Cactus && this == TFCBlocks.Cactus)
+		if (plant == TFCBlocks.cactus && this == TFCBlocks.cactus)
 			return true;
 
-		if (plant == TFCBlocks.Reeds && this == TFCBlocks.Reeds)
+		if (plant == TFCBlocks.reeds && this == TFCBlocks.reeds)
 			return true;
 
+		int meta = world.getBlockMetadata(x, y, z);
 		if (plantable instanceof BlockCustomLilyPad && ((BlockCustomLilyPad)plant).canThisPlantGrowOnThisBlock(this, meta))
 			return true;
 
+		EnumPlantType plantType = plantable.getPlantType(world, x, y + 1, z);
 		switch (plantType)
 		{
 		case Desert: return TFC_Core.isSand(this);
 		case Nether: return this == Blocks.soul_sand;
 		case Crop:   return TFC_Core.isFarmland(this);
 		case Cave:   return isSideSolid(world, x, y, z, ForgeDirection.UP);
-		case Plains: return this == TFCBlocks.Grass || this == TFCBlocks.Grass2 || this == TFCBlocks.Dirt || this == TFCBlocks.Dirt2;
+		case Plains: return this == TFCBlocks.grass || this == TFCBlocks.grass2 || this == TFCBlocks.dirt || this == TFCBlocks.dirt2;
 		case Water:  return world.getBlock(x, y, z).getMaterial() == Material.water && world.getBlockMetadata(x, y, z) == 0;
 		case Beach:
 			boolean isBeach = TFC_Core.isDirt(this) || TFC_Core.isSand(this);
-			boolean hasWater = (
+			boolean hasWater = 
 					world.getBlock(x - 1, y, z    ).getMaterial() == Material.water ||
 					world.getBlock(x + 1, y, z    ).getMaterial() == Material.water ||
 					world.getBlock(x,     y, z - 1).getMaterial() == Material.water ||
-					world.getBlock(x,     y, z + 1).getMaterial() == Material.water);
+					world.getBlock(x,     y, z + 1).getMaterial() == Material.water;
 			return isBeach && hasWater;
 		}
 		return false;
@@ -142,16 +142,16 @@ public class BlockCustomIce extends BlockIce
 
 	protected Block getBlockMelt(World world, int i, int j, int k, boolean moving)
 	{
-		int meta = world.getBlockMetadata(i,j,k);
 		Block block = world.getBlock(i,j,k);
 
 		if(block != this)
 			return block;
 
+		int meta = world.getBlockMetadata(i, j, k);
 		switch(meta){
-		case 0: return TFCBlocks.SaltWater;
-		case 1: return TFCBlocks.FreshWater;
-		default: return TFCBlocks.SaltWater;
+		case 0: return TFCBlocks.saltWater;
+		case 1: return TFCBlocks.freshWater;
+		default: return TFCBlocks.saltWater;
 		}
 	}
 
@@ -159,7 +159,7 @@ public class BlockCustomIce extends BlockIce
 	@Override
 	public void registerBlockIcons(IIconRegister registerer)
 	{
-		seaIce = registerer.registerIcon(Reference.ModID + ":seaIce");
+		seaIce = registerer.registerIcon(Reference.MOD_ID + ":seaIce");
 		super.registerBlockIcons(registerer);
 	}
 
@@ -181,18 +181,18 @@ public class BlockCustomIce extends BlockIce
 	{
 		if((world.provider) instanceof TFCProvider && !world.isRemote && world.getBlock(i, j, k) == this)
 		{
-			if(world.getBlockMetadata(i, j, k) == 1)
+			/*if(world.getBlockMetadata(i, j, k) == 1)
 			{
-				/*if(j== 143 && scanForOcean(world, i, j, k))
+				if(j== 143 && scanForOcean(world, i, j, k))
 				{
 					world.setBlockMetadataWithNotify(i, j, k, 0, 2);
-				}*/
-			}
+				}
+			}*/
 			((TFCProvider)(world.provider)).canBlockFreeze(i, j, k, false);
 		}
 	}
 
-	private boolean scanForOcean(World world, int i, int j, int k)
+	/*private boolean scanForOcean(World world, int i, int j, int k)
 	{
 		if(world.getBiomeGenForCoords(i + 5, k).biomeID == TFCBiome.ocean.biomeID ||
 				world.getBiomeGenForCoords(i + 10, k).biomeID == TFCBiome.ocean.biomeID ||
@@ -210,5 +210,5 @@ public class BlockCustomIce extends BlockIce
 			return true;
 		}
 		return false;
-	}
+	}*/
 }

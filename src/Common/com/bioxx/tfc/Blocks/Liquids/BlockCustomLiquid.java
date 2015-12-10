@@ -12,6 +12,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -19,20 +20,24 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Blocks.Vanilla.BlockCustomDoor;
 import com.bioxx.tfc.Blocks.Vanilla.BlockCustomLilyPad;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.DataLayer;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCOptions;
 
 public abstract class BlockCustomLiquid extends BlockDynamicLiquid implements IFluidBlock
 {
 	protected Fluid fluidType;
 	protected IIcon[] icons;
+	protected int sourceBlockCount;
+	protected boolean[] canFlowDirections = new boolean[4];
+	protected int[] flowPriorities = new int[4];
 
 	public BlockCustomLiquid(Fluid fluid, Material mat)
 	{
@@ -111,36 +116,36 @@ public abstract class BlockCustomLiquid extends BlockDynamicLiquid implements IF
 	/**
 	 * Forces lava to check to see if it is colliding with water, and then decide what it should harden to.
 	 */
-	private void checkForHarden(World par1World, int par2, int par3, int par4)
+	private void checkForHarden(World world, int x, int y, int z)
 	{
-		if (par1World.getBlock(par2, par3, par4) == this)
+		if (world.getBlock(x, y, z) == this)
 			if (this.blockMaterial == Material.lava)
 			{
 				boolean flag = false;
 
-				if (flag || par1World.getBlock(par2, par3, par4 - 1).getMaterial() == Material.water)
+				if (flag || world.getBlock(x, y, z - 1).getMaterial() == Material.water)
 					flag = true;
 
-				if (flag || par1World.getBlock(par2, par3, par4 + 1).getMaterial() == Material.water)
+				if (flag || world.getBlock(x, y, z + 1).getMaterial() == Material.water)
 					flag = true;
 
-				if (flag || par1World.getBlock(par2 - 1, par3, par4).getMaterial() == Material.water)
+				if (flag || world.getBlock(x - 1, y, z).getMaterial() == Material.water)
 					flag = true;
 
-				if (flag || par1World.getBlock(par2 + 1, par3, par4).getMaterial() == Material.water)
+				if (flag || world.getBlock(x + 1, y, z).getMaterial() == Material.water)
 					flag = true;
 
-				if (flag || par1World.getBlock(par2, par3 + 1, par4).getMaterial() == Material.water)
+				if (flag || world.getBlock(x, y + 1, z).getMaterial() == Material.water)
 					flag = true;
 
 				if (flag)
 				{
-					int l = par1World.getBlockMetadata(par2, par3, par4);
+					int l = world.getBlockMetadata(x, y, z);
 
 					if (l == 0)
-						setBlockforLava(par1World, par2,  par3,  par4,0);
+						setBlockforLava(world, x,  y,  z,0);
 					else if (l <= 4)
-						setBlockforLava(par1World, par2,  par3,  par4,1);
+						setBlockforLava(world, x,  y,  z,1);
 
 					//triggerLavaMixEffects(par1World, par2, par3, par4);
 				}
@@ -170,82 +175,80 @@ public abstract class BlockCustomLiquid extends BlockDynamicLiquid implements IF
 	public boolean canSustainPlant(IBlockAccess world, int x, int y, int z, ForgeDirection direction, IPlantable plantable)
 	{
 		Block plant = plantable.getPlant(world, x, y + 1, z);
-		EnumPlantType plantType = plantable.getPlantType(world, x, y + 1, z);
-		int meta = world.getBlockMetadata(x,y,z);
-
-		if (plant == TFCBlocks.Cactus && this == TFCBlocks.Cactus)
+		if (plant == TFCBlocks.cactus && this == TFCBlocks.cactus)
+		{
+			return true;
+		}
+		if (plant == TFCBlocks.reeds && this == TFCBlocks.reeds)
 		{
 			return true;
 		}
 
-		if (plant == TFCBlocks.Reeds && this == TFCBlocks.Reeds)
-		{
-			return true;
-		}
-
+		int meta = world.getBlockMetadata(x, y, z);
 		if (plant instanceof BlockCustomLilyPad && ((BlockCustomLilyPad)plant).canThisPlantGrowOnThisBlock(this, meta))
 		{
 			return true;
 		}
 
+		EnumPlantType plantType = plantable.getPlantType(world, x, y + 1, z);
 		switch (plantType)
 		{
 		case Desert: return TFC_Core.isSand(this);
 		case Nether: return this == Blocks.soul_sand;
 		case Crop:   return TFC_Core.isFarmland(this);
 		case Cave:   return isSideSolid(world, x, y, z, ForgeDirection.UP);
-		case Plains: return this == TFCBlocks.Grass || this == TFCBlocks.Grass2 || this == TFCBlocks.Dirt || this == TFCBlocks.Dirt2;
+		case Plains: return this == TFCBlocks.grass || this == TFCBlocks.grass2 || this == TFCBlocks.dirt || this == TFCBlocks.dirt2;
 		case Water:  return world.getBlock(x, y, z).getMaterial() == Material.water && world.getBlockMetadata(x, y, z) == 0;
 		case Beach:
 			boolean isBeach = TFC_Core.isGround(this);
-			boolean hasWater = (
+			boolean hasWater = 
 					world.getBlock(x - 1, y, z    ).getMaterial() == Material.water ||
 					world.getBlock(x + 1, y, z    ).getMaterial() == Material.water ||
 					world.getBlock(x,     y, z - 1).getMaterial() == Material.water ||
-					world.getBlock(x,     y, z + 1).getMaterial() == Material.water);
+					world.getBlock(x,     y, z + 1).getMaterial() == Material.water;
 			return isBeach && hasWater;
 		}
 
 		return false;
 	}
 
-	public void setBlockforLava(World world, int par2, int par3, int par4, int typeOfLava)
+	public void setBlockforLava(World world, int x, int y, int z, int typeOfLava)
 	{
-		DataLayer rockLayer3 = TFC_Climate.getCacheManager(world).getRockLayerAt(par2, par3, 2);
-		int blockId = rockLayer3.data1;
+		DataLayer rockLayer3 = TFC_Climate.getCacheManager(world).getRockLayerAt(x, y, 2);
+		//int blockId = rockLayer3.data1;
 		int meta = rockLayer3.data2;
 		Random rand = new Random();
 		boolean felsicLava = true;
 
-		if(this == TFCBlocks.StoneIgIn && (meta == 2 || meta == 1))
+		if(this == TFCBlocks.stoneIgIn && (meta == 2 || meta == 1))
 			felsicLava = false;
-		else if(this == TFCBlocks.StoneIgEx && (meta == 1 || meta == 2))
+		else if(this == TFCBlocks.stoneIgEx && (meta == 1 || meta == 2))
 			felsicLava = false;
 		if (typeOfLava == 0 || typeOfLava == 2) //non flowing rock
 		{
 			if(felsicLava)
 			{
 				if(rand.nextInt(10)==0 && typeOfLava == 0)
-					world.setBlock(par2, par3, par4, Blocks.obsidian);
+					world.setBlock(x, y, z, Blocks.obsidian);
 				else
 				{
-					world.setBlock(par2, par3, par4, TFCBlocks.StoneIgEx);
-					world.setBlockMetadataWithNotify(par2, par3, par4, 0, 0);
+					world.setBlock(x, y, z, TFCBlocks.stoneIgEx);
+					world.setBlockMetadataWithNotify(x, y, z, 0, 0);
 				}
 			}
 			else
 			{
-				world.setBlock(par2, par3, par4, TFCBlocks.StoneIgEx);
-				world.setBlockMetadataWithNotify(par2, par3, par4, 1, 0);
+				world.setBlock(x, y, z, TFCBlocks.stoneIgEx);
+				world.setBlockMetadataWithNotify(x, y, z, 1, 0);
 			}
 		}
 		else if (typeOfLava == 1)
 		{
-			world.setBlock(par2, par3, par4, TFCBlocks.StoneIgExCobble);
+			world.setBlock(x, y, z, TFCBlocks.stoneIgExCobble);
 			if(felsicLava)
-				world.setBlockMetadataWithNotify(par2, par3, par4, 0, 0);
+				world.setBlockMetadataWithNotify(x, y, z, 0, 0);
 			else
-				world.setBlockMetadataWithNotify(par2, par3, par4, 1, 0);
+				world.setBlockMetadataWithNotify(x, y, z, 1, 0);
 		}
 	}
 
@@ -293,14 +296,310 @@ public abstract class BlockCustomLiquid extends BlockDynamicLiquid implements IF
 		return 1;
 	}
 
-	@Override
-	public boolean func_149807_p(World world, int x, int y, int z)
+	public boolean canStay(World world, int x, int y, int z)
 	{
 		Block block = world.getBlock(x, y, z);
-		if(block == TFCBlocks.Thatch || block == TFCBlocks.Barrel || block == TFCBlocks.Vessel || block == TFCBlocks.BerryBush || 
-				block == TFCBlocks.SmokeRack || block instanceof BlockCustomDoor || block == TFCBlocks.IngotPile)
+		if(block == TFCBlocks.thatch || block == TFCBlocks.barrel || block == TFCBlocks.vessel || block == TFCBlocks.berryBush || 
+				block == TFCBlocks.smokeRack || block instanceof BlockCustomDoor || block == TFCBlocks.ingotPile)
 			return false;
-		return super.func_149807_p(world, x, y, z);
+		else
+			return super.func_149807_p(world, x, y, z);
 	}
 
+	protected int getLiquidHeight(World world, int x, int y, int z, int count)
+	{
+		int liquidHeight = this.getMetaData(world, x, y, z);
+	
+		// If the block materials don't match.
+		if (liquidHeight < 0)
+		{
+			return count;
+		}
+		else
+		{
+			//Source Block
+			if (liquidHeight == 0)
+				this.sourceBlockCount++;
+			else if (liquidHeight >= 8)
+				liquidHeight = 0;
+	
+			return count >= 0 && liquidHeight >= count ? count : liquidHeight;
+		}
+	}
+	
+	@Override
+	public void updateTick(World world, int x, int y, int z, Random rand)
+	{
+		int meta = this.getMetaData(world, x, y, z);
+		byte b0 = 1;
+	
+		if (this.blockMaterial == Material.lava && !world.provider.isHellWorld)
+		{
+			b0 = 2;
+		}
+	
+		boolean flag = true;
+		int tickRate = this.tickRate(world);
+		int newHeight;
+	
+		if (meta > 0)
+		{
+			this.sourceBlockCount = 0;
+			int liquidHeight = this.getLiquidHeight(world, x - 1, y, z, -100);
+			liquidHeight = this.getLiquidHeight(world, x + 1, y, z, liquidHeight);
+			liquidHeight = this.getLiquidHeight(world, x, y, z - 1, liquidHeight);
+			liquidHeight = this.getLiquidHeight(world, x, y, z + 1, liquidHeight);
+			newHeight = liquidHeight + b0;
+	
+			if (newHeight >= 8 || liquidHeight < 0)
+			{
+				newHeight = -1;
+			}
+	
+			// Same Liquid Above
+			if (this.getMetaData(world, x, y + 1, z) >= 0)
+			{
+				int metaAbove = this.getMetaData(world, x, y + 1, z);
+	
+				if (metaAbove >= 8)
+				{
+					newHeight = metaAbove;
+				}
+				else
+				{
+					newHeight = metaAbove + 8;
+				}
+			}
+	
+			if (this.sourceBlockCount >= 2 && this.blockMaterial == Material.water && !TFCOptions.enableFiniteWater)
+			{
+				// Solid block below, or source block of same liquid below.
+				if (world.getBlock(x, y - 1, z).getMaterial().isSolid() ||
+					world.getBlock(x, y - 1, z).getMaterial() == this.blockMaterial && world.getBlockMetadata(x, y - 1, z) == 0)
+				{
+					newHeight = 0;
+				}
+			}
+	
+			if (this.blockMaterial == Material.lava && meta < 8 && newHeight < 8 && newHeight > meta && rand.nextInt(4) != 0)
+			{
+				tickRate *= 4;
+			}
+	
+			if (newHeight == meta)
+			{
+				if (flag)
+				{
+					this.convertFlowingToSource(world, x, y, z);
+				}
+			}
+			else
+			{
+				meta = newHeight;
+	
+				if (newHeight < 0)
+				{
+					world.setBlockToAir(x, y, z);
+				}
+				else
+				{
+					world.setBlockMetadataWithNotify(x, y, z, newHeight, 2);
+					world.scheduleBlockUpdate(x, y, z, this, tickRate);
+					world.notifyBlocksOfNeighborChange(x, y, z, this);
+				}
+			}
+		}
+		else
+		{
+			this.convertFlowingToSource(world, x, y, z);
+		}
+	
+		if (this.canReplace(world, x, y - 1, z)) // Can flow directly down
+		{
+			if (this.blockMaterial == Material.lava && world.getBlock(x, y - 1, z).getMaterial() == Material.water)
+			{
+				setBlockforLava(world, x, y - 1, z, 2);
+				this.func_149799_m(world, x, y - 1, z); // Sizzling Sound & Particles
+				return;
+			}
+	
+			if (meta >= 8)
+			{
+				this.flow(world, x, y - 1, z, meta);
+			}
+			else
+			{
+				this.flow(world, x, y - 1, z, meta + 8);
+			}
+		}
+		else if (meta >= 0 && (meta == 0 || this.canStay(world, x, y - 1, z))) // Can't flow down
+		{
+			newHeight = meta + b0;
+	
+			if (meta >= 8)
+			{
+				newHeight = 1;
+			}
+	
+			if (newHeight >= 8)
+			{
+				return;
+			}
+
+			boolean[] flowDirections = this.getFlowDirections(world, x, y, z);
+			if (flowDirections[0])
+			{
+				this.flow(world, x - 1, y, z, newHeight);
+			}
+	
+			if (flowDirections[1])
+			{
+				this.flow(world, x + 1, y, z, newHeight);
+			}
+	
+			if (flowDirections[2])
+			{
+				this.flow(world, x, y, z - 1, newHeight);
+			}
+	
+			if (flowDirections[3])
+			{
+				this.flow(world, x, y, z + 1, newHeight);
+			}
+		}
+	}
+
+	private void flow(World world, int x, int y, int z, int meta)
+	{
+		if (this.canReplace(world, x, y, z))
+		{
+			Block block = world.getBlock(x, y, z);
+
+			if (this.blockMaterial == Material.lava)
+			{
+				setBlockforLava(world, x, y, z, 0);
+				this.func_149799_m(world, x, y - 1, z); // Sizzling Sound & Particles
+			}
+			else
+			{
+				block.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+			}
+
+			world.setBlock(x, y, z, this, meta, 3);
+		}
+	}
+
+	private boolean canReplace(World world, int x, int y, int z)
+	{
+		Material material = world.getBlock(x, y, z).getMaterial();
+		if (material == this.blockMaterial || material == Material.lava)
+			return false;
+		else
+			return !this.canStay(world, x, y, z);
+	}
+
+	private boolean[] getFlowDirections(World world, int x, int y, int z)
+	{
+		int side;
+		int newX;
+
+		for (side = 0; side < 4; ++side)
+		{
+			this.flowPriorities[side] = 1000;
+			newX = x;
+			int newZ = z;
+
+			if (side == 0)
+				newX = x - 1;
+			else if (side == 1)
+				++newX;
+			else if (side == 2)
+				newZ = z - 1;
+			else if (side == 3)
+				++newZ;
+
+			if (!this.canStay(world, newX, y, newZ) && (world.getBlock(newX, y, newZ).getMaterial() != this.blockMaterial || world.getBlockMetadata(newX, y, newZ) != 0))
+			{
+				if (this.canStay(world, newX, y - 1, newZ)) // Can't flow down
+				{
+					this.flowPriorities[side] = this.getFlowPriorities(world, newX, y, newZ, 1, side);
+				}
+				else
+				{
+					this.flowPriorities[side] = 0;
+				}
+			}
+		}
+
+		side = this.flowPriorities[0];
+
+		for (newX = 1; newX < 4; ++newX)
+		{
+			if (this.flowPriorities[newX] < side)
+			{
+				side = this.flowPriorities[newX];
+			}
+		}
+
+		for (newX = 0; newX < 4; ++newX)
+		{
+			this.canFlowDirections[newX] = this.flowPriorities[newX] == side;
+		}
+
+		return this.canFlowDirections;
+	}
+
+	private void convertFlowingToSource(World world, int x, int y, int z)
+	{
+		int meta = world.getBlockMetadata(x, y, z);
+		world.setBlock(x, y, z, Block.getBlockById(Block.getIdFromBlock(this) + 1), meta, 2);
+	}
+
+	private int getFlowPriorities(World world, int x, int y, int z, int distance, int side)
+	{
+		int priority = 1000;
+
+		for (int side2 = 0; side2 < 4; ++side2)
+		{
+			if ((side2 != 0 || side != 1) && (side2 != 1 || side != 0) && (side2 != 2 || side != 3) && (side2 != 3 || side != 2))
+			{
+				int xCoord = x;
+				int zCoord = z;
+
+				if (side2 == 0)
+					xCoord = x - 1;
+				else if (side2 == 1)
+					++xCoord;
+				else if (side2 == 2)
+					zCoord = z - 1;
+				else if (side2 == 3)
+					++zCoord;
+
+				if (!this.canStay(world, xCoord, y, zCoord) && (world.getBlock(xCoord, y, zCoord).getMaterial() != this.blockMaterial || world.getBlockMetadata(xCoord, y, zCoord) != 0))
+				{
+					if (!this.canStay(world, xCoord, y - 1, zCoord))
+					{
+						return distance;
+					}
+
+					if (distance < 4)
+					{
+						int newDistance = this.getFlowPriorities(world, xCoord, y, zCoord, distance + 1, side2);
+
+						if (newDistance < priority)
+						{
+							priority = newDistance;
+						}
+					}
+				}
+			}
+		}
+
+		return priority;
+	}
+
+	protected int getMetaData(World world, int x, int y, int z)
+	{
+		return world.getBlock(x, y, z).getMaterial() == this.blockMaterial ? world.getBlockMetadata(x, y, z) : -1;
+	}
 }

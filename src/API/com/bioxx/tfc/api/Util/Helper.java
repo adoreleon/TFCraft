@@ -8,6 +8,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Interfaces.ISize;
 
@@ -45,7 +46,12 @@ public class Helper {
 		return result;
 	}
 
-	public static MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityLivingBase entity, boolean par3)
+	public static MovingObjectPosition getMovingObjectPositionFromPlayer(World world, EntityLivingBase entity, boolean scanFluids)
+	{
+		return getMovingObjectPositionFromPlayer(world, entity, scanFluids, 4);
+	}
+
+	public static MovingObjectPosition getMovingObjectPositionFromPlayer(World world, EntityLivingBase entity, boolean scanFluids, int reach)
 	{
 		float var4 = 1.0F;
 		float var5 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * var4;
@@ -60,19 +66,18 @@ public class Helper {
 		float var17 = MathHelper.sin(-var5 * 0.017453292F);
 		float var18 = var15 * var16;
 		float var20 = var14 * var16;
-		double var21 = 4; /*ModLoader.getMinecraftInstance().playerController.getBlockReachDistance()*/
-		Vec3 var23 = var13.addVector(var18 * var21, var17 * var21, var20 * var21);
-		MovingObjectPosition var24 = par1World.rayTraceBlocks(var13, var23, par3);
-		return var24;
+
+		Vec3 var23 = var13.addVector(var18 * reach, var17 * reach, var20 * reach);
+		return world.rayTraceBlocks(var13, var23, scanFluids);
 	}
 
 	/**
 	 * Returns the value of the first parameter, clamped to be within the lower and upper limits given by the second and
 	 * third parameters
 	 */
-	public static float clamp_float(float par0, float par1, float par2)
+	public static float clampFloat(float par0, float par1, float par2)
 	{
-		return par0 < par1 ? par1 : (par0 > par2 ? par2 : par0);
+		return par0 < par1 ? par1 : par0 > par2 ? par2 : par0;
 	}
 
 	public static float roundNumber(float input, float rounding)
@@ -106,13 +111,13 @@ public class Helper {
 			f.setAccessible(true);
 			return (Integer) f.get(obj);
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 		return 0; 		
 	}
@@ -131,13 +136,13 @@ public class Helper {
 			f.setAccessible(true);
 			return (Boolean) f.get(obj);
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 		return false; 		
 	}
@@ -156,13 +161,13 @@ public class Helper {
 			f.setAccessible(true);
 			return f.get(obj);
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 		return null; 		
 	}

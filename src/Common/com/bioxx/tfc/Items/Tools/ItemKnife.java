@@ -6,14 +6,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.TileEntities.TEFoodPrep;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
@@ -41,16 +41,16 @@ public class ItemKnife extends ItemWeapon implements IKnife
 	}
 
 	@Override
-	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float HitX, float HitY, float HitZ)
+	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		Block id = world.getBlock(x, y, z);
-		if(!world.isRemote && id != TFCBlocks.ToolRack)
+		if(!world.isRemote && id != TFCBlocks.toolRack)
 		{
 			int hasBowl = -1;
 
 			for(int i = 0; i < 36 && hasBowl == -1;i++)
 			{
-				if(entityplayer.inventory.mainInventory[i] != null && entityplayer.inventory.mainInventory[i].getItem() == TFCItems.PotteryBowl && entityplayer.inventory.mainInventory[i].getItemDamage() == 1)
+				if(entityplayer.inventory.mainInventory[i] != null && entityplayer.inventory.mainInventory[i].getItem() == TFCItems.potteryBowl && entityplayer.inventory.mainInventory[i].getItemDamage() == 1)
 					hasBowl = i;
 			}
 
@@ -59,7 +59,7 @@ public class ItemKnife extends ItemWeapon implements IKnife
 			if(side == 1 && id.isSideSolid(world, x, y, z, ForgeDirection.UP) &&!TFC_Core.isSoil(id) && !TFC_Core.isWater(id) && world.isAirBlock(x, y + 1, z) &&
 					(mat == Material.wood || mat == Material.rock || mat == Material.iron))
 			{
-				world.setBlock(x, y + 1, z, TFCBlocks.FoodPrep);
+				world.setBlock(x, y + 1, z, TFCBlocks.foodPrep);
 				TEFoodPrep te = (TEFoodPrep) world.getTileEntity(x, y + 1, z);
 				if(hasBowl != -1 && te != null)
 				{
@@ -73,18 +73,18 @@ public class ItemKnife extends ItemWeapon implements IKnife
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
 		if (TFC_Core.showShiftInformation()) 
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.Help"));
-			arraylist.add(StatCollector.translateToLocal("gui.Knife.Inst0"));
-			arraylist.add(StatCollector.translateToLocal("gui.Knife.Inst1"));
-			//arraylist.add(StatCollector.translateToLocal("gui.Knife.Inst2"));
+			arraylist.add(TFC_Core.translate("gui.Help"));
+			arraylist.add(TFC_Core.translate("gui.Knife.Inst0"));
+			arraylist.add(TFC_Core.translate("gui.Knife.Inst1"));
+			//arraylist.add(TFC_Core.translate("gui.Knife.Inst2"));
 		}
 		else
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.ShowHelp"));
+			arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 		}
 	}
 

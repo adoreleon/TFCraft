@@ -1,16 +1,16 @@
 package com.bioxx.tfc.Blocks.Terrain;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Constant.Global;
 
 public class BlockOre2 extends BlockOre
@@ -36,57 +36,74 @@ public class BlockOre2 extends BlockOre
 	}
 
 	@Override
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	{
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+
+		int count = quantityDropped(metadata, fortune, world.rand);
+		for (int i = 0; i < count; i++)
+		{
+			ItemStack itemstack = new ItemStack(TFCItems.oreChunk, 1, damageDropped(metadata));
+
+			if (metadata == 5)
+				itemstack = kimberliteGemSpawn(); //Drop diamonds
+			else if (metadata == 13)
+				itemstack = new ItemStack(TFCItems.powder, 1, 4);
+
+			if (itemstack != null)
+			{
+				ret.add(itemstack);
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
 		if(!world.isRemote)
 		{
-			int meta = world.getBlockMetadata(x, y, z);
+			boolean dropOres = false;
 			if(player != null)
 			{
 				player.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
 				player.addExhaustion(0.075F);
+				dropOres = player.canHarvestBlock(this);
 			}
-			Random random = new Random();
-	
-			ItemStack itemstack = new ItemStack(TFCItems.OreChunk, 1 , damageDropped(meta));
-	
-			if(meta == 5)
-				itemstack = KimberliteGemSpawn(); //Drop diamonds
-			else if(meta == 13)
-				itemstack = new ItemStack(TFCItems.Powder, 1 + random.nextInt(3), 4);
-	
-			if (itemstack != null)
+			if (player == null || dropOres)
 			{
-				if (!world.isRemote/* && (random.nextInt(4) == 0)*/)
-				{
-					float var6 = 0.7F;
-					double var7 = world.rand.nextFloat() * var6 + (1.0F - var6) * 0.5D;
-					double var9 = world.rand.nextFloat() * var6 + (1.0F - var6) * 0.5D;
-					double var11 = world.rand.nextFloat() * var6 + (1.0F - var6) * 0.5D;
-					EntityItem var13 = new EntityItem(world, x + var7, y + var9, z + var11, itemstack);
-					var13.delayBeforeCanPickup = 10;
-					world.spawnEntityInWorld(var13);
-				}
+				int meta = world.getBlockMetadata(x, y, z);
+				Random random = new Random();
+				
+				ItemStack itemstack = new ItemStack(TFCItems.oreChunk, 1 , damageDropped(meta));
+		
+				if(meta == 5)
+					itemstack = kimberliteGemSpawn(); //Drop diamonds
+				else if (meta == 13) // Saltpeter
+					itemstack = new ItemStack(TFCItems.powder, 1 + random.nextInt(3), 4);
+		
+				if (itemstack != null)
+					dropBlockAsItem(world, x, y, z, itemstack);
 			}
+			
 		}
 		return world.setBlockToAir(x, y, z);
 	}
 
-	public ItemStack KimberliteGemSpawn()
+	public ItemStack kimberliteGemSpawn()
 	{
+		int quality = 0; // Chipped by default
 		Random random = new Random();
-		if(random.nextInt(25) == 0)
-			return new ItemStack(TFCItems.GemDiamond, 1, 0);
 		if(random.nextInt(50) == 0)
-			return new ItemStack(TFCItems.GemDiamond, 1, 1);
-		if(random.nextInt(75) == 0)
-			return new ItemStack(TFCItems.GemDiamond, 1, 2);
-		if(random.nextInt(150) == 0)
-			return new ItemStack(TFCItems.GemDiamond, 1, 3);
-		if(random.nextInt(300) == 0)
-			return new ItemStack(TFCItems.GemDiamond, 1, 4);
-		else
-			return null;
+			quality = 1;
+		else if (random.nextInt(75) == 0)
+			quality = 2;
+		else if (random.nextInt(150) == 0)
+			quality = 3;
+		else if (random.nextInt(300) == 0)
+			quality = 4;
+
+		return new ItemStack(TFCItems.gemDiamond, 1, quality);
 	}
 
 	/*public boolean removeBlockByPlayer(World world, EntityPlayer player, int i, int j, int k) 
@@ -140,12 +157,12 @@ public class BlockOre2 extends BlockOre
 		Random random = new Random();
 		ItemStack itemstack;
 		int meta = world.getBlockMetadata(x, y, z);
-		itemstack  = new ItemStack(TFCItems.OreChunk, 1, meta + 16);
+		itemstack  = new ItemStack(TFCItems.oreChunk, 1, meta + 16);
 
 		if(meta == 5)
-			itemstack = KimberliteGemSpawn();
+			itemstack = kimberliteGemSpawn();
 		else if (meta == 13)
-			itemstack = new ItemStack(TFCItems.Powder, 1 + random.nextInt(3), 4);
+			itemstack = new ItemStack(TFCItems.powder, 1 + random.nextInt(3), 4);
 
 		if (itemstack != null)
 			dropBlockAsItem(world, x, y, z, itemstack);

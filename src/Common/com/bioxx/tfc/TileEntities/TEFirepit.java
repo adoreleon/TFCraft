@@ -1,36 +1,37 @@
 package com.bioxx.tfc.TileEntities;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.AxisAlignedBB;
+
 import net.minecraftforge.common.MinecraftForge;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Items.ItemMeltedMetal;
-import com.bioxx.tfc.api.Food;
-import com.bioxx.tfc.api.HeatIndex;
-import com.bioxx.tfc.api.HeatRegistry;
-import com.bioxx.tfc.api.TFC_ItemHeat;
+import com.bioxx.tfc.api.*;
 import com.bioxx.tfc.api.Enums.EnumFuelMaterial;
 import com.bioxx.tfc.api.Events.ItemCookEvent;
 import com.bioxx.tfc.api.Interfaces.ICookableFood;
 import com.bioxx.tfc.api.TileEntities.TEFireEntity;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class TEFirepit extends TEFireEntity implements IInventory
 {
 	public ItemStack fireItemStacks[];
 	public boolean hasCookingPot;
-	public int smokeTimer = 0;
+	public int smokeTimer;
 
 	public TEFirepit()
 	{
@@ -47,25 +48,24 @@ public class TEFirepit extends TEFireEntity implements IInventory
 	{
 	}
 
-	public void combineMetals(ItemStack InputItem, ItemStack DestItem)
+	public void combineMetals(ItemStack inputItem, ItemStack destItem)
 	{
-		int D1 = 100 - InputItem.getItemDamage();
-		int D2 = 100 - DestItem.getItemDamage();
+		int d1 = 100 - inputItem.getItemDamage();
+		int d2 = 100 - destItem.getItemDamage();
 		//This was causing the infinite amounts possibly
-		DestItem.setItemDamage(100 - (D1 + D2));
+		destItem.setItemDamage(100 - (d1 + d2));
 	}
 
-	public void CookItem()
+	public void cookItem()
 	{
 		HeatRegistry manager = HeatRegistry.getInstance();
-		Random R = new Random();
+		Random r = new Random();
 		if(fireItemStacks[1] != null)
 		{
 			HeatIndex index = manager.findMatchingIndex(fireItemStacks[1]);
-			if(index != null && TFC_ItemHeat.GetTemp(fireItemStacks[1]) > index.meltTemp)
+			if(index != null && TFC_ItemHeat.getTemp(fireItemStacks[1]) > index.meltTemp)
 			{
-				float temp = TFC_ItemHeat.GetTemp(fireItemStacks[1]);
-				ItemStack output = index.getOutput(fireItemStacks[1], R);
+				ItemStack output = index.getOutput(fireItemStacks[1], r);
 				ItemCookEvent eventMelt = new ItemCookEvent(fireItemStacks[1], output, this);
 				MinecraftForge.EVENT_BUS.post(eventMelt);
 				output = eventMelt.result;
@@ -88,7 +88,7 @@ public class TEFirepit extends TEFireEntity implements IInventory
 							return;
 						}
 						//Otherwise if the first output has an item that doesnt match the input item then put the item in the second output slot
-						else if(fireItemStacks[7] != null && fireItemStacks[7].getItem() != TFCItems.CeramicMold && 
+						else if(fireItemStacks[7] != null && fireItemStacks[7].getItem() != TFCItems.ceramicMold && 
 								(fireItemStacks[7].getItem() != fireItemStacks[1].getItem() || fireItemStacks[7].getItemDamage() == 0))
 						{
 							if(fireItemStacks[8] == null)
@@ -98,17 +98,18 @@ public class TEFirepit extends TEFireEntity implements IInventory
 								return;
 							}
 						}
-						mold = new ItemStack(TFCItems.CeramicMold, 1);
+						mold = new ItemStack(TFCItems.ceramicMold, 1);
 						mold.stackSize = 1;
 						mold.setItemDamage(1);
 					}
 				}
 				//Morph the input
+				float temp = TFC_ItemHeat.getTemp(fireItemStacks[1]);
 				fireItemStacks[1] = index.getMorph();
 				if(fireItemStacks[1] != null && manager.findMatchingIndex(fireItemStacks[1]) != null)
 				{
 					//if the input is a new item, then apply the old temperature to it
-					TFC_ItemHeat.SetTemp(fireItemStacks[1], temp);
+					TFC_ItemHeat.setTemp(fireItemStacks[1], temp);
 				}
 
 				//Check if we should combine the output with a pre-existing output
@@ -117,7 +118,7 @@ public class TEFirepit extends TEFireEntity implements IInventory
 					int leftover = 0;
 					boolean addLeftover = false;
 					int fromSide = 0;
-					if(fireItemStacks[7] != null && output != null && output.getItem() == fireItemStacks[7].getItem() && fireItemStacks[7].getItemDamage() > 0)
+					if (fireItemStacks[7] != null && output.getItem() == fireItemStacks[7].getItem() && fireItemStacks[7].getItemDamage() > 0)
 					{
 						int amt1 = 100 - damage;//the percentage of the output
 						int amt2 = 100 - fireItemStacks[7].getItemDamage();//the percentage currently in the out slot
@@ -131,12 +132,12 @@ public class TEFirepit extends TEFireEntity implements IInventory
 						fireItemStacks[7] = output.copy();
 						fireItemStacks[7].setItemDamage(amt4);
 
-						TFC_ItemHeat.SetTemp(fireItemStacks[7], temp);
+						TFC_ItemHeat.setTemp(fireItemStacks[7], temp);
 
 						if(fireItemStacks[1] == null && mold != null)
 							fireItemStacks[1] = mold;
 					}
-					else if(fireItemStacks[8] != null && output != null && output.getItem() == fireItemStacks[8].getItem() && fireItemStacks[8].getItemDamage() > 0)
+					else if (fireItemStacks[8] != null && output.getItem() == fireItemStacks[8].getItem() && fireItemStacks[8].getItemDamage() > 0)
 					{
 						int amt1 = 100 - damage;//the percentage of the output
 						int amt2 = 100 - fireItemStacks[8].getItemDamage();//the percentage currently in the out slot
@@ -151,27 +152,27 @@ public class TEFirepit extends TEFireEntity implements IInventory
 						fireItemStacks[8] = output.copy();
 						fireItemStacks[8].setItemDamage(amt4);
 
-						TFC_ItemHeat.SetTemp(fireItemStacks[8], temp);
+						TFC_ItemHeat.setTemp(fireItemStacks[8], temp);
 
 						if(fireItemStacks[1] == null && mold != null)
 							fireItemStacks[1] = mold;
 					}
-					else if(output != null && fireItemStacks[7] != null && fireItemStacks[7].getItem() == TFCItems.CeramicMold)
+					else if (fireItemStacks[7] != null && fireItemStacks[7].getItem() == TFCItems.ceramicMold)
 					{
 						fireItemStacks[7] = output.copy();
 						fireItemStacks[7].setItemDamage(damage);
 
-						TFC_ItemHeat.SetTemp(fireItemStacks[7], temp);
+						TFC_ItemHeat.setTemp(fireItemStacks[7], temp);
 					}
-					else if(output != null && fireItemStacks[8] != null && fireItemStacks[8].getItem() == TFCItems.CeramicMold)
+					else if (fireItemStacks[8] != null && fireItemStacks[8].getItem() == TFCItems.ceramicMold)
 					{
 						fireItemStacks[8] = output.copy();
 						fireItemStacks[8].setItemDamage(damage);
 
-						TFC_ItemHeat.SetTemp(fireItemStacks[8], temp);
+						TFC_ItemHeat.setTemp(fireItemStacks[8], temp);
 					}
 
-					if(addLeftover)
+					if (addLeftover)
 					{
 						int dest = fromSide == 1 ? 7 : 8;
 						if(fireItemStacks[dest] != null && output.getItem() == fireItemStacks[dest].getItem() && fireItemStacks[dest].getItemDamage() > 0)
@@ -185,13 +186,13 @@ public class TEFirepit extends TEFireEntity implements IInventory
 							fireItemStacks[dest] = output.copy();
 							fireItemStacks[dest].setItemDamage(amt4);
 
-							TFC_ItemHeat.SetTemp(fireItemStacks[dest], temp);
+							TFC_ItemHeat.setTemp(fireItemStacks[dest], temp);
 						}
-						else if(fireItemStacks[dest] != null && fireItemStacks[dest].getItem() == TFCItems.CeramicMold)
+						else if(fireItemStacks[dest] != null && fireItemStacks[dest].getItem() == TFCItems.ceramicMold)
 						{
 							fireItemStacks[dest] = output.copy();
 							fireItemStacks[dest].setItemDamage(100 - leftover);
-							TFC_ItemHeat.SetTemp(fireItemStacks[dest], temp);
+							TFC_ItemHeat.setTemp(fireItemStacks[dest], temp);
 						}
 					}
 				}
@@ -217,10 +218,11 @@ public class TEFirepit extends TEFireEntity implements IInventory
 					{
 						fireItemStacks[8] = output.copy();
 					}
-					else if((fireItemStacks[7].stackSize == fireItemStacks[7].getMaxStackSize() && fireItemStacks[8].stackSize == fireItemStacks[8].getMaxStackSize())
-							|| (fireItemStacks[7].getItem() != output.getItem() && fireItemStacks[8].getItem() != output.getItem())
-							|| (fireItemStacks[7].stackSize == fireItemStacks[7].getMaxStackSize() && fireItemStacks[8].getItem() != output.getItem())
-							|| (fireItemStacks[7].getItem() != output.getItem() && fireItemStacks[8].stackSize == fireItemStacks[8].getMaxStackSize()))
+					else if (fireItemStacks[7].stackSize == fireItemStacks[7].getMaxStackSize() &&
+								fireItemStacks[8].stackSize == fireItemStacks[8].getMaxStackSize() ||
+								fireItemStacks[7].getItem() != output.getItem() && fireItemStacks[8].getItem() != output.getItem() ||
+								fireItemStacks[7].stackSize == fireItemStacks[7].getMaxStackSize() && fireItemStacks[8].getItem() != output.getItem() ||
+								fireItemStacks[7].getItem() != output.getItem() && fireItemStacks[8].stackSize == fireItemStacks[8].getMaxStackSize())
 					{
 						fireItemStacks[1] = output.copy();
 					}
@@ -286,12 +288,12 @@ public class TEFirepit extends TEFireEntity implements IInventory
 
 	public float getOutput1Temp()
 	{
-		return TFC_ItemHeat.GetTemp(fireItemStacks[7]);
+		return TFC_ItemHeat.getTemp(fireItemStacks[7]);
 	}
 
 	public float getOutput2Temp()
 	{
-		return TFC_ItemHeat.GetTemp(fireItemStacks[8]);
+		return TFC_ItemHeat.getTemp(fireItemStacks[8]);
 	}
 
 	@Override
@@ -312,7 +314,7 @@ public class TEFirepit extends TEFireEntity implements IInventory
 		return null;
 	}
 
-	public void HandleFuelStack()
+	public void handleFuelStack()
 	{
 		if(fireItemStacks[3] == null && fireItemStacks[0] != null)
 		{
@@ -355,32 +357,39 @@ public class TEFirepit extends TEFireEntity implements IInventory
 	{
 		if(is != null)
 		{
-			float temp = TFC_ItemHeat.GetTemp(is);
-			if(fuelTimeLeft > 0 && is.getItem() instanceof ICookableFood)
+			HeatRegistry manager = HeatRegistry.getInstance();
+			HeatIndex index = manager.findMatchingIndex(is);
+
+			if (index != null)
 			{
-				float inc = Food.getCooked(is)+Math.min((fireTemp/700), 2f);
-				Food.setCooked(is, inc);
-				temp = inc;
-				if(Food.isCooked(is))
+				float temp = TFC_ItemHeat.getTemp(is);
+				if (fuelTimeLeft > 0 && is.getItem() instanceof ICookableFood)
 				{
-					int[] cookedTasteProfile = new int[] {0,0,0,0,0};
-					Random R = new Random(((ICookableFood)is.getItem()).getFoodID()+(((int)Food.getCooked(is)-600)/120));
-					cookedTasteProfile[0] = R.nextInt(30)-15;
-					cookedTasteProfile[1] = R.nextInt(30)-15;
-					cookedTasteProfile[2] = R.nextInt(30)-15;
-					cookedTasteProfile[3] = R.nextInt(30)-15;
-					cookedTasteProfile[4] = R.nextInt(30)-15;
-					Food.setCookedProfile(is, cookedTasteProfile);
-					Food.setFuelProfile(is, EnumFuelMaterial.getFuelProfile(fuelTasteProfile));
+					float inc = Food.getCooked(is) + Math.min(fireTemp / 700, 2f);
+					Food.setCooked(is, inc);
+					temp = inc;
+					if (Food.isCooked(is))
+					{
+						int[] cookedTasteProfile = new int[]
+						{ 0, 0, 0, 0, 0 };
+						Random r = new Random(((ICookableFood) is.getItem()).getFoodID() + (((int) Food.getCooked(is) - 600) / 120));
+						cookedTasteProfile[0] = r.nextInt(31) - 15;
+						cookedTasteProfile[1] = r.nextInt(31) - 15;
+						cookedTasteProfile[2] = r.nextInt(31) - 15;
+						cookedTasteProfile[3] = r.nextInt(31) - 15;
+						cookedTasteProfile[4] = r.nextInt(31) - 15;
+						Food.setCookedProfile(is, cookedTasteProfile);
+						Food.setFuelProfile(is, EnumFuelMaterial.getFuelProfile(fuelTasteProfile));
+					}
 				}
+				else if (fireTemp > temp && index.hasOutput())
+				{
+					temp += TFC_ItemHeat.getTempIncrease(is);
+				}
+				else
+					temp -= TFC_ItemHeat.getTempDecrease(is);
+				TFC_ItemHeat.setTemp(is, temp);
 			}
-			else if(fireTemp > temp)
-			{
-				temp += TFC_ItemHeat.getTempIncrease(is);
-			}
-			else
-				temp -= TFC_ItemHeat.getTempDecrease(is);
-			TFC_ItemHeat.SetTemp(is, temp);
 		}
 	}
 
@@ -389,6 +398,40 @@ public class TEFirepit extends TEFireEntity implements IInventory
 	{
 		if(!worldObj.isRemote)
 		{
+			// Create a list of all the items that are falling onto the firepit
+			List list = worldObj.getEntitiesWithinAABB(EntityItem.class, AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1.1, zCoord + 1));
+
+			if (list != null && !list.isEmpty() && fireItemStacks[0] == null) // Only go through the list if more fuel can fit.
+			{
+				// Iterate through the list and check for logs and peat
+				for (Iterator iterator = list.iterator(); iterator.hasNext();)
+				{
+					EntityItem entity = (EntityItem) iterator.next();
+					ItemStack is = entity.getEntityItem();
+					Item item = is.getItem();
+
+					if (item == TFCItems.logs || item == Item.getItemFromBlock(TFCBlocks.peat))
+					{
+						for (int c = 0; c < is.stackSize; c++)
+						{
+							if (fireItemStacks[0] == null) // Secondary check for empty input slot.
+							{
+								/**
+								 * Place a copy of only one of the logs into the fuel slot, due to the stack limitation of the fuel slots.
+								 * Do not change to fireItemStacks[0] = is;
+								 */
+								setInventorySlotContents(0, new ItemStack(item, 1, is.getItemDamage()));
+								is.stackSize--;
+								handleFuelStack(); // Attempt to shift the fuel down so more fuel can be added within the same for loop.
+							}
+						}
+
+						if (is.stackSize == 0)
+							entity.setDead();
+					}
+				}
+			}
+
 			//Here we take care of the item that we are cooking in the fire
 			careForInventorySlot(fireItemStacks[1]);
 			careForInventorySlot(fireItemStacks[7]);
@@ -396,21 +439,21 @@ public class TEFirepit extends TEFireEntity implements IInventory
 
 			smokeFoods();
 
-			hasCookingPot = (fireItemStacks[1] != null && fireItemStacks[1].getItem() == TFCItems.PotteryPot && 
-					fireItemStacks[1].getItemDamage() == 1);
+			/*hasCookingPot = fireItemStacks[1] != null &&fireItemStacks[1].getItem() == TFCItems.PotteryPot &&
+							fireItemStacks[1].getItemDamage() == 1;*/
 
 			//Now we cook the input item
-			CookItem();
+			cookItem();
 
 			//push the input fuel down the stack
-			HandleFuelStack();
+			handleFuelStack();
 
-			if((fireTemp < 1) && (worldObj.getBlockMetadata(xCoord, yCoord, zCoord) != 0))
+			if (fireTemp < 1 && worldObj.getBlockMetadata(xCoord, yCoord, zCoord) != 0)
 			{
 				worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0, 3);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
-			else if((fireTemp >= 1) && (worldObj.getBlockMetadata(xCoord, yCoord, zCoord) != 1))
+			else if (fireTemp >= 1 && worldObj.getBlockMetadata(xCoord, yCoord, zCoord) != 1)
 			{
 				worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 1, 3);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -426,7 +469,8 @@ public class TEFirepit extends TEFireEntity implements IInventory
 				}
 			}
 			else if(fuelTimeLeft <= 0 && fireTemp >= 1 && fireItemStacks[5] != null &&
-					((!worldObj.canLightningStrikeAt(xCoord, yCoord, zCoord) && !worldObj.canLightningStrikeAt(xCoord, yCoord+1, zCoord)) || !worldObj.isRaining()))
+						(!worldObj.canLightningStrikeAt(xCoord, yCoord, zCoord) && !worldObj.canLightningStrikeAt(xCoord, yCoord + 1, zCoord) ||
+							!worldObj.isRaining()))
 			{
 				if(fireItemStacks[5] != null)
 				{
@@ -487,25 +531,33 @@ public class TEFirepit extends TEFireEntity implements IInventory
 	}
 	private void smokeBlock(int x, int y, int z)
 	{
-		if(worldObj.getBlock(x, y, z) == TFCBlocks.SmokeRack)
+		if (worldObj.blockExists(x, y, z) && worldObj.getBlock(x, y, z) == TFCBlocks.smokeRack &&
+			worldObj.getTileEntity(x, y, z) instanceof TESmokeRack)
 		{
+			boolean broadcast = false;
 			TESmokeRack te = (TESmokeRack) worldObj.getTileEntity(x, y, z);
-			if(te.getStackInSlot(0) != null)
+			te.lastSmokedTime = (int)TFC_Time.getTotalHours();
+
+			for (int i = 0; i < te.storage.length; i++)
 			{
-				ItemStack is = te.getStackInSlot(0);
-				if(Food.getSmokeCounter(is) < 12)
-					Food.setSmokeCounter(is, Food.getSmokeCounter(is)+1);
-				else
-					Food.setFuelProfile(is, EnumFuelMaterial.getFuelProfile(fuelTasteProfile));
+				ItemStack is = te.getStackInSlot(i);
+				if (is != null)
+				{
+					if (Food.getSmokeCounter(is) < Food.SMOKEHOURS) // Smoking in progress
+					{
+						// Smoking does not make up for lost time to balance fuel consumption
+						Food.setSmokeCounter(is, Food.getSmokeCounter(is) + 1);
+					}
+					else // Smoking complete
+					{
+						Food.setFuelProfile(is, EnumFuelMaterial.getFuelProfile(fuelTasteProfile));
+						broadcast = true; // Broadcast change to update string color
+					}
+				}
 			}
-			if(te.getStackInSlot(1) != null)
-			{
-				ItemStack is = te.getStackInSlot(1);
-				if(Food.getSmokeCounter(is) < 12)
-					Food.setSmokeCounter(is, Food.getSmokeCounter(is)+1);
-				else
-					Food.setFuelProfile(is, EnumFuelMaterial.getFuelProfile(fuelTasteProfile));
-			}
+
+			if (broadcast)
+				te.broadcastPacketInRange();
 		}
 	}
 
@@ -555,7 +607,7 @@ public class TEFirepit extends TEFireEntity implements IInventory
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void GenerateSmoke()
+	public void generateSmoke()
 	{
 		/*if(scanSmokeLayer)
 		{

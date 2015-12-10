@@ -3,6 +3,7 @@ package com.bioxx.tfc.Render.Models;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -10,10 +11,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ModelSquidTFC extends ModelBase
 {
 	/** The squid's body */
-	ModelRenderer squidBody;
+	private ModelRenderer squidBody;
 
 	/** The squid's tentacles */
-	ModelRenderer[] squidTentacles = new ModelRenderer[8];
+	private ModelRenderer[] squidTentacles = new ModelRenderer[8];
 
 	public ModelSquidTFC()
 	{
@@ -32,7 +33,7 @@ public class ModelSquidTFC extends ModelBase
 			this.squidTentacles[i].rotationPointX = f;
 			this.squidTentacles[i].rotationPointZ = f1;
 			this.squidTentacles[i].rotationPointY = 31 + b0;
-			d0 = i * Math.PI * -2.0D / this.squidTentacles.length + (Math.PI / 2D);
+			d0 = i * Math.PI * -2.0D / this.squidTentacles.length + Math.PI / 2D;
 			this.squidTentacles[i].rotateAngleY = (float)d0;
 		}
 	}

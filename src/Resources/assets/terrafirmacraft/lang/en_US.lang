@@ -6,45 +6,122 @@
 #This file needs to be UTF-8 encoded to work with MC 1.7+
 
 generator.TFCDefault=TFC Default
-generator.TFCFlat=TFC Flat
+generator.TFCFlat=TFC Flat(Unused)
+generator.TFCAmplified=TFC Amplified(Unused)
+generator.TFCLargeBiomes=TFC Large Biomes(Unused)
 
 key.ToolMode=Cycle Tool Mode
 key.LockTool=Lock Tool Location
 
 effect.bleed=Bleeding
+death.attack.alcohol=%1$s died of alcohol poisoning
+death.attack.heatStroke=%1$s died of heat stroke
+death.attack.caveIn=%1$s was crushed by falling cobblestone
 
 #==============
-#= Spawn Eggs =
+#= Gui config =
 #==============
-entity.squidTFC.name=Squid
-entity.cowTFC.name=Cow
-entity.wolfTFC.name=Wolf
+# --- General Config File ---
+# ---------------------------
+config.gui.TFCConfig=TFCConfig.cfg
+config.gui.TFCConfig.tooltip=General configuration file
+
+config.gui.TFCConfig.general=General
+config.gui.TFCConfig.general.tooltip=Miscellaneous options
+
+config.gui.TFCConfig.time=Time
+config.gui.TFCConfig.time.tooltip=Time and Calendar related options
+
+config.gui.TFCConfig.fooddecay=Food decay
+config.gui.TFCConfig.fooddecay.tooltip=Food decay related options
+
+config.gui.TFCConfig.caveins=Cave-ins
+config.gui.TFCConfig.caveins.tooltip=Cave-in related options
+
+config.gui.TFCConfig.worldgen=World generation
+config.gui.TFCConfig.worldgen.tooltip=World gen options
+
+config.gui.TFCConfig.crops=Crops
+config.gui.TFCConfig.crops.tooltip=Crop related options
+
+config.gui.TFCConfig.protection=Spawn protection
+config.gui.TFCConfig.protection.tooltip=Spawn protection related options
+
+config.gui.TFCConfig.player=Player
+config.gui.TFCConfig.player.tooltip=Options related to 'the player'
+
+config.gui.TFCConfig.materials=Materials
+config.gui.TFCConfig.materials.tooltip=Material related options
+
+config.gui.TFCConfig.server=Server
+config.gui.TFCConfig.server.tooltip=Server only options
+
+config.gui.TFCConfig.overworked=Overworked
+config.gui.TFCConfig.overworked.tooltip=Overworked chunks options
+
+config.gui.TFCConfig.colors=Colors
+config.gui.TFCConfig.colors.tooltip=Ingame color settings
+
+config.gui.TFCConfig.colors.r=Red
+config.gui.TFCConfig.colors.g=Green
+config.gui.TFCConfig.colors.b=Blue
+config.gui.TFCConfig.colors.a=Alpha
+
+config.gui.TFCConfig.colors.nutrient_a.tooltip=Nutrient A Hoe Overlay Color
+config.gui.TFCConfig.colors.nutrient_b.tooltip=Nutrient B Hoe Overlay Color
+config.gui.TFCConfig.colors.nutrient_c.tooltip=Nutrient C Hoe Overlay Color
+config.gui.TFCConfig.colors.fertilizer.tooltip=Fertilizer Hoe Overlay Color
+config.gui.TFCConfig.colors.anvil.0.tooltip=Anvil Rule 0 Color
+config.gui.TFCConfig.colors.anvil.1.tooltip=Anvil Rule 1 Color
+config.gui.TFCConfig.colors.anvil.2.tooltip=Anvil Rule 2 Color
+
+# --- Crafting Config File ---
+# ----------------------------
+config.gui.TFCCrafting.conversion=Vanilla Conversions
+config.gui.TFCCrafting.conversion.tooltip=WARNING: Conversions for food are irreversible!
+
+config.gui.TFCCrafting.vanilla=Vanilla Crafting Recipes
+
+config.gui.TFCCrafting.options=Crafting Options
+
+#==============
+#= Entities = 
+#==============
 entity.bearTFC.name=Bear
-entity.deerTFC.name=Deer
 entity.chickenTFC.name=Chicken
-entity.pigTFC.name=Pig
-entity.skeletonTFC.name=Skeleton
-entity.zombieTFC.name=Zombie
-entity.spiderTFC.name=Spider
-entity.slimeTFC.name=Slime
-entity.silverfishTFC.name=Silver Fish
-entity.ghastTFC.name=Ghast
-entity.caveSpiderTFC.name=Cave Spider
-entity.blazeTFC.name=Blaze
-entity.endermanTFC.name=Enderman
-entity.pigZombieTFC.name=Pig Zombie
-entity.creeperTFC.name=Creeper
-entity.sheepTFC.name=Sheep
-entity.pheasantTFC.name=Pheasant
-entity.horseTFC.name=Horse
-entity.irongolemTFC.name=Iron Golem
+entity.cowTFC.name=Cow
+entity.deerTFC.name=Deer
 entity.fishTFC.name=Bass
+entity.horseTFC.name=Horse
+entity.pheasantTFC.name=Pheasant
+entity.pigTFC.name=Pig
+entity.sheepTFC.name=Sheep
+entity.squidTFC.name=Squid
+entity.wolfTFC.name=Wolf
 
+entity.blazeTFC.name=Blaze
+entity.caveSpiderTFC.name=Cave Spider
+entity.creeperTFC.name=Creeper
+entity.endermanTFC.name=Enderman
+entity.ghastTFC.name=Ghast
+entity.irongolemTFC.name=Iron Golem
+entity.pigZombieTFC.name=Pig Zombie
+entity.silverfishTFC.name=Silverfish
+entity.skeletonTFC.name=Skeleton
+entity.slimeTFC.name=Slime
+entity.spiderTFC.name=Spider
+entity.zombieTFC.name=Zombie
 
-#==========
-#= Entity =
-#==========
+entity.arrowTFC.name=Arrow
+entity.standTFC.name=Armor Stand
+entity.barrel.name=Barrel
+entity.fallingBlock.name=Falling Block
+
 entity.notFamiliar=The animal won't let you do that.
+entity.pregnant=Pregnant
+entity.male=Male
+entity.female=Female
+
 fishingRod.lineTension=The line is going to snap!
 fishingRod.lineSnap=The line snapped!
 fishingRod.bite=Oh! A bite!
@@ -55,10 +132,12 @@ fishingRod.gotAway=It got away....
 #================
 achievement.achLooseRock=Definitely a rock
 achievement.achLooseRock.desc=Pick up a rock
+achievement.achTwoKnives=Double Trouble
+achievement.achTwoKnives.desc=Make two stone knife heads at once
 achievement.achSmallOre=No stone unturned
 achievement.achSmallOre.desc=Find an ore nugget
 achievement.achWildVegetable=Gatherer
-achievement.achWildVegetable.desc=Find a wild vegetable
+achievement.achWildVegetable.desc=Find a wild crop
 achievement.achRutabaga=Stupid onions...
 achievement.achRutabaga.desc=Find a rutabaga
 achievement.achQuern=The Grind
@@ -83,6 +162,24 @@ achievement.achIronAge=The Iron Age
 achievement.achIronAge.desc=Mine an iron bloom to enter the Iron Age
 achievement.achPokeCreeper=Steve Irwin
 achievement.achPokeCreeper.desc=Poke it with a stick
+achievement.achBlastFurnace=Blast Off
+achievement.achBlastFurnace.desc=Craft a blast furnace
+achievement.achFireClay=Into the Fire
+achievement.achFireClay.desc=Craft fire clay
+achievement.achCrucible=Metallurgy Table
+achievement.achCrucible.desc=Create a crucible
+achievement.achUnknown=Oops
+achievement.achUnknown.desc=Craft an unknown ingot
+achievement.achBlackSteel=Any color you like
+achievement.achBlackSteel.desc=Create a black steel ingot
+achievement.achBlueSteel=Zoolander
+achievement.achBlueSteel.desc=Create a blue steel ingot
+achievement.achRedSteel=Vermillion Dollar Metal
+achievement.achRedSteel.desc=Create a red steel ingot
+achievement.achBlueBucket=Lava Bucket HO!
+achievement.achBlueBucket.desc=Create a blue steel bucket
+achievement.achRedBucket=Tsunami
+achievement.achRedBucket.desc=Create a red steel bucket
 
 #============
 #= Commands =
@@ -95,6 +192,29 @@ commands.transferTamed.display.incoming=An animal has been transferred to you by
 commands.transferTamed.display.outgoing=You've transferred an animal to %s!
 commands.transferTamed.wrongSender=You can't transfer animals!
 
+#==========
+#= Fluids =
+#==========
+fluid.freshwater=Fresh Water
+fluid.saltwater=Salt Water
+fluid.lavatfc=Lava
+fluid.hotwater=Hot Springs
+fluid.beer=Beer
+fluid.cider=Cider
+fluid.rum=Rum
+fluid.ryewhiskey=Rye Whiskey
+fluid.sake=Sake
+fluid.vodka=Vodka
+fluid.whiskey=Whiskey
+fluid.cornwhiskey=Corn Whiskey
+fluid.milk=Milk
+fluid.milkcurdled=Curdled Milk
+fluid.milkvinegar=Milk + Vinegar Mix
+fluid.limewater=Limewater
+fluid.tannin=Tannin
+fluid.vinegar=Vinegar
+fluid.brine=Brine
+
 #========
 #= Food =
 #========
@@ -105,6 +225,11 @@ item.meal.decent=Decent
 item.meal.good=Good
 item.meal.great=Great
 item.meal.fantastic=Fantastic
+item.Sandwich.name=Sandwich
+item.Salad.name=Salad
+item.Soup.name=Soup
+item.Sugar.name=Sugar
+item.Sea Weed.name=Sea Weed
 
 #== Grains ==
 item.Barley Bread.name=Barley Bread
@@ -267,10 +392,10 @@ item.CornWhiskey.name=Corn Whiskey
 item.Clay.Clay.name=Clay
 item.Clay.Fire Clay.name=Fire Clay
 
-item.clay.clayflatlight.name=Flat Clay Light
-item.clay.clayflatdark.name=Flat Clay Dark
-item.clay.clayflatfire.name=Flat Fire Clay
-item.clay.clayflatdarkfire.name=Flat Fire Clay Dark
+item.Flat Clay.clay flat light.name=Flat Clay
+item.Flat Clay.clay flat dark.name=Flat Clay
+item.Flat Clay.clay flat fire.name=Flat Fire Clay
+item.Flat Clay.clay flat dark fire.name=Flat Fire Clay
 
 item.Jug.Clay Jug.name=Clay Jug
 item.Jug.Ceramic Jug.name=Ceramic Jug
@@ -386,6 +511,10 @@ item.Spindle Head.Spindle Head.name=Spindle Head
 item.Fire Brick.Fire Brick.name=Fire Brick
 item.Fire Brick.Clay Fire Brick.name=Clay Fire Brick
 tile.FireBrick.name=Fire Brick Block
+tile.Pottery.name=Pottery
+
+item.ClayBowl.Ceramic Bowl.name=Ceramic Bowl
+item.ClayBowl.Clay Bowl.name=Clay Bowl
 
 #= Gems =
 item.Agate.Chipped.name=Chipped Agate
@@ -462,7 +591,7 @@ item.Tourmaline.Exquisite.name=Exquisite Tourmaline
 #= Powders =
 #===========
 item.dyePowder.black.name=Ink Sac
-item.dyePowder.blue.name=Lapis Lazuli
+item.dyePowder.blue.name=Blue Dye
 item.dyePowder.brown.name=Cocoa Beans
 item.dyePowder.cyan.name=Cyan Dye
 item.dyePowder.gray.name=Gray Dye
@@ -824,6 +953,7 @@ item.Small Ore.Sphalerite.name=Small Sphalerite
 item.Small Ore.Tetrahedrite.name=Small Tetrahedrite
 
 #== Ore Blocks ==
+tile.Ore.name=Ore
 tile.Ore.Bituminous Coal.name=Bituminous Coal
 tile.Ore.Borax.name=Borax
 tile.Ore.Cinnabar.name=Cinnabar
@@ -956,7 +1086,24 @@ item.Loom.White Elm.name=White Elm Loom
 item.Loom.Willow.name=Willow Loom
 
 #== Wood Blocks ==
-tile.log.Acacia.name=Acacia Log
+tile.Chest.Acacia.name=Acacia Chest
+tile.Chest.Ash.name=Ash Chest
+tile.Chest.Aspen.name=Aspen Chest
+tile.Chest.Birch.name=Birch Chest
+tile.Chest.Chestnut.name=Chestnut Chest
+tile.Chest.Douglas Fir.name=Douglas Fir Chest
+tile.Chest.Hickory.name=Hickory Chest
+tile.Chest.Kapok.name=Kapok Chest
+tile.Chest.Maple.name=Maple Chest
+tile.Chest.Oak.name=Oak Chest
+tile.Chest.Pine.name=Pine Chest
+tile.Chest.Sequoia.name=Sequoia Chest
+tile.Chest.Spruce.name=Spruce Chest
+tile.Chest.Sycamore.name=Sycamore Chest
+tile.Chest.White Cedar.name=White Cedar Chest
+tile.Chest.White Elm.name=White Elm Chest
+tile.Chest.Willow.name=Willow Chest
+
 tile.log2.Acacia.name=Acacia Log
 tile.log.Ash.name=Ash Log
 tile.log.Aspen.name=Aspen Log
@@ -1029,7 +1176,8 @@ tile.sapling.White Cedar.name=White Cedar Sapling
 tile.sapling.White Elm.name=White Elm Sapling
 tile.sapling.Willow.name=Willow Sapling
 
-tile.leaves.Acacia.name=Acacia Leaves
+tile.leaves2.name=Acacia Leaves
+tile.leaves2.Acacia.name=Acacia Leaves
 tile.leaves.Ash.name=Ash Leaves
 tile.leaves.Aspen.name=Aspen Leaves
 tile.leaves.Birch.name=Birch Leaves
@@ -1064,6 +1212,10 @@ tile.wood.Sycamore.name=Sycamore Planks
 tile.wood.White Cedar.name=White Cedar Planks
 tile.wood.White Elm.name=White Elm Planks
 tile.wood.Willow.name=Willow Planks
+
+tile.fruitTreeWood.name=Fruit Tree
+tile.fruitTreeLeaves.name=Fruit Tree Leaves
+tile.fruitTreeLeaves2.name=Fruit Tree Leaves
 
 tile.Door Acacia.name=Acacia Door
 tile.Door Ash.name=Ash Door
@@ -1191,6 +1343,25 @@ tile.WoodSupportV.White Cedar.name=White Cedar Support Beam
 tile.WoodSupportV.White Elm.name=White Elm Support Beam
 tile.WoodSupportV.Willow.name=Willow Support Beam
 
+tile.WoodSupportH2.name=Wood Support Beam
+tile.WoodSupportH2.Acacia.name=Acacia Support Beam
+tile.WoodSupportH.Ash.name=Ash Support Beam
+tile.WoodSupportH.Aspen.name=Aspen Support Beam
+tile.WoodSupportH.Birch.name=Birch Support Beam
+tile.WoodSupportH.Chestnut.name=Chestnut Support Beam
+tile.WoodSupportH.Douglas Fir.name=Douglas Fir Support Beam
+tile.WoodSupportH.Hickory.name=Hickory Support Beam
+tile.WoodSupportH.Kapok.name=Kapok Support Beam
+tile.WoodSupportH.Maple.name=Maple Support Beam
+tile.WoodSupportH.Oak.name=Oak Support Beam
+tile.WoodSupportH.Pine.name=Pine Support Beam
+tile.WoodSupportH.Sequoia.name=Sequoia Support Beam
+tile.WoodSupportH.Spruce.name=Spruce Support Beam
+tile.WoodSupportH.Sycamore.name=Sycamore Support Beam
+tile.WoodSupportH.White Cedar.name=White Cedar Support Beam
+tile.WoodSupportH.White Elm.name=White Elm Support Beam
+tile.WoodSupportH.Willow.name=Willow Support Beam
+
 tile.Toolrack.Acacia.name=Acacia Tool Rack
 tile.Toolrack.Ash.name=Ash Tool Rack
 tile.Toolrack.Aspen.name=Aspen Tool Rack
@@ -1218,25 +1389,21 @@ item.Stone Hammer Head.name=Stone Hammer Head
 item.Stone Knife Blade.name=Stone Knife Blade
 
 item.IgIn Stone Axe Head.name=Stone Axe Head
-item.IgIn Stone Chisel Head.name=Stone Chisel Head
 item.IgIn Stone Hoe Head.name=Stone Hoe Head
 item.IgIn Stone Javelin Head.name=Stone Javelin Head
 item.IgIn Stone Shovel Head.name=Stone Shovel Head
 
 item.Sed Stone Axe Head.name=Stone Axe Head
-item.Sed Stone Chisel Head.name=Stone Chisel Head
 item.Sed Stone Hoe Head.name=Stone Hoe Head
 item.Sed Stone Javelin Head.name=Stone Javelin Head
 item.Sed Stone Shovel Head.name=Stone Shovel Head
 
 item.IgEx Stone Axe Head.name=Stone Axe Head
-item.IgEx Stone Chisel Head.name=Stone Chisel Head
 item.IgEx Stone Hoe Head.name=Stone Hoe Head
 item.IgEx Stone Javelin Head.name=Stone Javelin Head
 item.IgEx Stone Shovel Head.name=Stone Shovel Head
 
 item.MM Stone Axe Head.name=Stone Axe Head
-item.MM Stone Chisel Head.name=Stone Chisel Head
 item.MM Stone Hoe Head.name=Stone Hoe Head
 item.MM Stone Javelin Head.name=Stone Javelin Head
 item.MM Stone Shovel Head.name=Stone Shovel Head
@@ -1247,8 +1414,6 @@ item.IgIn Stone Axe.name=Stone Axe
 item.Sed Stone Axe.name=Stone Axe
 item.IgEx Stone Axe.name=Stone Axe
 item.MM Stone Axe.name=Stone Axe
-
-item.Stone Chisel.name=Stone Chisel
 
 item.Stone Hammer.name=Stone Hammer
 
@@ -1794,6 +1959,9 @@ item.Tin Double Sheet.name=Tin Double Sheet
 item.Wrought Iron Double Sheet.name=Wrought Iron Double Sheet
 item.Zinc Double Sheet.name=Zinc Double Sheet
 
+#== Misc ==
+item.Blueprint=Blueprint
+
 #===========
 #= Devices =
 #===========
@@ -1803,10 +1971,17 @@ tile.BlastFurnace.name=Blast Furnace
 tile.SpawnMeter.name=Protection Meter
 tile.Quern.name=Quern Base
 tile.EarlyBloomery.name=Bloomery
+tile.Molten.name=Molten Ore
 tile.Crucible.name=Crucible
 tile.NestBox.name=Nest Box
 item.SluiceItem.name=Sluice
+tile.Sluice.name=Sluice
 tile.LeatherRack.name=Leather Rack
+tile.FoodPrep.name=Food Prep
+tile.MetalSheet.name=Metal Sheet
+tile.ingotpile.name=Ingot Pile
+tile.SmokeRack.name=Smoke Rack
+tile.FlowerPot.name=Flower Pot
 
 #== Anvils ==
 tile.Anvil.Stone.name=Stone Anvil
@@ -1905,17 +2080,36 @@ item.fishingRod.name=Fishing Rod
 
 item.Quiver.name=Quiver
 item.Rope.name=Rope
+item.Mud Brick.name=Mud Brick
+item.Wet Mud Brick.name=Wet Mud Brick
 
 #======== Misc. Blocks========
 tile.Straw Hide Bed.name=Straw & Hide Bed
+tile.StrawHideBed.name=Straw & Hide Bed
 tile.customBed.sleep=This bed is too uncomfortable to fall asleep
 tile.BasicPipe.name=Pipe
 tile.ValvePipe.name=Valve Pipe
+tile.Smoke.name=Smoke
 tile.Torch.name=Torch
+tile.TorchOff.name=Extinguished Torch
 tile.Chest.name=Chest
 tile.Bookshelf.name=Bookshelf
 tile.Workbench.name=Workbench
 tile.ButtonWood.name=Wooden Button
+tile.Firepit.name=Firepit
+tile.LogPile.name=Log Pile
+tile.Charcoal.name=Charcoal
+tile.StoneDetailed.name=Detailed
+tile.stoneStairs.name=Stair
+tile.stoneSlabs.name=Slab
+tile.stoneStalac.name=Stalactite
+tile.WoodConstruct.name=Lumber
+tile.MetalTrapDoor.name=Trap Door
+tile.Vessel.name=Large Vessel
+tile.Grill.name=Grill
+
+tile.Sulfur.name=Sulfur
+tile.Reeds.name=Reeds
 
 #= Misc. Plants =
 item.Sugarcane.name=Sugarcane
@@ -1928,10 +2122,12 @@ tile.Fungi.mushroom_brown.name=Brown Mushroom
 tile.Fungi.mushroom_red.name=Red Mushroom
 tile.Cactus.name=Cactus
 tile.Pumpkin.name=Pumpkin
+tile.LitPumpkin.name=Jack o'Lantern
 tile.Moss.name=Moss
 tile.Thatch.name=Thatch
 tile.Flora.Golden Rod.name=Goldenrod
 tile.Flora.Cat Tails.name=Cattails
+tile.Flora.Pond Weed.name=Pond Weed
 
 item.Seeds Sugarcane.name=Sugarcane Seeds
 item.Seeds Hemp.name=Hemp Seeds
@@ -1965,15 +2161,14 @@ tile.SaltWater.name=Salt Water Flowing
 tile.SaltWaterStationary.name=Salt Water
 tile.FreshWater.name=Fresh Water Flowing
 tile.FreshWaterStationary.name=Fresh Water
-tile.HotWater.name=Hot Water Flowing
-tile.HotWaterStationary.name=Hot Water
+tile.HotWater.name=Hot Springs Flowing
+tile.HotWaterStationary.name=Hot Springs
 tile.Lava.name=Lava Flowing
 tile.LavaStationary.name=Lava
 
 #=======
 #= GUI =
 #=======
-gui.badnbt=BAD Info
 
 #== Anvil GUI ==
 gui.Anvil.Plans=Plans
@@ -2035,15 +2230,11 @@ gui.Anvil.Rule42=Bend, Last Three
 gui.Anvil.Rule43=Bend, Not Last
 
 #== Tools/Weapons/Armor GUI ==
-gui.Armor.Advanced=Advanced
-gui.Armor.Shift=Shift
 gui.Armor.ForgedBy=Forged By
-gui.Armor.Hold=Hold
 gui.Armor.Crush=Crush
 gui.Armor.Pierce=Pierce
 gui.Armor.Slash=Slash
 
-gui.Bow.Advanced=Advanced
 gui.Bow.Javelins=Javelins
 gui.Bow.Arrows=Arrows
 gui.Bow.ForgedBy=Made By
@@ -2062,11 +2253,13 @@ gui.Barrel.ToggleOn=In
 gui.Barrel.SealedOn=Sealed On
 gui.Barrel.Solid=Solid Storage
 gui.Barrel.Liquid=Liquid Storage
+gui.barrel.pickling=Pickling
+gui.barrel.brining=Brining
+gui.barrel.preserving=Preserving
 
 #== Bloomery GUI ==
 gui.Bloomery.Charcoal=Charcoal
 gui.Bloomery.Ore=Ore
-gui.Bloomery.Output=Output
 
 #== Calendar GUI ==
 gui.Calendar.Calendar=Calendar
@@ -2116,16 +2309,17 @@ gui.Calendar.December=December
 
 gui.Calendar.1Hour=1 Hour
 gui.Calendar.1Day=1 Day
-gui.Calendar.1Week=1 Week
 gui.Calendar.1Month=1 Month
 gui.Calendar.1Year=1 Year
 
-#== Food Prep GUI ==
+#== Food GUI ==
 gui.FoodPrep.CreateMeal=Create
 gui.FoodPrep.Effect=Effect
 gui.FoodPrep.Energy=Energy
 gui.FoodPrep.Filling=Filling
 gui.FoodPrep.Power=Power
+gui.FoodPrep.Sandwich=Sandwich
+gui.FoodPrep.Salad=Salad
 
 #== Metals ==
 gui.metal.Bismuth=Bismuth
@@ -2187,21 +2381,40 @@ gui.plans.trapdoor=Trap Door
 
 #== Misc GUI ==
 gui.Blueprint=Blueprint
+gui.Rotate=Change Rotation
+gui.Blueprint.Inst0=§bRight Click §7on a detailed block to use.
+gui.Blueprint.Inst1=Or §bRight Click §7to change blueprint rotation.
+gui.Blueprint.missingTool=Blueprint requires chisel and hammer to use.
 gui.Nametag=Nametag
 gui.fertilized=Fertilized
 gui.Inventory=Inventory
 gui.ClearSlot=Clear an output slot.
 gui.LogPile=Log Pile
+gui.Output=Output
 gui.done=Done
+gui.cancel=Cancel
+gui.empty=Empty
 gui.Sluice.Soil=Soil
-gui.Sluice=Sluice
+gui.Sluice.Overworked=Overworked
 gui.Workbench.Crafting=Crafting
+gui.overburdened=*Overburdened*
+
+gui.badnbt=BAD Info
 
 #== Tooltips ==
+gui.Advanced=Advanced
+gui.Shift=Shift
+gui.Hold=Hold
+gui.SmithingBonus=Smithing Bonus
+gui.ItemWorked=This item has been worked
+
+gui.slot=Slot
+gui.slot.back=Back
+
 gui.ShowHelp=§8Help: (Hold §fShift§8)
 gui.Help=§8Help:
 gui.Clay.Inst0=§bRight Click §7with 5 in a stack to shape.
-gui.Knife.Inst0=§bRight Click §7the top of a block to
+gui.Knife.Inst0=§bRight Click §7the top of a non-soil block to
 gui.Knife.Inst1=create a meal preparation area.
 gui.Leather.Inst0=§bRight Click §7with a knife in your inventory to cut.
 gui.LooseRock.Inst0=§bRight Click §7with 2 in a stack to knap.
@@ -2209,7 +2422,15 @@ gui.MeltedMetal.Inst0=§bRight Click §7to pour or combine.
 gui.PotteryBase.Inst0=Sneak and §bRight Click §7to place object.
 gui.PotteryVesselSmall.Inst0=Or §bRight Click §7to open inventory.
 gui.RawHide.Inst0=????
+gui.Chisel.Inst0=Requires a hammer on the hotbar.
 gui.Barrel.MoreItems=§8More... (Hold §fShift§8)
+
+gui.Nutrient.A=Nutrient A
+gui.Nutrient.B=Nutrient B
+gui.Nutrient.C=Nutrient C
+
+gui.stage1=Stage 1
+gui.stage2=Stage 2
 
 gui.Size.Tiny=Tiny
 gui.Size.VerySmall=Very Small
@@ -2227,6 +2448,11 @@ gui.Reach.Short=Short
 gui.Reach.Medium=Medium
 gui.Reach.Far=Far
 
+gui.hoursRemaining=Hours Remaining
+gui.daysRemaining=Days Remaining
+gui.infinite=Infinite
+
+#== Food ==
 gui.food.fruit=Fruit
 gui.food.vegetable=Vegetable
 gui.food.grain=Grain
@@ -2238,90 +2464,6 @@ gui.food.salted=Salted
 
 gui.FoodHeat.Cold=Cold
 gui.FoodHeat.Warm=Warm
-
-gui.Torch.CatchingFire=Catching Fire
-gui.Torch.Lit=Lit
-
-gui.ItemHeat.Liquid=Liquid
-gui.ItemHeat.Solidified=Solidified
-gui.ItemHeat.Caution=Caution
-gui.ItemHeat.Warming=Warming
-gui.ItemHeat.Hot=Hot
-gui.ItemHeat.VeryHot=Very Hot
-gui.ItemHeat.FaintRed=Faint Red
-gui.ItemHeat.DarkRed=Dark Red
-gui.ItemHeat.BrightRed=Bright Red
-gui.ItemHeat.Orange=Orange
-gui.ItemHeat.Yellow=Yellow
-gui.ItemHeat.YellowWhite=Yellow White
-gui.ItemHeat.White=White
-gui.ItemHeat.BrilliantWhite=Brilliant White
-
-gui.ingot.workable=Can Work
-gui.ingot.weldable=Can Weld
-gui.ingot.danger=**Danger**
-
-gui.milk.fresh=Fresh
-gui.milk.old=Old
-gui.milk.sour=Sour
-
-gui.units=Units
-
-#== Chat Messages ==
-gui.GoldPan.UseFull=Must use under flowing water.
-gui.goldpan.overused=This area seems to be overworked. You probably wouldn't find much.
-
-gui.ProPick.Found=Found
-gui.ProPick.FoundTraces=Found traces of
-gui.ProPick.FoundSmall=Found a small sample of
-gui.ProPick.FoundMedium=Found a medium sample of
-gui.ProPick.FoundLarge=Found a large sample of
-gui.ProPick.FoundVeryLarge=Found a very large sample of
-gui.ProPick.FoundNothing=Found nothing of interest.
-
-#== Creative Tabs ==
-itemGroup.TFCArmor=(TFC) Armor
-itemGroup.TFCMaterials=(TFC) Materials
-itemGroup.TFCMisc=(TFC) Misc
-itemGroup.TFCPottery=(TFC) Pottery
-itemGroup.TFCTools=(TFC) Tools
-itemGroup.TFCWeapons=(TFC) Weapons
-itemGroup.TFCDevices=(TFC) Devices
-itemGroup.TFCFoods=(TFC) Foodstuffs
-itemGroup.TFCBuilding=(TFC) Building Blocks
-itemGroup.TFCDecoration=(TFC) Decoration Blocks
-
-#== Skill GUI ==
-skill.armorsmith=Armor Smithing
-skill.gensmith=General Smithing
-skill.toolsmith=Tool Smithing
-skill.weaponsmith=Weapon Smithing
-skill.agriculture=Agriculture
-skill.cooking=Cooking
-skill.prospecting=Prospecting
-skill.butchering=Butchering
-
-#=====================================================
-#========Add New Stuff Here To Be Sorted Later========
-#=====================================================
-fluid.freshwater=Fresh Water
-fluid.saltwater=Salt Water
-fluid.lavatfc=Lava
-fluid.hotwater=Hot Water
-fluid.beer=Beer
-fluid.cider=Cider
-fluid.rum=Rum
-fluid.ryewhiskey=Rye Whiskey
-fluid.sake=Sake
-fluid.vodka=Vodka
-fluid.whiskey=Whiskey
-fluid.cornwhiskey=Corn Whiskey
-fluid.milk=Milk
-fluid.milkcurdled=Curdled Milk
-fluid.limewater=Limewater
-fluid.tannin=Tannin
-fluid.vinegar=Vinegar
-fluid.brine=Brine
 
 gui.showtaste=§8Taste: (Hold §fL-Ctrl§8)
 gui.taste=§8Taste:
@@ -2383,27 +2525,15 @@ gui.taste.6=Very
 gui.taste.7=Extremely
 gui.taste.8=Ridiculously
 
-gui.skill.novice=Novice
-gui.skill.adept=Adept
-gui.skill.expert=Expert
-gui.skill.master=Master
-gui.skillpage=Skills
-tile.MetalTrapDoor.name=Trap Door
-item.Mud Brick.name=Mud Brick
-item.Wet Mud Brick.name=Wet Mud Brick
-gui.overburdened=*Overburdened*
-gui.slot=Slot
-gui.slot.back=Back
 word.pickled=Pickled
 word.brined=Brined
 word.cooked=Cooked
 word.salted=Salted
 word.smoked=Smoked
+word.smoking=Smoking
 word.dried=Dried
-gui.barrel.pickling=Pickling
-gui.barrel.brining=Brining
-tile.Vessel.name=Large Vessel
-tile.Grill.name=Grill
+word.drying=Drying
+
 food.cooked.rare=Rare
 food.cooked.medrare=Medium Rare
 food.cooked.med=Medium
@@ -2414,13 +2544,126 @@ food.cooked.1=Light
 food.cooked.2=Medium
 food.cooked.3=Dark
 food.cooked.4=Very Dark
-gui.FoodPrep.Sandwich=Sandwich
-gui.FoodPrep.Salad=Salad
-item.Sandwich.name=Sandwich
-item.Salad.name=Salad
-item.ClayBowl.Ceramic Bowl.name=Ceramic Bowl
-item.ClayBowl.Clay Bowl.name=Clay Bowl
-item.Sugar.name=Sugar
-item.Sea Weed.name=Sea Weed
-word.stage1=Stage 1
-word.stage2=Stage 2
+
+gui.Torch.CatchingFire=Catching Fire
+gui.Torch.Lit=Lit
+
+gui.ItemHeat.Liquid=Liquid
+gui.ItemHeat.Solidified=Solidified
+gui.ItemHeat.Caution=Caution
+gui.ItemHeat.Warming=Warming
+gui.ItemHeat.Hot=Hot
+gui.ItemHeat.VeryHot=Very Hot
+gui.ItemHeat.FaintRed=Faint Red
+gui.ItemHeat.DarkRed=Dark Red
+gui.ItemHeat.BrightRed=Bright Red
+gui.ItemHeat.Orange=Orange
+gui.ItemHeat.Yellow=Yellow
+gui.ItemHeat.YellowWhite=Yellow White
+gui.ItemHeat.White=White
+gui.ItemHeat.BrilliantWhite=Brilliant White
+
+gui.ingot.workable=Can Work
+gui.ingot.weldable=Can Weld
+gui.ingot.danger=**Danger**
+
+gui.milk.fresh=Fresh
+gui.milk.old=Old
+gui.milk.sour=Sour
+
+gui.units=Units
+
+#== WAILA ==
+gui.useless=Useless
+gui.growth=Growth
+gui.mature=Mature
+gui.metal.Iron=Iron
+gui.tier=Tier
+gui.fuel=Fuel
+gui.Green Apple=Green Apple Tree
+gui.Red Apple=Red Apple Tree
+gui.Banana=Banana Tree
+gui.Cherry=Cherry Tree
+gui.Lemon=Lemon Tree
+gui.Olive=Olive Tree
+gui.Orange=Orange Tree
+gui.Peach=Peach Tree
+gui.Plum=Plum Tree
+gui.pile=Pile
+gui.weaving=Weaving
+gui.eggs=Eggs
+gui.fertEggs=Fertilized Eggs
+gui.logs=Logs
+gui.gems=Gems
+gui.familiarized=Familiarized
+gui.familiarity=Familiarity
+gui.baby=Baby
+option.tfc.oreQuality=Show ore quality
+option.tfc.gender=Show animal gender
+option.tfc.familiarToday=Show animal familiarized
+option.tfc.familiarity=Show animal familarity
+option.tfc.baby=Show if animal is a baby
+
+#== Chat Messages ==
+gui.goldpan.useFlowing=This must be used under flowing water.
+gui.goldpan.overused=This area seems to be overworked. You probably wouldn't find much.
+gui.seeds.failedTemp=It's too cold to plant this, it wouldn't survive very long.
+gui.seeds.failedSun=There's not enough sunlight to plant this, it wouldn't survive very long.
+gui.forge.badChimney=There isn't enough ventilation to use this.
+
+gui.ProPick.Found=Found
+gui.ProPick.FoundTraces=Found traces of
+gui.ProPick.FoundSmall=Found a small sample of
+gui.ProPick.FoundMedium=Found a medium sample of
+gui.ProPick.FoundLarge=Found a large sample of
+gui.ProPick.FoundVeryLarge=Found a very large sample of
+gui.ProPick.FoundNothing=Found nothing of interest.
+
+#== Creative Tabs ==
+itemGroup.TFCArmor=(TFC) Armor
+itemGroup.TFCMaterials=(TFC) Materials
+itemGroup.TFCMisc=(TFC) Misc
+itemGroup.TFCPottery=(TFC) Pottery
+itemGroup.TFCTools=(TFC) Tools
+itemGroup.TFCWeapons=(TFC) Weapons
+itemGroup.TFCDevices=(TFC) Devices
+itemGroup.TFCFoods=(TFC) Foodstuffs
+itemGroup.TFCBuilding=(TFC) Building Blocks
+itemGroup.TFCDecoration=(TFC) Decoration Blocks
+
+#== Skill GUI ==
+skill.armorsmith=Armor Smithing
+skill.gensmith=General Smithing
+skill.toolsmith=Tool Smithing
+skill.weaponsmith=Weapon Smithing
+skill.agriculture=Agriculture
+skill.cooking=Cooking
+skill.prospecting=Prospecting
+skill.butchering=Butchering
+gui.skill.novice=Novice
+gui.skill.adept=Adept
+gui.skill.expert=Expert
+gui.skill.master=Master
+gui.skillpage=Skills
+
+#==================
+#= Error Messages =
+#==================
+error.error=ERROR:
+error.NBT=is missing NBT information.
+error.OreCFG=The following block entry in TFCOre.cfg is invalid:
+error.Contact=Please report to TerraFirmaCraft Support.
+
+#=====================================================
+#========Add New Stuff Here To Be Sorted Later========
+#=====================================================
+tile.Hopper.name=Hopper
+fluid.oliveoil=Olive Oil
+tile.OilLamp.Gold.name=Gold Oil Lamp
+tile.OilLamp.Platinum.name=Platinum Oil Lamp
+tile.OilLamp.RoseGold.name=Rose Gold Oil Lamp
+tile.OilLamp.Silver.name=Silver Oil Lamp
+tile.OilLamp.SterlingSilver.name=Sterling Silver Oil Lamp
+tile.OilLamp.BlueSteel.name=Blue Steel Oil Lamp
+gui.plans.hopper=Hopper
+gui.plans.oillamp=Oil Lamp

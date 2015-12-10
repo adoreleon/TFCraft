@@ -11,23 +11,17 @@ import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Entities.Mobs.EntityFishTFC;
 import com.bioxx.tfc.Items.Tools.ItemCustomFishingRod;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class EntityFishHookTFC extends EntityFishHook
 {
@@ -63,17 +57,17 @@ public class EntityFishHookTFC extends EntityFishHook
 
 	private double maxDistance = -1;
 
-	private boolean canCatchFish = false;
+	private boolean canCatchFish;
 
 	public double pullX,pullY,pullZ;
 
 	private int lineTension;
-	private int maxLineTension = 800;
+	private static final int MAX_LINE_TENSION = 800;
 
-	private int reelCounter = 0;
-	private int lastCheckTick = 0;
+	private int reelCounter;
+	private int lastCheckTick;
 	
-	private boolean lineTensionSnap = false;
+	private boolean lineTensionSnap;
 
 	public EntityFishHookTFC(World par1World)
 	{
@@ -341,12 +335,12 @@ public class EntityFishHookTFC extends EntityFishHook
 
 			if (movingobjectposition != null)
 			{
-				if (movingobjectposition.entityHit != null)
+				/*if (movingobjectposition.entityHit != null)
 				{
 					//if (movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.field_146042_b), 0.0F))
 					//this.field_146043_c = movingobjectposition.entityHit;
 				}
-				else
+				else*/ if (movingobjectposition.entityHit == null)
 				{
 					this.inGround = true;
 				}
@@ -467,12 +461,12 @@ public class EntityFishHookTFC extends EntityFishHook
 
 		double force = pullVec.distanceTo(entityForce);
 		Vec3 netForceVec = entityForce.addVector(pullX, pullY, pullZ);
-		double forceRatio = ((force*30 ) / (netForceVec.lengthVector()));
+		double forceRatio = (force * 30) / netForceVec.lengthVector();
 
 		if(TFC_Time.getTotalTicks()%40 == 0){
 			force += 0d;
 		}
-		lineTension += forceRatio -31;
+		lineTension += (forceRatio -31 > 1 ? Math.sqrt(forceRatio - 31) : forceRatio - 31);
 
 		lineTension = Math.max(lineTension, 0);
 
@@ -491,23 +485,23 @@ public class EntityFishHookTFC extends EntityFishHook
 		if(forceRatio != 30){
 			reelCounter = 0;
 		}
-		if(lineTension >= maxLineTension / 2)
+		if(lineTension >= MAX_LINE_TENSION / 2)
 		{
 			this.maxDistance += pullVec.lengthVector() * 0.3;
 		}
-		if(lineTension > maxLineTension * 0.8 && !lineTensionSnap){
+		if(lineTension > MAX_LINE_TENSION * 0.8 && !lineTensionSnap){
 			lineTensionSnap = true;
-			this.field_146042_b.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("fishingRod.lineTension")));
+			TFC_Core.sendInfoMessage(this.field_146042_b, new ChatComponentTranslation("fishingRod.lineTension"));
 		}
-		else if(lineTension < maxLineTension * 0.8){
+		else if(lineTension < MAX_LINE_TENSION * 0.8){
 			lineTensionSnap = false;
 		}
-		if(lineTension >= maxLineTension){
+		if(lineTension >= MAX_LINE_TENSION){
 			this.field_146042_b.getCurrentEquippedItem().damageItem(20, field_146042_b);
 			this.ridingEntity.riddenByEntity = null;
 			this.ridingEntity = null;
 			//((EntityLiving)this.ridingEntity).dismountEntity(this);
-			this.field_146042_b.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("fishingRod.lineSnap")));
+			TFC_Core.sendInfoMessage(this.field_146042_b, new ChatComponentTranslation("fishingRod.lineSnap"));
 			this.setDead();
 		}
 		this.pullX = 0;
@@ -535,17 +529,20 @@ public class EntityFishHookTFC extends EntityFishHook
 	public Vec3 getTooFarAdjustedVec(Vec3 motionVec, double x, double y, double z){
 		Vec3 playerMotion = Vec3.createVectorHelper(this.field_146042_b.motionX, this.field_146042_b.motionY, this.field_146042_b.motionZ);
 		double subractedRatio = Math.max(1 - (this.maxDistance / this.field_146042_b.getDistance(x + playerMotion.xCoord, y + playerMotion.yCoord, z + playerMotion.zCoord)),0);
-		Vec3 dirVec = Vec3.createVectorHelper((this.field_146042_b.posX + playerMotion.xCoord - (motionVec.xCoord + x))*subractedRatio, (this.field_146042_b.posY + playerMotion.yCoord - (motionVec.yCoord + y))*subractedRatio, (this.field_146042_b.posZ + playerMotion.zCoord - (motionVec.zCoord + z))*subractedRatio);
-		return dirVec;
+		return Vec3.createVectorHelper((this.field_146042_b.posX + playerMotion.xCoord - (motionVec.xCoord + x)) *
+										subractedRatio, (this.field_146042_b.posY + playerMotion.yCoord - (motionVec.yCoord + y)) *
+														subractedRatio, (this.field_146042_b.posZ + playerMotion.zCoord - (motionVec.zCoord + z)) *
+																		subractedRatio);
 	}
 
 	public void attemptToCatch(){
 		int fishPopulation = this.getAverageFishPopFromChunks();
 		if(this.lastCheckTick == 0){
-			int maxValue = (int)(ChunkData.fishPopMax * 1.2f);
+			int maxValue = (int)(ChunkData.FISH_POP_MAX * 1.2f);
 			int minValue = 0;
 			int hour = TFC_Time.getHour();
-			if((hour >= 3 && hour <=9)||(hour >= 17 && hour <22)){
+			if (hour >= 3 && hour <= 9 || hour >= 17 && hour < 22)
+			{
 				minValue = 1;
 			}
 			if(this.rand.nextInt(maxValue - fishPopulation) <= minValue){
@@ -599,9 +596,8 @@ public class EntityFishHookTFC extends EntityFishHook
 		else
 		{
 			EntityPlayer player = this.field_146042_b;
-			int lastChunkX = (((int)Math.floor(player.posX)) >> 4);
-			int lastChunkZ = (((int)Math.floor(player.posZ)) >> 4);
-			int maxChunksVisitable = 20;
+			int lastChunkX = ((int) Math.floor(player.posX)) >> 4;
+			int lastChunkZ = ((int) Math.floor(player.posZ)) >> 4;
 
 			int chunksVisited = 0;
 			int totalFish = TFC_Core.getCDM(worldObj).getFishPop(lastChunkX, lastChunkZ);
@@ -611,6 +607,8 @@ public class EntityFishHookTFC extends EntityFishHook
 			else{
 				return 0;
 			}
+
+			int maxChunksVisitable = 20;
 			for(int radius = 1; radius < 5 && chunksVisited < maxChunksVisitable; radius++){
 				for(int i = -radius; i <= radius; i++)
 				{
@@ -624,8 +622,7 @@ public class EntityFishHookTFC extends EntityFishHook
 					}
 				}
 			}
-			int averageFishPop = totalFish / chunksVisited;
-			return averageFishPop;
+			return totalFish / chunksVisited;
 		}
 	}
 
@@ -638,17 +635,17 @@ public class EntityFishHookTFC extends EntityFishHook
 		}
 		else
 		{
+			EntityPlayer player = this.field_146042_b;
 			EntityFishTFC fish = new EntityFishTFC(this.worldObj);
 			fish.setPosition(posX, posY-0.3, posZ);
 			this.worldObj.spawnEntityInWorld(fish);
-			this.field_146042_b.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("fishingRod.bite")));
+			TFC_Core.sendInfoMessage(player, new ChatComponentTranslation("fishingRod.bite"));
 			this.mountEntity(fish);
 
 			this.canCatchFish = false;
 
-			EntityPlayer player = this.field_146042_b;
-			int lastChunkX = (((int)Math.floor(player.posX)) >> 4);
-			int lastChunkZ = (((int)Math.floor(player.posZ)) >> 4);
+			int lastChunkX = ((int) Math.floor(player.posX)) >> 4;
+			int lastChunkZ = ((int) Math.floor(player.posZ)) >> 4;
 			int maxChunksVisitable = 20;
 			TFC_Core.getCDM(worldObj).catchFish(lastChunkX, lastChunkZ);
 			int chunksVisited = 1;

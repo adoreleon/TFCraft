@@ -1,13 +1,13 @@
 package com.bioxx.tfc.api.Crafting;
 
-import com.bioxx.tfc.api.HeatRegistry;
-import com.bioxx.tfc.api.TFC_ItemHeat;
-
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+
+import com.bioxx.tfc.api.HeatRegistry;
+import com.bioxx.tfc.api.TFC_ItemHeat;
 
 public class ShapedRecipesTFC implements IRecipe
 {
@@ -20,7 +20,7 @@ public class ShapedRecipesTFC implements IRecipe
 	{
 		recipeWidth = i;
 		recipeHeight = j;
-		recipeItems = aitemstack;
+		recipeItems = aitemstack.clone();
 		recipeOutput = itemstack;
 	}
 
@@ -49,17 +49,20 @@ public class ShapedRecipesTFC implements IRecipe
 				{
 					continue;
 				}
-				if (inputIS == null && recipeIS != null || inputIS != null && recipeIS == null)
+				else if (inputIS == null || recipeIS == null) // No need for XOR since the X is handled above
 				{
 					return false;
 				}
-				if (recipeIS.getItem() != inputIS.getItem())
+				else
 				{
-					return false;
-				}
-				if (recipeIS.getItemDamage() != 32767 && recipeIS.getItemDamage() != inputIS.getItemDamage())
-				{
-					return false;
+					if (recipeIS.getItem() != inputIS.getItem())
+					{
+						return false;
+					}
+					if (recipeIS.getItemDamage() != 32767 && recipeIS.getItemDamage() != inputIS.getItemDamage())
+					{
+						return false;
+					}
 				}
 				if(!tempMatch(recipeIS, inputIS))
 				{
@@ -89,7 +92,22 @@ public class ShapedRecipesTFC implements IRecipe
 		return recipeWidth * recipeHeight;
 	}
 
-	@Override
+    public int getRecipeWidth()
+    {
+        return recipeWidth;
+    }
+
+    public int getRecipeHeight()
+    {
+        return recipeHeight;
+    }
+
+    public ItemStack[] getRecipeItems()
+    {
+		return recipeItems.clone();
+    }
+
+    @Override
 	public boolean matches(InventoryCrafting inventorycrafting, World world)
 	{
 		for (int i = 0; i <= 5 - recipeWidth; i++)
@@ -117,19 +135,13 @@ public class ShapedRecipesTFC implements IRecipe
 
 		if(rnbt != null && rnbt.hasKey("noTemp"))
 		{
-			if(inbt == null || (inbt != null && !TFC_ItemHeat.HasTemp(inputIS)))
-			{
-				return true;//Recipe expects a cold item and either the input has not tag at all or at the least is missing a temperature tag
-			}
-			else
-			{
-				return false;//Recipe expects a cold item and the input is not cold
-			}
+			//Recipe expects a cold item and either the input has not tag at all or at the least is missing a temperature tag
+			return inbt == null || !TFC_ItemHeat.hasTemp(inputIS);
 		}
 
-		if(rnbt != null && TFC_ItemHeat.HasTemp(recipeIS))
+		if(rnbt != null && TFC_ItemHeat.hasTemp(recipeIS))
 		{
-			if(inbt != null && TFC_ItemHeat.HasTemp(inputIS))
+			if(inbt != null && TFC_ItemHeat.hasTemp(inputIS))
 			{
 				return HeatRegistry.getInstance().getIsLiquid(inputIS);//Recipe expects a hot item and the input is liquid
 			}

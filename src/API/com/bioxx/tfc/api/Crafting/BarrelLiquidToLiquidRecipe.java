@@ -1,12 +1,15 @@
 package com.bioxx.tfc.api.Crafting;
 
+import java.util.Stack;
+
 import net.minecraft.item.ItemStack;
+
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 public class BarrelLiquidToLiquidRecipe extends BarrelRecipe
 {
-	FluidStack inputfluid;
+	public FluidStack inputfluid;
 	public BarrelLiquidToLiquidRecipe(FluidStack fluidInBarrel, FluidStack inputfluid, FluidStack outputFluid)
 	{
 		super(null, fluidInBarrel, null, outputFluid);
@@ -17,34 +20,35 @@ public class BarrelLiquidToLiquidRecipe extends BarrelRecipe
 	public Boolean matches(ItemStack item, FluidStack fluid)
 	{
 		FluidStack itemLiquid = FluidContainerRegistry.getFluidForFilledItem(item);
-		if(barrelFluid != null && barrelFluid.isFluidEqual(fluid) && itemLiquid != null && itemLiquid.isFluidEqual(inputfluid))
+		if(recipeFluid != null && recipeFluid.isFluidEqual(fluid) && itemLiquid != null && itemLiquid.isFluidEqual(inputfluid))
 		{
 			//Make sure that when we combine the liquids that there is enough room in the barrel for the new liquid to fit
 			if(10000-fluid.amount < itemLiquid.amount)
 				return false;
 
-			//Make sure that the liquid ratio is at least 1 for the recipe
-			/*float mult0 = fluid.amount / barrelFluid.amount;
-			float mult1 = itemLiquid.amount / inputfluid.amount;
-
-			if(mult0 >= 1 && mult1 >= 1)*/
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public ItemStack getResult(ItemStack inIS, FluidStack inFS, int sealedTime)
+	public Stack<ItemStack> getResult(ItemStack inIS, FluidStack inFS, int sealedTime)
 	{
-		return inIS.getItem().getContainerItem(inIS);
+		Stack<ItemStack> result = new Stack<ItemStack>();
+		if(inIS != null)
+			result.push(inIS.getItem().getContainerItem(inIS));
+		else
+			result.push(null);
+
+		return result;
 	}
 
 	@Override
 	public FluidStack getResultFluid(ItemStack inIS, FluidStack inFS, int sealedTime)
 	{
-		if(outFluid != null)
+		if(recipeOutFluid != null)
 		{
-			FluidStack fs = outFluid.copy();
+			FluidStack fs = recipeOutFluid.copy();
 			FluidStack itemLiquid = FluidContainerRegistry.getFluidForFilledItem(inIS);
 			if(!removesLiquid)
 			{
@@ -52,11 +56,15 @@ public class BarrelLiquidToLiquidRecipe extends BarrelRecipe
 			}
 			else
 			{
-				fs.amount = ( fs.amount * inFS.amount ) / barrelFluid.amount;
+				fs.amount = ( fs.amount * inFS.amount ) / recipeFluid.amount;
 			}
 			return fs;
 		}
 		return null;
 	}
 
+	public FluidStack getInputfluid()
+	{
+		return inputfluid;
+	}
 }

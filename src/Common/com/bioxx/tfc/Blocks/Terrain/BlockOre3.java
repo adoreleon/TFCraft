@@ -1,5 +1,6 @@
 package com.bioxx.tfc.Blocks.Terrain;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
@@ -9,7 +10,7 @@ import net.minecraft.stats.StatList;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Constant.Global;
 
 public class BlockOre3 extends BlockOre
@@ -33,20 +34,38 @@ public class BlockOre3 extends BlockOre
 	}
 
 	@Override
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	{
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+
+		int count = quantityDropped(metadata, fortune, world.rand);
+		for (int i = 0; i < count; i++)
+		{
+			ItemStack itemstack = new ItemStack(TFCItems.oreChunk, 1, damageDropped(metadata));
+			ret.add(itemstack);
+		}
+		return ret;
+	}
+
+	@Override
 	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
 		if(!world.isRemote)
 		{
-			int meta = world.getBlockMetadata(x, y, z);
+			boolean dropOres = false;
 			if(player != null)
 			{
 				player.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
 				player.addExhaustion(0.075F);
+				dropOres = player.canHarvestBlock(this);
 			}
 
-			ItemStack itemstack = new ItemStack(TFCItems.OreChunk, 1, damageDropped(meta));
-			if (itemstack != null)
+			if (player == null || dropOres)
+			{
+				int meta = world.getBlockMetadata(x, y, z);
+				ItemStack itemstack = new ItemStack(TFCItems.oreChunk, 1, damageDropped(meta));
 				dropBlockAsItem(world, x, y, z, itemstack);
+			}
 		}
 		return world.setBlockToAir(x, y, z);
 	}
@@ -101,11 +120,8 @@ public class BlockOre3 extends BlockOre
 	{
 		ItemStack itemstack;
 		int meta = world.getBlockMetadata(x, y, z);
-		itemstack  = new ItemStack(TFCItems.OreChunk, 1, meta + 32);
-
-		if (itemstack != null)
-			dropBlockAsItem(world, x, y, z, itemstack);
-
+		itemstack  = new ItemStack(TFCItems.oreChunk, 1, meta + 32);
+		dropBlockAsItem(world, x, y, z, itemstack);
 		onBlockDestroyedByExplosion(world, x, y, z, exp);
 	}
 }

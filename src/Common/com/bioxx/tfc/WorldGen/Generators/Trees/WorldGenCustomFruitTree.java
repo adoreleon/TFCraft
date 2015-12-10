@@ -6,14 +6,14 @@ import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Climate;
-import com.bioxx.tfc.TileEntities.TileEntityFruitTreeWood;
+import com.bioxx.tfc.TileEntities.TEFruitTreeWood;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class WorldGenCustomFruitTree extends WorldGenerator
 {
-	private Block leavesBlock;
-	private int metaId;
+	private final Block leavesBlock;
+	private final int metaId;
 
 	public WorldGenCustomFruitTree(boolean flag, Block block, int meta)
 	{
@@ -35,58 +35,56 @@ public class WorldGenCustomFruitTree extends WorldGenerator
 	public void gen(World world, Random random, int i, int j, int k)
 	{
 		world.setBlock(i, j, k, TFCBlocks.fruitTreeWood, metaId, 0x2);
-		((TileEntityFruitTreeWood)world.getTileEntity(i, j, k)).setTrunk(true);
-		((TileEntityFruitTreeWood)world.getTileEntity(i, j, k)).setHeight(0);
-		((TileEntityFruitTreeWood)world.getTileEntity(i, j, k)).setBirth();
+		((TEFruitTreeWood)world.getTileEntity(i, j, k)).setTrunk(true);
+		((TEFruitTreeWood)world.getTileEntity(i, j, k)).setHeight(0);
+		((TEFruitTreeWood)world.getTileEntity(i, j, k)).initBirth();
 
 		if(world.isAirBlock(i, j+1, k))
 		{
 			world.setBlock(i, j+1, k, TFCBlocks.fruitTreeWood, metaId, 0x2);
-			((TileEntityFruitTreeWood)world.getTileEntity(i, j+1, k)).setTrunk(true);
-			((TileEntityFruitTreeWood)world.getTileEntity(i, j+1, k)).setHeight(1);
-			((TileEntityFruitTreeWood)world.getTileEntity(i, j+1, k)).setBirth();
+			((TEFruitTreeWood)world.getTileEntity(i, j+1, k)).setTrunk(true);
+			((TEFruitTreeWood)world.getTileEntity(i, j+1, k)).setHeight(1);
+			((TEFruitTreeWood)world.getTileEntity(i, j+1, k)).initBirth();
 
 			if(world.isAirBlock(i, j+2, k))
 			{
 				world.setBlock(i, j+2, k, TFCBlocks.fruitTreeWood, metaId, 0x2);
-				((TileEntityFruitTreeWood)world.getTileEntity(i, j+2, k)).setTrunk(true);
-				((TileEntityFruitTreeWood)world.getTileEntity(i, j+2, k)).setHeight(2);
-				((TileEntityFruitTreeWood)world.getTileEntity(i, j+2, k)).setBirth();
+				((TEFruitTreeWood)world.getTileEntity(i, j+2, k)).setTrunk(true);
+				((TEFruitTreeWood)world.getTileEntity(i, j+2, k)).setHeight(2);
+				((TEFruitTreeWood)world.getTileEntity(i, j+2, k)).initBirth();
+				surroundWithLeaves(world, i, j + 2, k);
 
 				if(world.isAirBlock(i+1, j+2, k) || world.getBlock(i+1, j+2, k) == leavesBlock)
 				{
 					world.setBlock(i+1, j+2, k, TFCBlocks.fruitTreeWood, metaId, 0x2);
-					SurroundWithLeaves(world,i+1,j+2,k);
 				}
 				if(world.isAirBlock(i-1, j+2, k) || world.getBlock(i-1, j+2, k-1) == leavesBlock)
 				{
 					world.setBlock(i-1, j+2, k, TFCBlocks.fruitTreeWood, metaId, 0x2);
-					SurroundWithLeaves(world,i-1,j+2,k);
 				}
 				if(world.isAirBlock(i, j+2, k+1) || world.getBlock(i, j+2, k+1) == leavesBlock)
 				{
 					world.setBlock(i, j+2, k+1, TFCBlocks.fruitTreeWood, metaId, 0x2);
-					SurroundWithLeaves(world,i,j+2,k+1);
 				}
 				if(world.isAirBlock(i, j+2, k-1) || world.getBlock(i, j+2, k-1) == leavesBlock)
 				{
 					world.setBlock(i, j+2, k-1, TFCBlocks.fruitTreeWood, metaId, 0x2);
-					SurroundWithLeaves(world,i,j+2,k-1);
 				}
 
 				if(world.isAirBlock(i, j+3, k) || world.getBlock(i, j+3, k) == leavesBlock)
 				{
 					world.setBlock(i, j+3, k, TFCBlocks.fruitTreeWood, metaId, 0x2);
-					((TileEntityFruitTreeWood)world.getTileEntity(i, j+3, k)).setTrunk(true);
-					((TileEntityFruitTreeWood)world.getTileEntity(i, j+3, k)).setHeight(3);
-					((TileEntityFruitTreeWood)world.getTileEntity(i, j+3, k)).setBirth();
-					SurroundWithLeaves(world,i,j+3,k);
+					((TEFruitTreeWood)world.getTileEntity(i, j+3, k)).setTrunk(true);
+					((TEFruitTreeWood)world.getTileEntity(i, j+3, k)).setHeight(3);
+					((TEFruitTreeWood)world.getTileEntity(i, j+3, k)).initBirth();
+					if (world.isAirBlock(i, j + 4, k))
+						world.setBlock(i, j + 4, k, leavesBlock, metaId & 7, 0x2);
 				}
 			}
 		}
 	}
 
-	public void SurroundWithLeaves(World world, int i, int j, int k)
+	public void surroundWithLeaves(World world, int i, int j, int k)
 	{
 		for (int y = 1; y >= 0; y--)
 		{

@@ -17,17 +17,19 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IShearable;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Items.Tools.ItemCustomScythe;
-import com.bioxx.tfc.api.Constant.Global;
+import net.minecraftforge.common.IShearable;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Items.Tools.ItemCustomScythe;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.TFCOptions;
+import com.bioxx.tfc.api.Constant.Global;
 
 public class BlockCustomLeaves extends BlockLeaves implements IShearable
 {
@@ -74,8 +76,8 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 	@Override
 	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
 	{
-		entity.motionX *= 0.8D;
-		entity.motionZ *= 0.8D;
+		entity.motionX *= 0.1D;
+		entity.motionZ *= 0.1D;
 	}
 
 	@Override
@@ -85,15 +87,26 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 		Block block = world.getBlock(x, y, z);
 		/*if(!Minecraft.isFancyGraphicsEnabled() && block == this) 
 			return false;*/
-
-		return side == 0 && this.minY > 0.0D ? true : (side == 1 && this.maxY < 1.0D ? true : (side == 2 && this.minZ > 0.0D ? true : (side == 3 && this.maxZ < 1.0D ? true : (side == 4 && this.minX > 0.0D ? true : (side == 5 && this.maxX < 1.0D ? true : !world.getBlock(x, y, z).isOpaqueCube())))));
+		if (side == 0 && this.minY > 0.0D)
+			return true;
+		else if (side == 1 && this.maxY < 1.0D)
+			return true;
+		else if (side == 2 && this.minZ > 0.0D)
+			return true;
+		else if (side == 3 && this.maxZ < 1.0D)
+			return true;
+		else if (side == 4 && this.minX > 0.0D)
+			return true;
+		else if (side == 5 && this.maxX < 1.0D)
+			return true;
+		else
+			return !block.isOpaqueCube();
 	}
 
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand)
 	{
 		onNeighborBlockChange(world, x, y, z, null);
-		return;
 	}
 
 	@Override
@@ -129,9 +142,9 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 						{
 							Block block = world.getBlock(xOrig + xd, yOrig + yd, zOrig + zd);
 
-							if (block == TFCBlocks.LogNatural || block == TFCBlocks.LogNatural2)
+							if (block == TFCBlocks.logNatural || block == TFCBlocks.logNatural2)
 								this.adjacentTreeBlocks[xd + center][yd + center][zd + center] = 0;
-							else if ((block == this) && var6 == world.getBlockMetadata(xOrig + xd, yOrig + yd, zOrig + zd))
+							else if (block == this && var6 == world.getBlockMetadata(xOrig + xd, yOrig + yd, zOrig + zd))
 								this.adjacentTreeBlocks[xd + center][yd + center][zd + center] = -2;
 							else
 								this.adjacentTreeBlocks[xd + center][yd + center][zd + center] = -1;
@@ -194,7 +207,7 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 	{
 		dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 		if(world.rand.nextInt(100) < 30)
-			dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.Stick, 1));
+			dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.stick, 1));
 		world.setBlockToAir(x, y, z);
 	}
 
@@ -207,13 +220,13 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 	@Override
 	public Item getItemDropped(int i, Random rand, int j)
 	{
-		return Item.getItemFromBlock(TFCBlocks.Sapling);
+		return Item.getItemFromBlock(TFCBlocks.sapling);
 	}
 
 	@Override
 	public void dropBlockAsItemWithChance(World world, int x, int y, int z, int meta, float f, int i1)
 	{
-		if (!world.isRemote) {}
+		// Do Nothing
 	}
 
 	@Override
@@ -234,8 +247,8 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 							entityplayer.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
 							entityplayer.addExhaustion(0.045F);
 							if(world.rand.nextInt(100) < 11)
-								dropBlockAsItem(world, i + x, j + y, k + z, new ItemStack(TFCItems.Stick, 1));
-							else if (world.rand.nextInt(100) < 4)
+								dropBlockAsItem(world, i + x, j + y, k + z, new ItemStack(TFCItems.stick, 1));
+							else if (world.rand.nextInt(100) < 4 && TFCOptions.enableSaplingDrops)
 								dropSapling(world, i + x, j + y, k + z, meta);
 							removeLeaves(world, i + x, j + y, k + z);
 							super.harvestBlock(world, entityplayer, i + x, j + y, k + z, meta);
@@ -257,9 +270,9 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 			entityplayer.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
 			entityplayer.addExhaustion(0.025F);
 			if(world.rand.nextInt(100) < 28)
-				dropBlockAsItem(world, i, j, k, new ItemStack(TFCItems.Stick, 1));
-			else if (world.rand.nextInt(100) < 6)
-				dropSapling(world, i, j, k, meta);;
+				dropBlockAsItem(world, i, j, k, new ItemStack(TFCItems.stick, 1));
+			else if (world.rand.nextInt(100) < 6 && TFCOptions.enableSaplingDrops)
+				dropSapling(world, i, j, k, meta);
 
 				super.harvestBlock(world, entityplayer, i, j, k, meta);
 		}
@@ -299,15 +312,15 @@ public class BlockCustomLeaves extends BlockLeaves implements IShearable
 	{
 		for(int i = 0; i < this.woodNames.length; i++)
 		{
-			this.icons[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/trees/" + this.woodNames[i] + " Leaves Fancy");
-			this.iconsOpaque[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/trees/" + this.woodNames[i] + " Leaves");
+			this.icons[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/trees/" + this.woodNames[i] + " Leaves Fancy");
+			this.iconsOpaque[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/trees/" + this.woodNames[i] + " Leaves");
 		}
 	}
 
 	@Override
 	public String[] func_150125_e()
 	{
-		return this.woodNames;
+		return this.woodNames.clone();
 	}
 
 	@Override

@@ -1,10 +1,10 @@
 package com.bioxx.tfc.Blocks.Devices;
 
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,30 +21,29 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Textures;
 import com.bioxx.tfc.TileEntities.TEAnvil;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Crafting.AnvilReq;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockAnvil extends BlockTerraContainer
 {
-	IIcon[] textureMapTop;
-	IIcon[] textureMapSide;
-	IIcon stoneAnvilIcon;
-	private int anvilId = 0;
-	private Random random = new Random();
+	private IIcon[] textureMapTop;
+	private IIcon[] textureMapSide;
+	private IIcon stoneAnvilIcon;
+	private int anvilId;
 
 	public BlockAnvil()
 	{
 		super(Material.iron);
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 	}
 
 	public BlockAnvil(int offset)
@@ -53,21 +52,28 @@ public class BlockAnvil extends BlockTerraContainer
 		anvilId = offset;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
-		if(this == TFCBlocks.Anvil)
+		if(this == TFCBlocks.anvil)
 		{
-			for(int i = 1; i < 8; i++) 
+			for(int i = 1; i < 8; i++)
 				par3List.add(new ItemStack(this, 1, i));
 		}
 
-		if(this == TFCBlocks.Anvil2)
+		if(this == TFCBlocks.anvil2)
 		{
 			for(int i = 0; i < 3; i++)
 				par3List.add(new ItemStack(this, 1, i));
 		}
+	}
+
+	@Override
+	public int damageDropped(int dmg)
+	{
+		return dmg & 7;
 	}
 
 	@Override
@@ -81,9 +87,9 @@ public class BlockAnvil extends BlockTerraContainer
 		{
 			if((TEAnvil)world.getTileEntity(i, j, k)!=null)
 			{
-				TEAnvil TEAnvil;
+				/*TEAnvil TEAnvil;
 				TEAnvil = (TEAnvil)world.getTileEntity(i, j, k);
-				ItemStack is = entityplayer.getCurrentEquippedItem();
+				ItemStack is = entityplayer.getCurrentEquippedItem();*/
 				entityplayer.openGui(TerraFirmaCraft.instance, 21, world, i, j, k);
 			}
 			return true;
@@ -97,10 +103,10 @@ public class BlockAnvil extends BlockTerraContainer
 		int direction = getDirectionFromMetadata(meta);
 		TileEntity te = par1World.getTileEntity(par2, par3, par4);
 
-		if (te != null && te instanceof TEAnvil)
+		if (te instanceof TEAnvil)
 		{
 			TEAnvil teAnvil = (TEAnvil) te;
-			if (teAnvil.AnvilTier != AnvilReq.STONE.Tier || this == TFCBlocks.Anvil2)
+			if (teAnvil.anvilTier != AnvilReq.STONE.Tier || this == TFCBlocks.anvil2)
 			{
 				if(direction == 0) 
 					return AxisAlignedBB.getBoundingBox(par2 + 0.2, (double)par3 + 0, (double)par4 + 0, par2 + 0.8, par3 + 0.6, (double)par4 + 1);
@@ -122,7 +128,7 @@ public class BlockAnvil extends BlockTerraContainer
 		int direction = getDirectionFromMetadata(meta);
 		TEAnvil te = (TEAnvil)world.getTileEntity(x, y, z);
 
-		if(te.AnvilTier != AnvilReq.STONE.Tier)
+		if(te.anvilTier != AnvilReq.STONE.Tier)
 		{
 			if(direction == 0)
 			{
@@ -152,7 +158,7 @@ public class BlockAnvil extends BlockTerraContainer
 		int direction = getDirectionFromMetadata(meta);
 		TEAnvil te = (TEAnvil)bAccess.getTileEntity(x, y, z);
 
-		if(te.AnvilTier != AnvilReq.STONE.Tier)
+		if(te.anvilTier != AnvilReq.STONE.Tier)
 		{
 			if(direction == 0)
 				this.setBlockBounds(0.2f, 0, 0, 0.8f, 0.6f, 1);
@@ -170,7 +176,7 @@ public class BlockAnvil extends BlockTerraContainer
 	{
 		int meta = getAnvilTypeFromMeta(j);
 
-		if (j == 0 && this == TFCBlocks.Anvil)
+		if (j == 0 && this == TFCBlocks.anvil)
 		{
 			return stoneAnvilIcon;
 		}
@@ -192,14 +198,14 @@ public class BlockAnvil extends BlockTerraContainer
 	@Override
 	public int getRenderType()
 	{
-		return TFCBlocks.AnvilRenderId;
+		return TFCBlocks.anvilRenderId;
 	}
 
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int i, int j, int k, int l)
 	{
 		int type = BlockAnvil.getAnvilTypeFromMeta(l);
-		if(this == TFCBlocks.Anvil)
+		if(this == TFCBlocks.anvil)
 		{
 			if(type == 0)
 				return;
@@ -219,7 +225,7 @@ public class BlockAnvil extends BlockTerraContainer
 	{
 		if (!par1World.isRemote && par1World.getGameRules().getGameRuleBooleanValue("doTileDrops"))
 		{
-			if(is.getItemDamage() == 0 && this == TFCBlocks.Anvil)
+			if(is.getItemDamage() == 0 && this == TFCBlocks.anvil)
 				return;
 			float f = 0.7F;
 			double d0 = par1World.rand.nextFloat() * f + (1.0F - f) * 0.5D;
@@ -256,10 +262,10 @@ public class BlockAnvil extends BlockTerraContainer
 		world.setBlockMetadataWithNotify(i, j, k, byte0, 3);
 
 		TEAnvil te = (TEAnvil)world.getTileEntity(i, j, k);
-		if(this == TFCBlocks.Anvil)
-			te.AnvilTier = AnvilReq.getReqFromInt(meta).Tier;
-		else if(this == TFCBlocks.Anvil2)
-			te.AnvilTier = AnvilReq.getReqFromInt2(meta).Tier;
+		if(this == TFCBlocks.anvil)
+			te.anvilTier = AnvilReq.getReqFromInt(meta).Tier;
+		else if(this == TFCBlocks.anvil2)
+			te.anvilTier = AnvilReq.getReqFromInt2(meta).Tier;
 	}
 
 	@Override
@@ -275,22 +281,22 @@ public class BlockAnvil extends BlockTerraContainer
 
 				if (var7 != null)
 				{
-					float var8 = this.random.nextFloat() * 0.8F + 0.1F;
-					float var9 = this.random.nextFloat() * 0.8F + 0.1F;
+					float var8 = world.rand.nextFloat() * 0.8F + 0.1F;
+					float var9 = world.rand.nextFloat() * 0.8F + 0.1F;
 					EntityItem var12;
 
-					for (float var10 = this.random.nextFloat() * 0.8F + 0.1F; var7.stackSize > 0; world.spawnEntityInWorld(var12))
+					for (float var10 = world.rand.nextFloat() * 0.8F + 0.1F; var7.stackSize > 0; world.spawnEntityInWorld(var12))
 					{
-						int var11 = this.random.nextInt(21) + 10;
+						int var11 = world.rand.nextInt(21) + 10;
 
 						if (var11 > var7.stackSize)
 							var11 = var7.stackSize;
 						var7.stackSize -= var11;
 						var12 = new EntityItem(world, x + var8, y + var9, z + var10, new ItemStack(var7.getItem(), var11, var7.getItemDamage()));
 						float var13 = 0.05F;
-						var12.motionX = (float)this.random.nextGaussian() * var13;
-						var12.motionY = (float)this.random.nextGaussian() * var13 + 0.2F;
-						var12.motionZ = (float)this.random.nextGaussian() * var13;
+						var12.motionX = (float)world.rand.nextGaussian() * var13;
+						var12.motionY = (float)world.rand.nextGaussian() * var13 + 0.2F;
+						var12.motionZ = (float)world.rand.nextGaussian() * var13;
 						if (var7.hasTagCompound())
 							var12.getEntityItem().setTagCompound((NBTTagCompound)var7.getTagCompound().copy());
 					}
@@ -309,8 +315,7 @@ public class BlockAnvil extends BlockTerraContainer
 	public static int getAnvilTypeFromMeta(int j)
 	{
 		int l = 7;
-		int k = j & l;
-		return k;
+		return j & l;
 	}
 
 	public static int getDirectionFromMetadata(int i)
@@ -335,26 +340,40 @@ public class BlockAnvil extends BlockTerraContainer
 		textureMapSide = new IIcon[anvilId == 0 ? 8 : 3];
 		for(int i = (anvilId == 0 ? 1 : 0); i < (anvilId == 0 ? 8 : 3); i++)
 		{
-			textureMapTop[i] = registerer.registerIcon(Reference.ModID + ":" + "devices/Anvil_" + (i+anvilId) + "_Top");
-			textureMapSide[i] = registerer.registerIcon(Reference.ModID + ":" + "devices/Anvil_" + (i+anvilId) + "_Side");
+			textureMapTop[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "devices/Anvil_" + (i+anvilId) + "_Top");
+			textureMapSide[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "devices/Anvil_" + (i+anvilId) + "_Side");
 		}
 
-		stoneAnvilIcon = registerer.registerIcon(Reference.ModID + ":" + "rocks/" + "Gabbro Raw");
+		stoneAnvilIcon = registerer.registerIcon(Reference.MOD_ID + ":" + "rocks/" + "Gabbro Raw");
 
-		TFC_Textures.AnvilHit = registerer.registerIcon(Reference.ModID + ":" + "Anvil Hit");
-		TFC_Textures.AnvilHitHeavy = registerer.registerIcon(Reference.ModID + ":" + "Anvil Hit Heavy");
-		TFC_Textures.AnvilHitMedium = registerer.registerIcon(Reference.ModID + ":" + "Anvil Hit Medium");
-		TFC_Textures.AnvilHitLight = registerer.registerIcon(Reference.ModID + ":" + "Anvil Hit Light");
-		TFC_Textures.AnvilDraw = registerer.registerIcon(Reference.ModID + ":" + "Anvil Draw");
-		TFC_Textures.AnvilPunch = registerer.registerIcon(Reference.ModID + ":" + "Anvil Punch");
-		TFC_Textures.AnvilBend = registerer.registerIcon(Reference.ModID + ":" + "Anvil Bend");
-		TFC_Textures.AnvilUpset = registerer.registerIcon(Reference.ModID + ":" + "Anvil Upset");
-		TFC_Textures.AnvilShrink = registerer.registerIcon(Reference.ModID + ":" + "Anvil Shrink");
+		TFC_Textures.anvilHit = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Hit");
+		TFC_Textures.anvilHitHeavy = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Hit Heavy");
+		TFC_Textures.anvilHitMedium = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Hit Medium");
+		TFC_Textures.anvilHitLight = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Hit Light");
+		TFC_Textures.anvilDraw = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Draw");
+		TFC_Textures.anvilPunch = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Punch");
+		TFC_Textures.anvilBend = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Bend");
+		TFC_Textures.anvilUpset = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Upset");
+		TFC_Textures.anvilShrink = registerer.registerIcon(Reference.MOD_ID + ":" + "Anvil Shrink");
 	}
 
 	@Override
 	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
 	{
 		return null;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
+	{
+		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
+	{
+		return world.getBlock(x, y, z) == this;
 	}
 }

@@ -2,9 +2,9 @@ package com.bioxx.tfc.api.Util;
 
 public class StopWatch {
 
-	private long startTime = 0;
-	private long stopTime = 0;
-	private boolean running = false;
+	private long startTime;
+	private long stopTime;
+	private boolean running;
 
 
 	public void start() {
@@ -23,10 +23,10 @@ public class StopWatch {
 	public long getElapsedTime() {
 		long elapsed;
 		if (running) {
-			elapsed = (System.currentTimeMillis() - startTime);
+			elapsed = System.currentTimeMillis() - startTime;
 		}
 		else {
-			elapsed = (stopTime - startTime);
+			elapsed = stopTime - startTime;
 		}
 		return elapsed;
 	}
@@ -36,10 +36,10 @@ public class StopWatch {
 	public long getElapsedTimeSecs() {
 		long elapsed;
 		if (running) {
-			elapsed = ((System.currentTimeMillis() - startTime) / 1000);
+			elapsed = (System.currentTimeMillis() - startTime) / 1000;
 		}
 		else {
-			elapsed = ((stopTime - startTime) / 1000);
+			elapsed = (stopTime - startTime) / 1000;
 		}
 		return elapsed;
 	}

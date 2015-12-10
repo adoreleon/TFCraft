@@ -35,7 +35,7 @@ public class GenLayerFuzzyZoomTFC extends GenLayerTFC
 
 			for (int var17 = 0; var17 < var7 - 1; ++var17)
 			{
-				this.initChunkSeed((long)(var17 + var5 << 1), (long)(var12 + var6 << 1));
+				this.initChunkSeed(var17 + var5 << 1, var12 + var6 << 1);
 				int var18 = var9[var17 + 1 + (var12 + 0) * var7];
 				int var19 = var9[var17 + 1 + (var12 + 1) * var7];
 				var10[var14] = var15;
@@ -50,7 +50,7 @@ public class GenLayerFuzzyZoomTFC extends GenLayerTFC
 		int[] var20 = new int[par3 * par4];
 
 		for (var13 = 0; var13 < par4; ++var13)
-			System.arraycopy(var10, (var13 + (par2 & 1)) * (var7 << 1) + (par1 & 1), var20, var13 * par3, par3);
+			System.arraycopy(var10, (var13 + (par2 & 1)) * (var7 << 1) + (par1 & 1), var20, var13 * par3, par3); //NOPMD
 
 		return var20;
 	}
@@ -69,6 +69,6 @@ public class GenLayerFuzzyZoomTFC extends GenLayerTFC
 	protected int choose(int par1, int par2, int par3, int par4)
 	{
 		int var5 = this.nextInt(4);
-		return var5 == 0 ? par1 : (var5 == 1 ? par2 : (var5 == 2 ? par3 : par4));
+		return var5 == 0 ? par1 : var5 == 1 ? par2 : var5 == 2 ? par3 : par4;
 	}
 }

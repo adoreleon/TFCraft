@@ -13,8 +13,8 @@ import com.bioxx.tfc.api.Interfaces.ISize;
 
 public class SlotCookableFoodOnly extends SlotSize
 {
-	List excpetionsFG = new ArrayList<EnumFoodGroup>();
-	List inclusionsFG = new ArrayList<EnumFoodGroup>();
+	private List<EnumFoodGroup> excpetionsFG = new ArrayList<EnumFoodGroup>();
+	private List<EnumFoodGroup> inclusionsFG = new ArrayList<EnumFoodGroup>();
 	public SlotCookableFoodOnly(IInventory iinventory, int i, int j, int k)
 	{
 		super(iinventory, i, j, k);
@@ -30,7 +30,7 @@ public class SlotCookableFoodOnly extends SlotSize
 			if(efg == null)
 				return false;
 			boolean except = excpetionsFG.contains(efg);
-			boolean include = inclusionsFG.contains(efg) || inclusionsFG.size() == 0;
+			boolean include = inclusionsFG.contains(efg) || inclusionsFG.isEmpty();
 			if (except || !include)
 				return false;
 			if (itemstack.getItem() instanceof ISize && ((ISize) itemstack.getItem()).getSize(itemstack).stackSize >= size.stackSize)

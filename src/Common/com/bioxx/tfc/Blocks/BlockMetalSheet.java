@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -17,17 +18,20 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.CollisionRayTraceStandard;
-import com.bioxx.tfc.Core.TFC_Textures;
-import com.bioxx.tfc.TileEntities.TEMetalSheet;
-import com.bioxx.tfc.api.Interfaces.ICustomCollision;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.CollisionRayTraceStandard;
+import com.bioxx.tfc.Core.TFC_Textures;
+import com.bioxx.tfc.TileEntities.TEMetalSheet;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Interfaces.ICustomCollision;
+
 public class BlockMetalSheet extends BlockTerraContainer implements ICustomCollision
 {
 	public IIcon[] icons;
@@ -37,7 +41,7 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 	public BlockMetalSheet()
 	{
 		super(Material.iron);
-		icons = new IIcon[21];
+		icons = new IIcon[metalNames.length];
 		this.setBlockBounds(0, 0, 0, 1, 1, 1);
 	}
 
@@ -56,24 +60,33 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockAccess par1iBlockAccess, int par2, int par3, int par4, int par5) {
+	public boolean shouldSideBeRendered(IBlockAccess blockAccess, int x, int y, int z, int side)
+	{
 		return true;
 	}
 
 	@Override
 	public void onBlockPreDestroy(World world, int i, int j, int k, int meta) 
 	{
-		TEMetalSheet te = (TEMetalSheet)world.getTileEntity(i, j, k);
-		int stack = 0;
-		if(te.TopExists()) stack++;
-		if(te.BottomExists()) stack++;
-		if(te.NorthExists()) stack++;
-		if(te.SouthExists()) stack++;
-		if(te.EastExists()) stack++;
-		if(te.WestExists()) stack++;
-		te.sheetStack.stackSize = stack;
-		EntityItem ei = new EntityItem(world, i, j, k, te.sheetStack);
-		world.spawnEntityInWorld(ei);
+		if (world.getTileEntity(i, j, k) instanceof TEMetalSheet)
+		{
+			TEMetalSheet te = (TEMetalSheet) world.getTileEntity(i, j, k);
+			if (te.sheetStack != null)
+			{
+				int stack = 0;
+				if(te.topExists()) stack++;
+				if(te.bottomExists()) stack++;
+				if(te.northExists()) stack++;
+				if(te.southExists()) stack++;
+				if(te.eastExists()) stack++;
+				if(te.westExists()) stack++;
+				te.sheetStack.stackSize = stack;
+				EntityItem ei = new EntityItem(world, i, j, k, te.sheetStack);
+				world.spawnEntityInWorld(ei);					
+			}
+			else
+				TerraFirmaCraft.LOG.error("Metal sheet block (" + i + ", " + j + ", " + k + ") being broken contains null sheetstack. Please report this on the forums.");
+		}
 	}
 
 	@Override
@@ -108,35 +121,43 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 	public void registerBlockIcons(IIconRegister registerer)
 	{
 		for(int i = 0; i < icons.length; i++)
-			icons[i] = registerer.registerIcon(Reference.ModID + ":" + "metal/"+metalNames[i]);
+			icons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "metal/"+metalNames[i]);
 
-		TFC_Textures.SheetBismuth = icons[0];
-		TFC_Textures.SheetBismuthBronze = icons[1];
-		TFC_Textures.SheetBlackBronze = icons[2];
-		TFC_Textures.SheetBlackSteel = icons[3];
-		TFC_Textures.SheetBlueSteel = icons[4];
-		TFC_Textures.SheetBrass = icons[5];
-		TFC_Textures.SheetBronze = icons[6];
-		TFC_Textures.SheetCopper = icons[7];
-		TFC_Textures.SheetGold = icons[8];
-		TFC_Textures.SheetWroughtIron = icons[9];
-		TFC_Textures.SheetLead = icons[10];
-		TFC_Textures.SheetNickel = icons[11];
-		TFC_Textures.SheetPigIron = icons[12];
-		TFC_Textures.SheetPlatinum = icons[13];
-		TFC_Textures.SheetRedSteel = icons[14];
-		TFC_Textures.SheetRoseGold = icons[15];
-		TFC_Textures.SheetSilver = icons[16];
-		TFC_Textures.SheetSteel = icons[17];
-		TFC_Textures.SheetSterlingSilver = icons[18];
-		TFC_Textures.SheetTin = icons[19];
-		TFC_Textures.SheetZinc = icons[20];
+		TFC_Textures.sheetBismuth = icons[0];
+		TFC_Textures.sheetBismuthBronze = icons[1];
+		TFC_Textures.sheetBlackBronze = icons[2];
+		TFC_Textures.sheetBlackSteel = icons[3];
+		TFC_Textures.sheetBlueSteel = icons[4];
+		TFC_Textures.sheetBrass = icons[5];
+		TFC_Textures.sheetBronze = icons[6];
+		TFC_Textures.sheetCopper = icons[7];
+		TFC_Textures.sheetGold = icons[8];
+		TFC_Textures.sheetWroughtIron = icons[9];
+		TFC_Textures.sheetLead = icons[10];
+		TFC_Textures.sheetNickel = icons[11];
+		TFC_Textures.sheetPigIron = icons[12];
+		TFC_Textures.sheetPlatinum = icons[13];
+		TFC_Textures.sheetRedSteel = icons[14];
+		TFC_Textures.sheetRoseGold = icons[15];
+		TFC_Textures.sheetSilver = icons[16];
+		TFC_Textures.sheetSteel = icons[17];
+		TFC_Textures.sheetSterlingSilver = icons[18];
+		TFC_Textures.sheetTin = icons[19];
+		TFC_Textures.sheetZinc = icons[20];
 	}
 
 	@Override
 	public TileEntity createNewTileEntity(World var1, int var2)
 	{
 		return new TEMetalSheet();
+	}
+
+	@Override
+	public IIcon getIcon(int side, int meta)
+	{
+		if(meta >= 0 && meta < icons.length)
+			return icons[meta];
+		return icons[19];
 	}
 
 	@Override
@@ -150,6 +171,7 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 			return icons[19];
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void addCollisionBoxesToList(World world, int i, int j, int k, List list)
 	{
@@ -159,20 +181,21 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 		double yMax = 1;
 		double yMin = 0;
 
-		if(te.TopExists())
+		if(te.topExists())
 			list.add(new Object[]{AxisAlignedBB.getBoundingBox(0.0, f1, 0.0, 1.0, 1.0, 1.0), 0});
-		if(te.BottomExists())
+		if(te.bottomExists())
 			list.add(new Object[]{AxisAlignedBB.getBoundingBox(0.0, 0, 0.0, 1.0, f0, 1.0), 1});
-		if(te.NorthExists())
+		if(te.northExists())
 			list.add(new Object[]{AxisAlignedBB.getBoundingBox(0, yMin, 0, 1, yMax, f0), 2});
-		if(te.SouthExists())
+		if(te.southExists())
 			list.add(new Object[]{AxisAlignedBB.getBoundingBox(0, yMin, f1, 1, yMax, 1), 3});
-		if(te.EastExists())
+		if(te.eastExists())
 			list.add(new Object[]{AxisAlignedBB.getBoundingBox(0, yMin, 0, f0, yMax, 1), 4});
-		if(te.WestExists())
+		if(te.westExists())
 			list.add(new Object[]{AxisAlignedBB.getBoundingBox(f1, yMin, 0, 1, yMax, 1), 5});
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void addCollisionBoxesToList(World world, int i, int j, int k, AxisAlignedBB aabb, List list, Entity entity)
 	{
@@ -198,12 +221,12 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 		TEMetalSheet te = (TEMetalSheet)world.getTileEntity(x, y, z);
 		switch(side)
 		{
-		case 0:return te.BottomExists();
-		case 1:return te.TopExists();
-		case 2:return te.NorthExists();
-		case 3:return te.SouthExists();
-		case 4:return te.EastExists();
-		case 5:return te.WestExists();
+		case 0:return te.bottomExists();
+		case 1:return te.topExists();
+		case 2:return te.northExists();
+		case 3:return te.southExists();
+		case 4:return te.eastExists();
+		case 5:return te.westExists();
 		default: return false;
 		}
 	}
@@ -214,12 +237,12 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 		TEMetalSheet te = (TEMetalSheet)world.getTileEntity(x, y, z);
 		switch(side)
 		{
-		case DOWN:return te.BottomExists();
-		case UP:return te.TopExists();
-		case NORTH:return te.NorthExists();
-		case SOUTH:return te.SouthExists();
-		case EAST:return te.EastExists();
-		case WEST:return te.WestExists();
+		case DOWN:return te.bottomExists();
+		case UP:return te.topExists();
+		case NORTH:return te.northExists();
+		case SOUTH:return te.southExists();
+		case EAST:return te.eastExists();
+		case WEST:return te.westExists();
 		default: return false;
 		}
 	}
@@ -248,4 +271,18 @@ public class BlockMetalSheet extends BlockTerraContainer implements ICustomColli
 		}
 		return false;
 	}*/
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
+	{
+		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
+	{
+		return world.getBlock(x, y, z) == this;
+	}
 }

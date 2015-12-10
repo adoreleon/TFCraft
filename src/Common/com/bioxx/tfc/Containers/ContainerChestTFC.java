@@ -1,6 +1,7 @@
 package com.bioxx.tfc.Containers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -11,11 +12,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.TileEntities.TEChest;
+import com.bioxx.tfc.TileEntities.TEIngotPile;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 
 public class ContainerChestTFC extends ContainerTFC
 {
@@ -58,33 +60,16 @@ public class ContainerChestTFC extends ContainerTFC
 		PlayerInventory.buildInventoryLayout(this, (InventoryPlayer) playerInv, 8, var3 + 109, false, true);
 	}
 
-	public static ArrayList<Item> getExceptions(){
-		ArrayList exceptions = new ArrayList<Item>();
-		exceptions.add(TFCItems.Logs);
-		exceptions.add(TFCItems.BismuthIngot);
-		exceptions.add(TFCItems.BismuthBronzeIngot);
-		exceptions.add(TFCItems.BlackBronzeIngot);
-		exceptions.add(TFCItems.BlackSteelIngot);
-		exceptions.add(TFCItems.BlueSteelIngot);
-		exceptions.add(TFCItems.BrassIngot);
-		exceptions.add(TFCItems.BronzeIngot);
-		exceptions.add(TFCItems.CopperIngot);
-		exceptions.add(TFCItems.GoldIngot);
-		exceptions.add(TFCItems.WroughtIronIngot);
-		exceptions.add(TFCItems.LeadIngot);
-		exceptions.add(TFCItems.NickelIngot);
-		exceptions.add(TFCItems.PigIronIngot);
-		exceptions.add(TFCItems.PlatinumIngot);
-		exceptions.add(TFCItems.RedSteelIngot);
-		exceptions.add(TFCItems.RoseGoldIngot);
-		exceptions.add(TFCItems.SilverIngot);
-		exceptions.add(TFCItems.SteelIngot);
-		exceptions.add(TFCItems.BismuthIngot);
-		exceptions.add(TFCItems.SterlingSilverIngot);
-		exceptions.add(TFCItems.TinIngot);
-		exceptions.add(TFCItems.ZincIngot);
-		exceptions.add(Item.getItemFromBlock(TFCBlocks.Barrel));
-		exceptions.add(Item.getItemFromBlock(TFCBlocks.Vessel));
+	public static List<Item> getExceptions()
+	{
+		List<Item> exceptions = new ArrayList<Item>();
+		for (Item ingot : TEIngotPile.getIngots())
+		{
+			exceptions.add(ingot);
+		}
+		exceptions.add(TFCItems.logs);
+		exceptions.add(Item.getItemFromBlock(TFCBlocks.barrel));
+		exceptions.add(Item.getItemFromBlock(TFCBlocks.vessel));
 		return exceptions;
 	}
 
@@ -100,29 +85,40 @@ public class ContainerChestTFC extends ContainerTFC
 	@Override
 	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		ItemStack var2 = null;
+		ItemStack origStack = null;
 		Slot slot = (Slot)this.inventorySlots.get(slotNum);
 
 		if (slot != null && slot.getHasStack())
 		{
-			ItemStack var4 = slot.getStack();
-			var2 = var4.copy();
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
+			int chestSlotCount = this.numRows * 9;
 
-			if (slotNum < this.numRows * 9)//First try to merge into the player's inventory
+			// From chest to inventory
+			if (slotNum < chestSlotCount)
 			{
-				if (!this.mergeItemStack(var4, this.numRows * 9, this.inventorySlots.size(), true))
+				if (!this.mergeItemStack(slotStack, chestSlotCount, this.inventorySlots.size(), true))
 					return null;
 			}
-			else if (!this.mergeItemStack(var4, 0, this.numRows * 9, false))//Merge into chest if possible
-				return null;
+			// From inventory to chest
+			else
+			{
+				if (!this.mergeItemStack(slotStack, 0, chestSlotCount, false))
+					return null;
+			}
 
-			if (var4.stackSize == 0)
-				slot.putStack((ItemStack)null);
+			if (slotStack.stackSize <= 0)
+				slot.putStack(null);
 			else
 				slot.onSlotChanged();
+
+			if (slotStack.stackSize == origStack.stackSize)
+				return null;
+
+			slot.onPickupFromSlot(player, slotStack);
 		}
 
-		return var2;
+		return origStack;
 	}
 
 	/**

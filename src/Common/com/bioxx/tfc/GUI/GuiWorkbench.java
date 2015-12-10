@@ -3,32 +3,31 @@ package com.bioxx.tfc.GUI;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
 
 import com.bioxx.tfc.Containers.ContainerWorkbench;
 import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.TileEntities.TileEntityWorkbench;
+import com.bioxx.tfc.TileEntities.TEWorkbench;
 
 public class GuiWorkbench extends GuiContainer
 {
-	public GuiWorkbench(InventoryPlayer inventoryplayer, TileEntityWorkbench wb, World world, int i, int j, int k)
+	public GuiWorkbench(InventoryPlayer inventoryplayer, TEWorkbench wb, World world, int i, int j, int k)
 	{
 		super(new ContainerWorkbench(inventoryplayer, wb,world, i, j, k));
 	}
 
-	@Override
+	/*@Override
 	public void onGuiClosed()
 	{
 		super.onGuiClosed();
-	}
+	}*/
 
 	protected void drawGuiContainerForegroundLayer()
 	{
-		fontRendererObj.drawString(StatCollector.translateToLocal("gui.Workbench.Crafting"), 28, 6, 0x404040);
-		fontRendererObj.drawString(StatCollector.translateToLocal("gui.Inventory"), 8, (ySize - 96) + 2, 0x404040);
+		fontRendererObj.drawString(TFC_Core.translate("gui.Workbench.Crafting"), 28, 6, 0x404040);
+		fontRendererObj.drawString(TFC_Core.translate("gui.Inventory"), 8, ySize - 96 + 2, 0x404040);
 	}
 
 	@Override

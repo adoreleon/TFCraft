@@ -3,7 +3,6 @@ package com.bioxx.tfc.Items.ItemBlocks;
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,8 +10,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -20,12 +19,12 @@ import net.minecraftforge.fluids.IFluidBlock;
 
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFCFluid;
+import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.TileEntities.TEPottery;
 import com.bioxx.tfc.TileEntities.TEVessel;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
 import com.bioxx.tfc.api.Interfaces.IEquipable;
@@ -33,12 +32,12 @@ import com.bioxx.tfc.api.Util.Helper;
 
 public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 {
-	public ItemLargeVessel(Block par1)
+	public ItemLargeVessel(Block block)
 	{
-		super(par1);
+		super(block);
 		setMaxDamage(0);
 		setHasSubtypes(true);
-		this.setCreativeTab(CreativeTabs.tabMaterials);
+		this.setCreativeTab(TFCTabs.TFC_POTTERY);
 	}
 
 	@Override
@@ -61,7 +60,7 @@ public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 		return super.getItemStackLimit(is);
 	}
 
-	public void createTooltip(NBTTagCompound nbt, List arraylist)
+	public void createTooltip(NBTTagCompound nbt, List<String> arraylist)
 	{
 		if(nbt != null)
 		{
@@ -102,18 +101,26 @@ public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 					}
 					if( showMoreText )
 					{
-						arraylist.add(StatCollector.translateToLocal("gui.Barrel.MoreItems"));
+						arraylist.add(TFC_Core.translate("gui.Barrel.MoreItems"));
 					}
 				}
 			}
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag)
 	{
 		ItemTerra.addSizeInformation(is, arraylist);
 		createTooltip(is.getTagCompound(), arraylist);
+		if (TFC_Core.showShiftInformation())
+		{
+			arraylist.add(TFC_Core.translate("gui.Help"));
+			arraylist.add(TFC_Core.translate("gui.PotteryBase.Inst0"));
+		}
+		else
+			arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 	}
 
 	@Override
@@ -133,7 +140,7 @@ public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 				int j = mop.blockY;
 				int k = mop.blockZ;
 
-				if (!player.canPlayerEdit(i, j, k, mop.sideHit, is) || !(world.getBlock(i, j, k) instanceof IFluidBlock) || is.hasTagCompound())
+				if (!player.canPlayerEdit(i, j, k, mop.sideHit, is) || !(world.getBlock(i, j, k) instanceof IFluidBlock) || is.hasTagCompound() || is.getItemDamage() == 0)
 				{
 					return super.onItemUse(is, player, world, x, y, z, side, hitX, hitY, hitZ);
 				}
@@ -144,14 +151,14 @@ public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 
 				if (is.stackSize == 1)
 				{
-					TFCFluid.fillItemBarrel(is, new FluidStack(fluid, 5000), 5000);
-				}	
+					ItemBarrels.fillItemBarrel(is, new FluidStack(fluid, 5000), 5000);
+				}
 				else
 				{
 					is.stackSize--;
 					ItemStack outIS = is.copy();
 					outIS.stackSize = 1;
-					TFCFluid.fillItemBarrel(outIS, new FluidStack(fluid, 5000), 5000);
+					ItemBarrels.fillItemBarrel(outIS, new FluidStack(fluid, 5000), 5000);
 					if (!player.inventory.addItemStackToInventory(outIS))
 					{
 						player.entityDropItem(outIS, 0);
@@ -183,34 +190,32 @@ public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 				te.barrelType = metadata;
 				return true;
 			}
-		} 
+		}
 		else if(metadata == 0 && side == 1 && player.isSneaking())
 		{
-			TEPottery te;
 			Block base = world.getBlock(x, y-1, z);
-			if(base != TFCBlocks.Pottery && world.isAirBlock(x, y, z))
+			if(base != TFCBlocks.pottery && world.isAirBlock(x, y, z))
 			{
 				//We only want the pottery to be placeable if the block is solid on top.
 				if(!world.isSideSolid(x, y-1, z, ForgeDirection.UP))
 					return false;
-				world.setBlock(x, y, z, TFCBlocks.Pottery);
+				world.setBlock(x, y, z, TFCBlocks.pottery);
 			}
 			else
 			{
 				return false;
 			}
 
-
-			if(world.getTileEntity(x, y, z) != null && world.getTileEntity(x, y, z) instanceof TEPottery) 
+			if (world.getTileEntity(x, y, z) instanceof TEPottery)
 			{
-				te = (TEPottery) world.getTileEntity(x, y, z);
+				TEPottery te = (TEPottery) world.getTileEntity(x, y, z);
 				if(te.canAddItem(0))
 				{
 					te.inventory[0] = stack.copy();
 					te.inventory[0].stackSize = 1;
 					world.markBlockForUpdate(x, y, z);
 					return true;
-				}				
+				}
 			}
 		}
 
@@ -218,12 +223,13 @@ public class ItemLargeVessel extends ItemTerraBlock implements IEquipable
 	}
 
 	@Override
-	public EquipType getEquipType(ItemStack is) {
+	public EquipType getEquipType(ItemStack is)
+	{
 		return EquipType.BACK;
 	}
 
 	@Override
-	public void onEquippedRender() 
+	public void onEquippedRender()
 	{
 		GL11.glTranslatef(0, 0.0f, -0.2F);
 	}

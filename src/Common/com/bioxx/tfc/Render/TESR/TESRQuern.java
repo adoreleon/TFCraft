@@ -12,24 +12,24 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
 import org.lwjgl.opengl.GL11;
 
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TileEntities.TileEntityQuern;
-
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import com.bioxx.tfc.TileEntities.TEQuern;
 
 public class TESRQuern extends TESRBase implements ISimpleBlockRenderingHandler
 {
-	private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(Reference.ModID + ":textures/blocks/devices/Quern Base.png");
-	private static final ResourceLocation TOP1_TEXTURE = new ResourceLocation(Reference.ModID + ":textures/blocks/devices/Quern Top 1.png");
-	private static final ResourceLocation TOP2_TEXTURE = new ResourceLocation(Reference.ModID + ":textures/blocks/devices/Quern Top 2.png");
-	private static final ResourceLocation WOOD_TEXTURE = new ResourceLocation(Reference.ModID + ":textures/blocks/wood/Oak Plank.png");
+	private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(Reference.MOD_ID + ":textures/blocks/devices/Quern Base.png");
+	private static final ResourceLocation TOP1_TEXTURE = new ResourceLocation(Reference.MOD_ID + ":textures/blocks/devices/Quern Top 1.png");
+	private static final ResourceLocation TOP2_TEXTURE = new ResourceLocation(Reference.MOD_ID + ":textures/blocks/devices/Quern Top 2.png");
+	private static final ResourceLocation WOOD_TEXTURE = new ResourceLocation(Reference.MOD_ID + ":textures/blocks/wood/Oak Plank.png");
 
 	@Override
 	public void renderTileEntityAt(TileEntity te, double xDis, double yDis, double zDis, float f)
 	{
-		TileEntityQuern teq = (TileEntityQuern) te;
+		TEQuern teq = (TEQuern) te;
 
 		Tessellator tess = Tessellator.instance;
 		GL11.glPushMatrix();
@@ -72,38 +72,39 @@ public class TESRQuern extends TESRBase implements ISimpleBlockRenderingHandler
 	private void renderRoundTop(Tessellator t, int pos, Random rand, double angle, Boolean renderSides)
 	{
 		int sides = 4; // how many sides should the quern stone have
-		double speed = pos * 4; // * 4 will make 2 turns, * 1 will make 1 turn, also look at TileEntityQuern
+		double speed = pos * 4; // * 4 will make 2 turns, * 1 will make 1 turn, also look at TEQuern
 		double i = 0.625; // where should top rendering start
 		double j = i + 0.2; // thickness of the quern stone
 		if(!renderSides) j = i + 0.201; // fixes the double render glitch when rendering the square top box
-		double k = j + 0.175; // height of the wooden handle
-		double C = 0.5; // center
+		//double k = j + 0.175; // height of the wooden handle
+		double center = 0.5; // center
 		double rad = 0.5; // radius of the quern stone
 
 		// This gives a vibrating animation effect, it can be commented out if it becomes a performance issue
-		if(pos > 0) C = 0.494 + ((rand.nextDouble() * (0.003 - (-0.003))) + 0.003);
+		if (pos > 0)
+			center = 0.494 + (rand.nextDouble() * (0.003 - (-0.003))) + 0.003;
 
 		for(int l = 0; l < sides; l++)
 		{
 			double a = ((l * (360 / sides) + speed + (4 * pos)) * Math.PI) / 180;
 			double b = (((1 + l) * (360 / sides) + speed + (4 * pos)) * Math.PI) / 180;
-			double x1 = Math.cos(a + angle) * rad + C;
-			double y1 = Math.sin(a + angle) * rad + C;
-			double x2 = Math.cos(b + angle) * rad + C;
-			double y2 = Math.sin(b + angle) * rad + C;
+			double x1 = Math.cos(a + angle) * rad + center;
+			double y1 = Math.sin(a + angle) * rad + center;
+			double x2 = Math.cos(b + angle) * rad + center;
+			double y2 = Math.sin(b + angle) * rad + center;
 
 			//This is needed for textures to stay static when rotating
 			a = ((l * (360 / sides)) * Math.PI) / 180;
 			b = (((1 + l) * (360 / sides)) * Math.PI) / 180;
-			double xx1 = Math.cos(a + angle) * rad + C;
-			double yy1 = Math.sin(a + angle) * rad + C;
-			double xx2 = Math.cos(b + angle) * rad + C;
-			double yy2 = Math.sin(b + angle) * rad + C;
+			double xx1 = Math.cos(a + angle) * rad + center;
+			double yy1 = Math.sin(a + angle) * rad + center;
+			double xx2 = Math.cos(b + angle) * rad + center;
+			double yy2 = Math.sin(b + angle) * rad + center;
 
 			bindTexture(TOP2_TEXTURE);
 			t.startDrawing(GL11.GL_TRIANGLES);
 			t.addVertexWithUV(x1, j, y1, xx1, yy1);
-			t.addVertexWithUV(C, j, C, C, C);
+			t.addVertexWithUV(center, j, center, center, center);
 			t.addVertexWithUV(x2, j, y2, xx2, yy2);
 			t.draw();
 
@@ -120,7 +121,7 @@ public class TESRQuern extends TESRBase implements ISimpleBlockRenderingHandler
 		}
 	}
 
-	private void renderSquareTop(Tessellator t)
+	/*private void renderSquareTop(Tessellator t)
 	{
 		double i = 0.625; // bottom square point
 		double j = 0.825; // top square point
@@ -155,29 +156,29 @@ public class TESRQuern extends TESRBase implements ISimpleBlockRenderingHandler
 		t.addVertexWithUV(1, j, 1, 1, 1);
 		t.addVertexWithUV(1, j, 0, 1, 0);
 		t.draw();
-	}
+	}*/
 
 	private void renderWoodHandle(Tessellator t, int pos, Random rand, double angle)
 	{
-		double speed = pos * 4; // * 4 will make 2 turns, * 1 will make 1 turn, also look at TileEntityQuern
+		double speed = pos * 4; // * 4 will make 2 turns, * 1 will make 1 turn, also look at TEQuern
 		double j = 0.825; // where should wood handle rendering start
 		double k = j + 0.175; // height of the wooden handle
-		double C = 0.5; // center
+		double center = 0.5; // center
 		double rad = 0.5; // radius of the quern stone
 
 		//Draw wooden handle
-		double a = (((pos * 4) - 5 + speed) * Math.PI) / 180;
-		double a1 = (((pos * 4) - 5.7 + speed) * Math.PI) / 180;
-		double b = (((pos * 4) + 5 + speed) * Math.PI) / 180;
-		double b1 = (((pos * 4) + 5.7 + speed) * Math.PI) / 180;
-		double x1 = Math.cos(a + angle) * (rad - 0.05) + C;
-		double y1 = Math.sin(a + angle) * (rad - 0.05) + C;
-		double xx1 = Math.cos(a1 + angle) * (rad - 0.125) + C;
-		double yy1 = Math.sin(a1 + angle) * (rad - 0.125) + C;
-		double x2 = Math.cos(b + angle) * (rad - 0.05) + C;
-		double y2 = Math.sin(b + angle) * (rad - 0.05) + C;
-		double xx2 = Math.cos(b1 + angle) * (rad - 0.125) + C;
-		double yy2 = Math.sin(b1 + angle) * (rad - 0.125) + C;
+		double a = ((pos * 4 - 5 + speed) * Math.PI) / 180;
+		double a1 = ((pos * 4 - 5.7 + speed) * Math.PI) / 180;
+		double b = ((pos * 4 + 5 + speed) * Math.PI) / 180;
+		double b1 = ((pos * 4 + 5.7 + speed) * Math.PI) / 180;
+		double x1 = Math.cos(a + angle) * (rad - 0.05) + center;
+		double y1 = Math.sin(a + angle) * (rad - 0.05) + center;
+		double xx1 = Math.cos(a1 + angle) * (rad - 0.125) + center;
+		double yy1 = Math.sin(a1 + angle) * (rad - 0.125) + center;
+		double x2 = Math.cos(b + angle) * (rad - 0.05) + center;
+		double y2 = Math.sin(b + angle) * (rad - 0.05) + center;
+		double xx2 = Math.cos(b1 + angle) * (rad - 0.125) + center;
+		double yy2 = Math.sin(b1 + angle) * (rad - 0.125) + center;
 
 		bindTexture(WOOD_TEXTURE);
 		//SOUTH

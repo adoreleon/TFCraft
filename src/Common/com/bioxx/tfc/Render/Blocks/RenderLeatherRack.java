@@ -5,10 +5,10 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
 import com.bioxx.tfc.Blocks.Devices.BlockLeatherRack;
 import com.bioxx.tfc.TileEntities.TELeatherRack;
-
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class RenderLeatherRack implements ISimpleBlockRenderingHandler
 {
@@ -18,11 +18,11 @@ public class RenderLeatherRack implements ISimpleBlockRenderingHandler
 	{
 		TELeatherRack te = (TELeatherRack)world.getTileEntity(x, y, z);
 		BlockLeatherRack blk = (BlockLeatherRack)block;
-		float f0 = 0;
-		float f1 = 0.25f;
-		float f2 = 0.5f;
-		float f3 = 0.75f;
-		float f4 = 1f;
+		//float f0 = 0;
+		//float f1 = 0.25f;
+		//float f2 = 0.5f;
+		//float f3 = 0.75f;
+		//float f4 = 1f;
 		boolean breaking = renderer.overrideBlockTexture != null;
 		
 		for(int k = 0; k < 4; k++)
@@ -37,7 +37,7 @@ public class RenderLeatherRack implements ISimpleBlockRenderingHandler
 					renderer.clearOverrideBlockTexture();
 			}
 		}
-		return false;
+		return true;
 	}
 
 	@Override

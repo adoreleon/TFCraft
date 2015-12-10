@@ -4,31 +4,38 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Blocks.BlockTerra;
-import com.bioxx.tfc.Core.TFCTabs;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Blocks.BlockTerra;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockWorkbench extends BlockTerra
 {
 	@SideOnly(Side.CLIENT)
-	private IIcon field_94385_a;
+	private IIcon topIcon;
 	@SideOnly(Side.CLIENT)
-	private IIcon field_94384_b;
+	private IIcon frontIcon;
 
 	public BlockWorkbench()
 	{
 		super(Material.wood);
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public IIcon getIcon(int par1, int par2)
 	{
-		return par1 == 1 ? this.field_94385_a : (par1 == 0 ? TFCBlocks.Planks.getBlockTextureFromSide(par1) : (par1 != 2 && par1 != 4 ? this.blockIcon : this.field_94384_b));
+		if (par1 == 1)
+			return this.topIcon;
+		else if (par1 == 0)
+			return TFCBlocks.planks.getBlockTextureFromSide(par1);
+		else if (par1 != 2 && par1 != 4)
+			return this.blockIcon;
+		else
+			return this.frontIcon;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -36,8 +43,8 @@ public class BlockWorkbench extends BlockTerra
 	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon("crafting_table_side");
-		this.field_94385_a = par1IconRegister.registerIcon("crafting_table_top");
-		this.field_94384_b = par1IconRegister.registerIcon("crafting_table_front");
+		this.topIcon = par1IconRegister.registerIcon("crafting_table_top");
+		this.frontIcon = par1IconRegister.registerIcon("crafting_table_front");
 	}
 
 }

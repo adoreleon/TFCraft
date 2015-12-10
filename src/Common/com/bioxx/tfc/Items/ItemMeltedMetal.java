@@ -6,8 +6,6 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
@@ -22,44 +20,40 @@ import com.bioxx.tfc.api.Enums.EnumWeight;
 
 public class ItemMeltedMetal extends ItemTerra
 {
-
 	public ItemMeltedMetal() 
 	{
 		super();
 		setMaxDamage(101);
-		setCreativeTab(TFCTabs.TFCMaterials);
+		setCreativeTab(TFCTabs.TFC_MATERIALS);
 		this.setFolder("ingots/");
-		this.setWeight(EnumWeight.HEAVY);
+		this.setWeight(EnumWeight.MEDIUM);
 		this.setSize(EnumSize.SMALL);
 	}	
 
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + textureFolder+this.getUnlocalizedName().replace("item.", "").replace("Weak ", "").replace("HC ", ""));
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder+this.getUnlocalizedName().replace("item.", "").replace("Weak ", "").replace("HC ", ""));
 	}
 
 	@Override
-	public boolean canStack() 
+	public int getItemStackLimit(ItemStack is)
 	{
-		return false;
-	}
+		// Partially-filled and hot unshaped ingots cannot stack
+		if (isDamaged(is) || is.hasTagCompound() && TFC_ItemHeat.hasTemp(is))
+		{
+			return 1;
+		}
 
-
-	@Override
-	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag) 
-	{
-
-		super.addInformation(is, player, arraylist, flag);
-
+		return super.getItemStackLimit(is);
 	}
 
 	@Override
-	public void addItemInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addItemInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{		
 		if (is.getItemDamage() > 1)
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.units") + ": " + (100 - (int) is.getItemDamage()) + " / 100");
+			arraylist.add(TFC_Core.translate("gui.units") + ": " + (100 - is.getItemDamage()) + " / 100");
 		}
 	}
 
@@ -69,8 +63,8 @@ public class ItemMeltedMetal extends ItemTerra
 		super.onUpdate(is,world,entity,i,isSelected);
 		if (is.hasTagCompound())
 		{
-			NBTTagCompound stackTagCompound = is.getTagCompound();
-			if(TFC_ItemHeat.HasTemp(is) && TFC_ItemHeat.GetTemp(is) >= TFC_ItemHeat.IsCookable(is))
+			//NBTTagCompound stackTagCompound = is.getTagCompound();
+			if(TFC_ItemHeat.hasTemp(is) && TFC_ItemHeat.getTemp(is) >= TFC_ItemHeat.isCookable(is))
 			{
 				if(is.getItemDamage()==0){
 					is.setItemDamage(1);
@@ -96,12 +90,12 @@ public class ItemMeltedMetal extends ItemTerra
 	{	
 		if (TFC_Core.showShiftInformation())
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.Help"));
-			arraylist.add(StatCollector.translateToLocal("gui.MeltedMetal.Inst0"));
+			arraylist.add(TFC_Core.translate("gui.Help"));
+			arraylist.add(TFC_Core.translate("gui.MeltedMetal.Inst0"));
 		}
 		else
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.ShowHelp"));
+			arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 		}
 	}
 

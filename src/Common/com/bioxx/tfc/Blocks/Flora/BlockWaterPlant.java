@@ -1,30 +1,33 @@
 package com.bioxx.tfc.Blocks.Flora;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Blocks.Terrain.BlockSand;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Food.ItemFoodTFC;
 import com.bioxx.tfc.Items.Tools.ItemKnife;
 import com.bioxx.tfc.TileEntities.TEWaterPlant;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Util.Helper;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 {
@@ -33,9 +36,9 @@ public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 	private IIcon seaWeed;
 	private IIcon catTails;
 
-	static String seaweed = Reference.ModID + ":" + "plants/seaweed";
-	static String pondweed = Reference.ModID + ":" + "plants/pondweed";
-	static String cattails = Reference.ModID + ":" + "plants/Cat Tails";
+	private static String seaweed = Reference.MOD_ID + ":" + "plants/seaweed";
+	private static String pondweed = Reference.MOD_ID + ":" + "plants/pondweed";
+	private static String cattails = Reference.MOD_ID + ":" + "plants/Cat Tails";
 
 
 	public BlockWaterPlant(int texOff)
@@ -45,6 +48,13 @@ public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 		this.setBlockBounds(0.5F - var3, 0.0F, 0.5F - var3, 0.5F + var3, 1.0F, 0.5F + var3);
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Override
+	public void getSubBlocks(Item item, CreativeTabs tabs, List list)
+	{
+		// Don't
+	}
+
 	@Override
 	public int getRenderType()
 	{
@@ -52,9 +62,9 @@ public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 	}
 
 	@Override
-	public int quantityDroppedWithBonus(int i, Random R)
+	public int quantityDroppedWithBonus(int i, Random r)
 	{
-		return 1 + R.nextInt(i * 2 + 1);
+		return 1 + r.nextInt(i * 2 + 1);
 	}
 
 	@Override
@@ -71,13 +81,12 @@ public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 		return ret;
 	}
 
-	/* Left-Click Harvest Berries */
+	/* Left-Click Harvest */
 	@Override
 	public void onBlockClicked(World world, int x, int y, int z, EntityPlayer entityplayer)
 	{
 		if (!world.isRemote)
 		{
-			int meta = world.getBlockMetadata(x, y, z);
 			if (TFC_Core.isSaltWater(world.getBlock(x, y+1, z)) && entityplayer.inventory.getCurrentItem() != null && 
 					entityplayer.inventory.getCurrentItem().getItem() instanceof ItemKnife)
 			{
@@ -87,9 +96,26 @@ public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 		}
 	}
 
+	/* Right-Click Harvest */
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int side, float hitX, float hitY, float hitZ)
+	{
+		if (!world.isRemote)
+		{
+			if (TFC_Core.isSaltWater(world.getBlock(x, y + 1, z)) && entityplayer.inventory.getCurrentItem() != null && 
+					entityplayer.inventory.getCurrentItem().getItem() instanceof ItemKnife)
+			{
+				dropBlockAsItem(world, x, y, z, getSeaWeed(world.rand));
+				doBeforeFall(world, x, y, z);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private ItemStack getSeaWeed(Random r)
 	{
-		return ItemFoodTFC.createTag(new ItemStack(TFCItems.SeaWeed, 1, 0), Helper.roundNumber(2 + r.nextFloat() * 5, 10));
+		return ItemFoodTFC.createTag(new ItemStack(TFCItems.seaWeed, 1, 0), Helper.roundNumber(2 + r.nextFloat() * 5, 10));
 	}
 
 	protected boolean canThisPlantGrowUnderThisBlock(Block par1)
@@ -117,7 +143,6 @@ public class BlockWaterPlant extends BlockSand implements ITileEntityProvider
 
 	}
 
-	@Override
 	protected void doBeforeFall(World world, int x, int y, int z){
 		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TEWaterPlant){

@@ -8,17 +8,17 @@ import net.minecraft.item.ItemStack;
 
 public class HeatRegistry
 {
-	private static final HeatRegistry instance = new HeatRegistry();
+	private static final HeatRegistry INSTANCE = new HeatRegistry();
 	public static final HeatRegistry getInstance()
 	{
-		return instance;
+		return INSTANCE;
 	}
 
-	private List heatList;
+	private List<HeatIndex> heatList;
 
 	private HeatRegistry()
 	{
-		heatList = new ArrayList();
+		heatList = new ArrayList<HeatIndex>();
 	}
 
 	public void addIndex(HeatIndex index)
@@ -26,11 +26,16 @@ public class HeatRegistry
 		heatList.add(index);
 	}
 
+	public List<HeatIndex> getHeatList()
+	{
+		return heatList;
+	}
+
 	public HeatIndex findMatchingIndex(ItemStack input)
 	{
 		for (int k = 0; k < heatList.size(); k++)
 		{
-			HeatIndex tempIndex = (HeatIndex)heatList.get(k);
+			HeatIndex tempIndex = heatList.get(k);
 			if (tempIndex.matches(input))
 			{
 				return tempIndex;
@@ -42,7 +47,7 @@ public class HeatRegistry
 
 	public Boolean getIsLiquid(ItemStack is)
 	{       
-		HeatIndex hi = instance.findMatchingIndex(is);
+		HeatIndex hi = INSTANCE.findMatchingIndex(is);
 		if(hi != null && is.hasTagCompound())
 		{
 			float temp = 0;
@@ -69,12 +74,12 @@ public class HeatRegistry
 
 	public Boolean isTemperatureWeldable(ItemStack is)
 	{
-		if(TFC_ItemHeat.HasTemp(is))
+		if(TFC_ItemHeat.hasTemp(is))
 		{
-			HeatIndex index = instance.findMatchingIndex(is);
+			HeatIndex index = INSTANCE.findMatchingIndex(is);
 			if(index != null)
 			{
-				float temp = TFC_ItemHeat.GetTemp(is);
+				float temp = TFC_ItemHeat.getTemp(is);
 				return temp < index.meltTemp && temp > index.meltTemp *0.8;
 			}
 		}
@@ -83,12 +88,12 @@ public class HeatRegistry
 
 	public Boolean isTemperatureWorkable(ItemStack is)
 	{
-		if(TFC_ItemHeat.HasTemp(is))
+		if(TFC_ItemHeat.hasTemp(is))
 		{
-			HeatIndex index = instance.findMatchingIndex(is);
+			HeatIndex index = INSTANCE.findMatchingIndex(is);
 			if(index != null)
 			{
-				float temp = TFC_ItemHeat.GetTemp(is);
+				float temp = TFC_ItemHeat.getTemp(is);
 				return temp < index.meltTemp && temp > index.meltTemp * 0.60;
 			}
 		}
@@ -97,12 +102,12 @@ public class HeatRegistry
 
 	public Boolean isTemperatureDanger(ItemStack is)
 	{
-		if(TFC_ItemHeat.HasTemp(is))
+		if(TFC_ItemHeat.hasTemp(is))
 		{
-			HeatIndex index = instance.findMatchingIndex(is);
+			HeatIndex index = INSTANCE.findMatchingIndex(is);
 			if(index != null)
 			{
-				float temp = TFC_ItemHeat.GetTemp(is);
+				float temp = TFC_ItemHeat.getTemp(is);
 				return temp < index.meltTemp && temp > index.meltTemp * 0.90;
 			}
 		}

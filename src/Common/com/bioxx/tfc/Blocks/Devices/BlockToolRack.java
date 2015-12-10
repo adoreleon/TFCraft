@@ -9,32 +9,26 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemHoe;
-import net.minecraft.item.ItemShears;
-import net.minecraft.item.ItemSpade;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
-import net.minecraft.item.ItemTool;
+import net.minecraft.item.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.Tools.ItemProPick;
 import com.bioxx.tfc.Items.Tools.ItemSpindle;
 import com.bioxx.tfc.Items.Tools.ItemWeapon;
-import com.bioxx.tfc.TileEntities.TileEntityToolRack;
+import com.bioxx.tfc.TileEntities.TEToolRack;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Constant.Global;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockToolRack extends BlockTerraContainer
 {
@@ -43,7 +37,7 @@ public class BlockToolRack extends BlockTerraContainer
 	public BlockToolRack()
 	{
 		super(Material.wood);
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 		this.woodNames = Global.WOOD_ALL;
 	}
 
@@ -83,9 +77,9 @@ public class BlockToolRack extends BlockTerraContainer
 		if(!world.isRemote)
 		{
 			TileEntity te = world.getTileEntity(x, y, z);
-			if(te != null && te instanceof TileEntityToolRack)
+			if (te instanceof TEToolRack)
 			{
-				TileEntityToolRack tet = (TileEntityToolRack) te;
+				TEToolRack tet = (TEToolRack) te;
 				int dir = world.getBlockMetadata(x, y, z);
 				if(dir == 0)
 				{
@@ -139,7 +133,7 @@ public class BlockToolRack extends BlockTerraContainer
 		return false;
 	}
 
-	private void handleArea(World world, int x, int y, int z,EntityPlayer entityplayer, TileEntityToolRack te, int slot, int dir)
+	private void handleArea(World world, int x, int y, int z,EntityPlayer entityplayer, TEToolRack te, int slot, int dir)
 	{
 		boolean hasToolInHand = entityplayer.getCurrentEquippedItem() != null && (
 				entityplayer.getCurrentEquippedItem().getItem() instanceof ItemTool ||
@@ -171,13 +165,13 @@ public class BlockToolRack extends BlockTerraContainer
 		{
 			// tile entity should still be valid at this point, so get the wood type and drop the rack
 			TileEntity te = world.getTileEntity(x, y, z);
-			if((te != null) && (te instanceof TileEntityToolRack))
+			if (te instanceof TEToolRack)
 			{
-				TileEntityToolRack rack = (TileEntityToolRack) te;
-				dropBlockAsItem(world, x, y, z, new ItemStack(TFCBlocks.ToolRack, 1, rack.woodType));
+				TEToolRack rack = (TEToolRack) te;
+				dropBlockAsItem(world, x, y, z, new ItemStack(TFCBlocks.toolRack, 1, rack.woodType));
 			}
 		}
-		return super.removedByPlayer(world, player, x, y, z);
+		return world.setBlockToAir(x, y, z); // super.removedByPlayer is deprecated, and causes a loop.
 	}
 
 	@Override
@@ -192,19 +186,17 @@ public class BlockToolRack extends BlockTerraContainer
 	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
 	{
 		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		TileEntity te = world.getTileEntity(x, y, z);
-		if((te != null) && (te instanceof TileEntityToolRack))
-		{
-			TileEntityToolRack rack = (TileEntityToolRack) te;
-			ret.add(new ItemStack(this, 1, rack.woodType));
-		}
+		
+		int damageValue = getDamageValue(world, x, y, z);
+		ret.add(new ItemStack(this, 1, damageValue));
+		
 		return ret;
 	}
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
-		return new TileEntityToolRack();
+		return new TEToolRack();
 	}
 
 	@Override
@@ -244,22 +236,22 @@ public class BlockToolRack extends BlockTerraContainer
 
 		if(dir == 0)
 		{
-			if(!world.getBlock(x, y, z + 1).isOpaqueCube())
+			if (!world.getBlock(x, y, z + 1).isSideSolid(world, x, y, z + 1, ForgeDirection.NORTH))
 				removedByPlayer(world, null, x, y, z);
 		}
 		else if(dir == 1)
 		{
-			if(!world.getBlock(x - 1, y, z).isOpaqueCube())
+			if (!world.getBlock(x - 1, y, z).isSideSolid(world, x - 1, y, z, ForgeDirection.EAST))
 				removedByPlayer(world, null, x, y, z);
 		}
 		else if(dir == 2)
 		{
-			if(!world.getBlock(x, y, z - 1).isOpaqueCube())
+			if (!world.getBlock(x, y, z - 1).isSideSolid(world, x, y, z - 1, ForgeDirection.SOUTH))
 				removedByPlayer(world, null, x, y, z);
 		}
 		else if(dir == 3)
 		{
-			if(!world.getBlock(x + 1, y, z).isOpaqueCube())
+			if (!world.getBlock(x + 1, y, z).isSideSolid(world, x + 1, y, z, ForgeDirection.WEST))
 				removedByPlayer(world, null, x, y, z);
 		}
 	}
@@ -279,9 +271,9 @@ public class BlockToolRack extends BlockTerraContainer
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack is)
 	{
 		TileEntity te = world.getTileEntity(x, y, z);
-		if(te != null && te instanceof TileEntityToolRack)
+		if (te instanceof TEToolRack)
 		{
-			TileEntityToolRack rack = (TileEntityToolRack) te;
+			TEToolRack rack = (TEToolRack) te;
 			rack.woodType = (byte)is.getItemDamage();
 			world.markBlockForUpdate(x, y, z);
 		}
@@ -292,13 +284,13 @@ public class BlockToolRack extends BlockTerraContainer
 	{
 		if(this.canPlaceBlockAt(world, x, y, z))
 		{
-			if(side == 5 && world.getBlock(x - 1, y, z).isNormalCube())
+			if (side == 5 && world.getBlock(x - 1, y, z).isSideSolid(world, x - 1, y, z, ForgeDirection.EAST))
 				return true;
-			if(side == 4 && world.getBlock(x + 1, y, z).isNormalCube())
+			if (side == 4 && world.getBlock(x + 1, y, z).isSideSolid(world, x + 1, y, z, ForgeDirection.WEST))
 				return true;
-			if(side == 2 && world.getBlock(x, y, z + 1).isNormalCube())
+			if (side == 2 && world.getBlock(x, y, z + 1).isSideSolid(world, x, y, z + 1, ForgeDirection.NORTH))
 				return true;
-			if(side == 3 && world.getBlock(x, y, z - 1).isNormalCube())
+			if (side == 3 && world.getBlock(x, y, z - 1).isSideSolid(world, x, y, z - 1, ForgeDirection.SOUTH))
 				return true;
 		}
 		return false;
@@ -318,19 +310,19 @@ public class BlockToolRack extends BlockTerraContainer
 	@Override
 	public IIcon getIcon(IBlockAccess bAccess, int x, int y, int z, int side)
 	{
-		TileEntityToolRack te = (TileEntityToolRack) bAccess.getTileEntity(x, y, z);
+		TEToolRack te = (TEToolRack) bAccess.getTileEntity(x, y, z);
 
 		if(te.woodType > 15)
-			return TFCBlocks.WoodSupportV2.getIcon(side, te.woodType);
-		return TFCBlocks.WoodSupportV.getIcon(side, te.woodType);
+			return TFCBlocks.woodSupportV2.getIcon(side, te.woodType);
+		return TFCBlocks.woodSupportV.getIcon(side, te.woodType);
 	}
 
 	@Override
 	public IIcon getIcon(int side, int meta)
 	{
 		if(meta > 15)
-			return TFCBlocks.WoodSupportV2.getIcon(side, meta);
-		return TFCBlocks.WoodSupportV.getIcon(side, meta);
+			return TFCBlocks.woodSupportV2.getIcon(side, meta);
+		return TFCBlocks.woodSupportV.getIcon(side, meta);
 	}
 
 	@Override
@@ -351,5 +343,16 @@ public class BlockToolRack extends BlockTerraContainer
 	{
 		return true;
 	}
-
+	
+    /**
+     * Get the block's damage value (for use with pick block).
+     */
+    @Override
+	public int getDamageValue(World world, int x, int y, int z)
+    {
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof TEToolRack)
+			return ((TEToolRack)te).woodType;
+		return 0;
+    }
 }

@@ -9,39 +9,39 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Achievements;
 import com.bioxx.tfc.Core.TFC_Sounds;
-import com.bioxx.tfc.TileEntities.TileEntityQuern;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import com.bioxx.tfc.TileEntities.TEQuern;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockQuern extends BlockTerraContainer
 {
-	private IIcon QuernBase;
-	private IIcon QuernTop1;
-	private IIcon QuernTop2;
+	private IIcon quernBase;
+	private IIcon quernTop1;
+	private IIcon quernTop2;
 
 	public BlockQuern()
 	{
 		super(Material.rock);
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 	}
 
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int side, float hitX, float hitY, float hitZ)
 	{
 		super.onBlockActivated(world, x, y, z, entityplayer, side, hitX, hitY, hitZ);
-		TileEntityQuern te = (TileEntityQuern) world.getTileEntity(x, y, z);
+		TEQuern te = (TEQuern) world.getTileEntity(x, y, z);
 
-		//System.out.println("----X:"+hitX+" Z:"+hitZ+" Y:"+hitY+" Side:"+side); //Nice way to find out where the mouse is pointing at
-		Boolean hit = (side == 1 && hitX >= 0.70 && hitX <= 90 && hitZ >= 0.70 && hitZ <= 0.90) ||
-				(side == 5 && hitZ >= 0.8 && hitZ <= 0.99 && hitY >= 0.85);
+		//TerraFirmaCraft.log.info("----X:"+hitX+" Z:"+hitZ+" Y:"+hitY+" Side:"+side); //Nice way to find out where the mouse is pointing at
+		Boolean hit = side == 1 && hitX >= 0.70 && hitX <= 90 && hitZ >= 0.70 && hitZ <= 0.90 ||
+				side == 5 && hitZ >= 0.8 && hitZ <= 0.99 && hitY >= 0.85;
 
 		if(!world.isRemote)
 		{
@@ -52,7 +52,7 @@ public class BlockQuern extends BlockTerraContainer
 				world.playSoundEffect(x, y, z, TFC_Sounds.STONEDRAG, 1, 1);
 				entityplayer.triggerAchievement(TFC_Achievements.achQuern);
 			}
-			else if((!te.shouldRotate && !hit) || te.storage[2] == null)
+			else if (!te.shouldRotate && !hit || te.storage[2] == null)
 			{
 				entityplayer.openGui(TerraFirmaCraft.instance, 33, world, x, y, z);
 			}
@@ -67,19 +67,19 @@ public class BlockQuern extends BlockTerraContainer
 	@Override
 	public IIcon getIcon(int i, int j)
 	{
-		if(i == 0 || (i == 1 && j == 1))
-			return QuernTop1;
+		if (i == 0 || i == 1 && j == 1)
+			return quernTop1;
 		else if (i == 1 && j == 0)
-			return QuernTop2;
-		return QuernBase;
+			return quernTop2;
+		return quernBase;
 	}
 
 	@Override
 	public void registerBlockIcons(IIconRegister registerer)
 	{
-		QuernBase = registerer.registerIcon(Reference.ModID + ":" + "devices/Quern Base");
-		QuernTop1 = registerer.registerIcon(Reference.ModID + ":" + "devices/Quern Top 1");
-		QuernTop2 = registerer.registerIcon(Reference.ModID + ":" + "devices/Quern Top 2");
+		quernBase = registerer.registerIcon(Reference.MOD_ID + ":" + "devices/Quern Base");
+		quernTop1 = registerer.registerIcon(Reference.MOD_ID + ":" + "devices/Quern Top 1");
+		quernTop2 = registerer.registerIcon(Reference.MOD_ID + ":" + "devices/Quern Top 2");
 	}
 
 	@Override
@@ -128,6 +128,6 @@ public class BlockQuern extends BlockTerraContainer
 	@Override
 	public TileEntity createNewTileEntity(World world, int var2)
 	{
-		return new TileEntityQuern();
+		return new TEQuern();
 	}
 }

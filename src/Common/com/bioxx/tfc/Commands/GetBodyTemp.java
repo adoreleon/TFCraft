@@ -37,6 +37,12 @@ public class GetBodyTemp extends CommandBase{
 	}
 
 	@Override
+	public boolean canCommandSenderUseCommand(ICommandSender sender)
+	{
+		return true;
+	}
+
+	@Override
 	public String getCommandUsage(ICommandSender icommandsender) {
 		// TODO Auto-generated method stub
 		return "";

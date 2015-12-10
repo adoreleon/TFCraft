@@ -20,7 +20,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.stats.AchievementList;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -32,18 +31,19 @@ import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.Food.ItemMeal;
 import com.bioxx.tfc.Food.TFCPotion;
+import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Interfaces.IFood;
 import com.bioxx.tfc.api.Tools.IKnife;
 
 public class GuiInventoryTFC extends InventoryEffectRenderer
 {
-	private float xSize_lo;
-	private float ySize_lo;
+	private float xSizeLow;
+	private float ySizeLow;
 	private boolean hasEffect;
-	protected static final ResourceLocation InventoryUpperTex = new ResourceLocation(Reference.ModID+":textures/gui/inventory.png");
-	protected static final ResourceLocation InventoryUpperTex2x2 = new ResourceLocation(Reference.ModID+":textures/gui/gui_inventory2x2.png");
-	protected static final ResourceLocation InventoryEffectsTex = new ResourceLocation(Reference.ModID+":textures/gui/inv_effects.png");
+	protected static final ResourceLocation UPPER_TEXTURE = new ResourceLocation(Reference.MOD_ID+":textures/gui/inventory.png");
+	protected static final ResourceLocation UPPER_TEXTURE_2X2 = new ResourceLocation(Reference.MOD_ID+":textures/gui/gui_inventory2x2.png");
+	protected static final ResourceLocation EFFECTS_TEXTURE = new ResourceLocation(Reference.MOD_ID+":textures/gui/inv_effects.png");
 	protected EntityPlayer player;
 	protected Slot activeSlot;
 
@@ -62,30 +62,30 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		if(player.getEntityData().hasKey("craftingTable"))
-			TFC_Core.bindTexture(InventoryUpperTex);
+			TFC_Core.bindTexture(UPPER_TEXTURE);
 		else
-			TFC_Core.bindTexture(InventoryUpperTex2x2);
+			TFC_Core.bindTexture(UPPER_TEXTURE_2X2);
 		int k = this.guiLeft;
 		int l = this.guiTop;
 		this.drawTexturedModalRect(k, l, 0, 0, this.xSize, 86);
 		//Draw the player avatar
-		drawPlayerModel(k + 51, l + 75, 30, k + 51 - this.xSize_lo, l + 75 - 50 - this.ySize_lo, this.mc.thePlayer);
+		drawPlayerModel(k + 51, l + 75, 30, k + 51 - this.xSizeLow, l + 75 - 50 - this.ySizeLow, this.mc.thePlayer);
 
 		PlayerInventory.drawInventory(this, width, height, ySize - PlayerInventory.invYSize);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	@Override
-	public void drawTexturedModelRectFromIcon(int p_94065_1_, int p_94065_2_, IIcon p_94065_3_, int p_94065_4_, int p_94065_5_)
+	public void drawTexturedModelRectFromIcon(int i, int j, IIcon icon, int w, int h)
 	{
 		Tessellator tessellator = Tessellator.instance;
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		tessellator.startDrawingQuads();
-		tessellator.addVertexWithUV((double)(p_94065_1_ + 0), (double)(p_94065_2_ + p_94065_5_), (double)this.zLevel, (double)p_94065_3_.getMinU(), (double)p_94065_3_.getMaxV());
-		tessellator.addVertexWithUV((double)(p_94065_1_ + p_94065_4_), (double)(p_94065_2_ + p_94065_5_), (double)this.zLevel, (double)p_94065_3_.getMaxU(), (double)p_94065_3_.getMaxV());
-		tessellator.addVertexWithUV((double)(p_94065_1_ + p_94065_4_), (double)(p_94065_2_ + 0), (double)this.zLevel, (double)p_94065_3_.getMaxU(), (double)p_94065_3_.getMinV());
-		tessellator.addVertexWithUV((double)(p_94065_1_ + 0), (double)(p_94065_2_ + 0), (double)this.zLevel, (double)p_94065_3_.getMinU(), (double)p_94065_3_.getMinV());
+		tessellator.addVertexWithUV(i + 0, j + h, this.zLevel, icon.getMinU(), icon.getMaxV());
+		tessellator.addVertexWithUV(i + w, j + h, this.zLevel, icon.getMaxU(), icon.getMaxV());
+		tessellator.addVertexWithUV(i + w, j + 0, this.zLevel, icon.getMaxU(), icon.getMinV());
+		tessellator.addVertexWithUV(i + 0, j + 0, this.zLevel, icon.getMinU(), icon.getMinV());
 		tessellator.draw();
 		GL11.glDisable(GL11.GL_BLEND);
 	}
@@ -95,7 +95,7 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glPushMatrix();
 		GL11.glTranslatef(par0, par1, 50.0F);
-		GL11.glScalef((-par2), par2, par2);
+		GL11.glScalef(-par2, par2, par2);
 		GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
 		float f2 = par5EntityLivingBase.renderYawOffset;
 		float f3 = par5EntityLivingBase.rotationYaw;
@@ -162,13 +162,13 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 
 		buttonList.clear();
 		buttonList.add(new GuiInventoryButton(0, guiLeft+176, guiTop + 3, 25, 20, 
-				0, 86, 25, 20, StatCollector.translateToLocal("gui.Inventory.Inventory"), TFC_Textures.GuiInventory));
+				0, 86, 25, 20, TFC_Core.translate("gui.Inventory.Inventory"), TFC_Textures.guiInventory));
 		buttonList.add(new GuiInventoryButton(1, guiLeft+176, guiTop + 22, 25, 20, 
-				0, 86, 25, 20, StatCollector.translateToLocal("gui.Inventory.Skills"), TFC_Textures.GuiSkills));
+				0, 86, 25, 20, TFC_Core.translate("gui.Inventory.Skills"), TFC_Textures.guiSkills));
 		buttonList.add(new GuiInventoryButton(2, guiLeft+176, guiTop + 41, 25, 20, 
-				0, 86, 25, 20, StatCollector.translateToLocal("gui.Calendar.Calendar"), TFC_Textures.GuiCalendar));
+				0, 86, 25, 20, TFC_Core.translate("gui.Calendar.Calendar"), TFC_Textures.guiCalendar));
 		buttonList.add(new GuiInventoryButton(3, guiLeft+176, guiTop + 60, 25, 20, 
-				0, 86, 25, 20, StatCollector.translateToLocal("gui.Inventory.Health"), TFC_Textures.GuiHealth));
+				0, 86, 25, 20, TFC_Core.translate("gui.Inventory.Health"), TFC_Textures.guiHealth));
 	}
 
 	@Override
@@ -187,8 +187,8 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		super.drawScreen(par1, par2, par3);
-		this.xSize_lo = par1;
-		this.ySize_lo = par2;
+		this.xSizeLow = par1;
+		this.ySizeLow = par2;
 		if(hasEffect)
 			displayDebuffEffects();
 
@@ -230,7 +230,7 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 						((TFCPotion) Potion.potionTypes[var8.getPotionID()]) : 
 							Potion.potionTypes[var8.getPotionID()];
 						GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-						TFC_Core.bindTexture(InventoryEffectsTex);
+						TFC_Core.bindTexture(EFFECTS_TEXTURE);
 						this.drawTexturedModalRect(var1, var2, 0, 166, 140, 32);
 
 						if (var9.hasStatusIcon())
@@ -239,7 +239,7 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 							this.drawTexturedModalRect(var1 + 6, var2 + 7, 0 + var10 % 8 * 18, 198 + var10 / 8 * 18, 18, 18);
 						}
 
-						String var12 = StatCollector.translateToLocal(var9.getName());
+						String var12 = TFC_Core.translate(var9.getName());
 
 						if (var8.getAmplifier() == 1)
 							var12 = var12 + " II";
@@ -255,7 +255,7 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 		}
 	}
 
-	long spamTimer = 0;
+	private long spamTimer;
 	@Override
 	protected boolean checkHotbarKeys(int keycode)
 	{
@@ -268,10 +268,11 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 		{
 			spamTimer = TFC_Time.getTotalTicks();
 			Item iType = activeSlot.getStack().getItem();
+			ItemStack activeIS = activeSlot.getStack();
 			for(int i = 9; i < 45 && getEmptyCraftSlot() != -1; i++)
 			{
 				ItemStack is = this.inventorySlots.getSlot(i).getStack();
-				if(is != null && is.getItem() == iType && ((IFood)is.getItem()).getFoodWeight(is) < Global.FOOD_MAX_WEIGHT)
+				if (is != null && is.getItem() == iType && Food.areEqual(activeIS, is) && Food.getWeight(is) < Global.FOOD_MAX_WEIGHT)
 					this.handleMouseClick(this.inventorySlots.getSlot(i), i, getEmptyCraftSlot(), 7);
 			}
 
@@ -292,25 +293,24 @@ public class GuiInventoryTFC extends InventoryEffectRenderer
 					ItemStack is = this.inventorySlots.getSlot(i).getStack();
 					if(is != null && is.getItem() instanceof IKnife)
 					{
-						knifeSlot = i;//knifeSlot = getEmptyCraftSlot();
-						//this.handleMouseClick(this.inventorySlots.getSlot(i), i, knifeSlot, 7);
+						knifeSlot = i;
 						break;
 					}
 				}
 			}
-			for(int i = 9; i < 45 && getEmptyCraftSlot() != -1 && knifeSlot != -1; i++)
+			for(int i = 9; i < 45 && getEmptyCraftSlot() != -1 && knifeSlot != -1 && inventorySlots.getSlot(knifeSlot).getStack() != null; i++)
 			{
 				ItemStack is = this.inventorySlots.getSlot(i).getStack();
-				if(is != null && !(is.getItem() instanceof ItemMeal) && is.getItem() instanceof IFood && ((IFood)is.getItem()).getFoodDecay(is) > 0)
+				int knifeDamage = inventorySlots.getSlot(knifeSlot).getStack().getItemDamage();
+				if(knifeDamage >= inventorySlots.getSlot(knifeSlot).getStack().getMaxDamage())
+					break;
+				if (is != null && !(is.getItem() instanceof ItemMeal) && is.getItem() instanceof IFood && Food.getDecay(is) > 0 &&
+						Food.getDecayTimer(is) >= TFC_Time.getTotalHours())
 				{
 					this.handleMouseClick(this.inventorySlots.getSlot(i), i, getEmptyCraftSlot(), 7);
 					this.handleMouseClick(this.inventorySlots.getSlot(0), 0, 0, 1);
 				}
 			}
-			/*if(knifeSlot != -1)
-			{
-				this.handleMouseClick(this.inventorySlots.getSlot(knifeSlot), knifeSlot, 0, 1);
-			}*/
 			return true;
 		}
 		else return super.checkHotbarKeys(keycode);

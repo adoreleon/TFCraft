@@ -1,6 +1,8 @@
 package com.bioxx.tfc.api.Interfaces;
 
-public interface IProjectile 
+import net.minecraft.item.ItemStack;
+
+public interface IProjectile
 {
-	public float getRangedDamage();
+	float getRangedDamage(ItemStack is);
 }

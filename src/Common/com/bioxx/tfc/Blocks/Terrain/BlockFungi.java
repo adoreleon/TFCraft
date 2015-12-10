@@ -3,10 +3,6 @@ package com.bioxx.tfc.Blocks.Terrain;
 import java.util.List;
 import java.util.Random;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.api.Constant.Global;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockMushroom;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -17,8 +13,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenBigMushroom;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.Constant.Global;
 
 public class BlockFungi extends BlockMushroom
 {
@@ -31,11 +33,13 @@ public class BlockFungi extends BlockMushroom
 		float var3 = 0.2F;
 		this.setBlockBounds(0.5F - var3, 0.0F, 0.5F - var3, 0.5F + var3, var3 * 2.0F, 0.5F + var3);
 		this.setTickRandomly(true);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 	}
 
 	/**
 	 * Gets the block's texture. Args: side, meta
 	 */
+	@Override
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int par1, int par2)
 	{
@@ -43,6 +47,7 @@ public class BlockFungi extends BlockMushroom
 		return this.icons[par2];
 	}
 
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister register)
 	{
@@ -50,13 +55,14 @@ public class BlockFungi extends BlockMushroom
 		for (int i = 0; i < this.icons.length; ++i)
 		{
 			// The first 2 mushrooms are from vanilla
-			this.icons[i] = register.registerIcon((icons.length > 2 ? Reference.ModID + ":plants/" : "") + Global.FUNGI_META_NAMES[i]);
+			this.icons[i] = register.registerIcon((icons.length > 2 ? Reference.MOD_ID + ":plants/" : "") + Global.FUNGI_META_NAMES[i]);
 		}
 	}
 
 	/**
 	 * Determines the damage on the item the block drops. Used in cloth and wood.
 	 */
+	@Override
 	public int damageDropped(int par1)
 	{
 		return par1;
@@ -65,6 +71,7 @@ public class BlockFungi extends BlockMushroom
 	/**
 	 * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
 	 */
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(Item item, CreativeTabs tab, List list)
 	{
@@ -93,7 +100,7 @@ public class BlockFungi extends BlockMushroom
 
 	protected boolean canThisPlantGrowOnThisBlock(Block block)
 	{
-		return TFC_Core.isSoil(block);
+		return TFC_Core.isSoil(block) || TFC_Core.isFarmland(block);
 	}
 
 	/**
@@ -158,7 +165,7 @@ public class BlockFungi extends BlockMushroom
 				{
 					for (k = y - 1; k <= y + 1; ++k)
 					{
-						if (world.getBlock(i, k, j) == this)
+						if (world.blockExists(i, j, k) && world.getBlock(i, k, j) == this)
 						{
 							--var7;
 							if (var7 <= 0)
@@ -174,7 +181,7 @@ public class BlockFungi extends BlockMushroom
 
 			for (int var11 = 0; var11 < 4; ++var11)
 			{
-				if (world.isAirBlock(i, j, k) && this.canBlockStay(world, i, j, k))
+				if (world.blockExists(i, j, k) && world.isAirBlock(i, j, k) && this.canBlockStay(world, i, j, k))
 				{
 					x = i;
 					y = j;
@@ -186,7 +193,7 @@ public class BlockFungi extends BlockMushroom
 				k = z + rnd.nextInt(3) - 1;
 			}
 
-			if (world.isAirBlock(i, j, k) && this.canBlockStay(world, i, j, k))
+			if (world.blockExists(i, j, k) && world.isAirBlock(i, j, k) && this.canBlockStay(world, i, j, k))
 				world.setBlock(i, j, k, this, meta, 2);
 		}
 	}

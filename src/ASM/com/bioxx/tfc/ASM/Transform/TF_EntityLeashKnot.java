@@ -7,11 +7,10 @@ package com.bioxx.tfc.ASM.Transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bioxx.tfc.ASM.ClassTransformer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
-
-import com.bioxx.tfc.ASM.ClassTransformer;
 
 public class TF_EntityLeashKnot extends ClassTransformer
 {
@@ -22,7 +21,7 @@ public class TF_EntityLeashKnot extends ClassTransformer
 		mcpClassName = "net.minecraft.entity.EntityLeashKnot";
 		obfClassName = "su";
 
-		List nodes = new ArrayList<InstrSet>();
+		List<InstrSet> nodes = new ArrayList<InstrSet>();
 		InsnList list = new InsnList();
 		/*list.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/EntityLeashKnot", "worldobj", "Lnet/minecraft/world/World;"));

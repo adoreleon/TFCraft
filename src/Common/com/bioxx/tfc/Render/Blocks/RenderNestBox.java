@@ -5,48 +5,48 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.TFCBlocks;
-
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class RenderNestBox  implements ISimpleBlockRenderingHandler 
 {
-	static float pixel3 = 3f/16f;
-	static float pixel5 = 5f/16f;
-	static float pixel12 = 12f/16f;
-	static float pixel14 = 14f/16f;
+	/*private static float pixel3 = 3f / 16f;
+	private static float pixel5 = 5f / 16f;
+	private static float pixel12 = 12f / 16f;
+	private static float pixel14 = 14f / 16f;*/
 
 	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int i, int j, int k, Block block, int modelId, RenderBlocks renderer)
 	{
-		IBlockAccess blockAccess = renderer.blockAccess;
+		//IBlockAccess blockAccess = renderer.blockAccess;
 		renderer.renderAllFaces = true;
 		renderer.setRenderBounds(0.15F, 0.1F, 0.15F, 0.85F, 0.1F, 0.85F);
-		renderer.renderStandardBlock(TFCBlocks.Planks, i, j, k);
+		renderer.renderStandardBlock(TFCBlocks.planks, i, j, k);
 
 		renderer.setRenderBounds(0.1F, 0F, 0.15F, 0.15F, 0.4F, 0.85F);
 		rotate(renderer, 1);
-		renderer.renderStandardBlock(TFCBlocks.Planks, i, j, k);
+		renderer.renderStandardBlock(TFCBlocks.planks, i, j, k);
 		rotate(renderer, 0);
 		renderer.renderStandardBlock(block, i, j, k);
 
 		renderer.setRenderBounds(0.85F, 0F, 0.15F, 0.9F, 0.4F, 0.85F);
 		rotate(renderer, 1);
-		renderer.renderStandardBlock(TFCBlocks.Planks, i, j, k);
+		renderer.renderStandardBlock(TFCBlocks.planks, i, j, k);
 		rotate(renderer, 0);
 		renderer.renderStandardBlock(block, i, j, k);
 
 		renderer.setRenderBounds(0.1F, 0F, 0.1F, 0.9F, 0.4F, 0.15F);
 		rotate(renderer, 1);
-		renderer.renderStandardBlock(TFCBlocks.Planks, i, j, k);
+		renderer.renderStandardBlock(TFCBlocks.planks, i, j, k);
 		rotate(renderer, 0);
 		renderer.renderStandardBlock(block, i, j, k);
 
 		renderer.setRenderBounds(0.1F, 0F, 0.85F, 0.9F, 0.4F, 0.9F);
 		rotate(renderer, 1);
-		renderer.renderStandardBlock(TFCBlocks.Planks, i, j, k);
+		renderer.renderStandardBlock(TFCBlocks.planks, i, j, k);
 		rotate(renderer, 0);
 		renderer.renderStandardBlock(block, i, j, k);
 		renderer.renderAllFaces = false;
@@ -66,29 +66,29 @@ public class RenderNestBox  implements ISimpleBlockRenderingHandler
 	{
 		renderer.setRenderBounds(0.15F, 0.2F, 0.15F, 0.85F, 0.1F, 0.85F);
 		rotate(renderer, 1);
-		renderInvBlock(TFCBlocks.Planks, metadata, renderer);
+		renderInvBlock(TFCBlocks.planks, metadata, renderer);
 
 		renderer.setRenderBounds(0.1F, 0F, 0.15F, 0.15F, 0.4F, 0.85F);
 		rotate(renderer, 1);
-		renderInvBlock(TFCBlocks.Planks, metadata, renderer);
+		renderInvBlock(TFCBlocks.planks, metadata, renderer);
 		rotate(renderer, 0);
 		renderInvBlock(block, metadata, renderer);
 
 		renderer.setRenderBounds(0.85F, 0F, 0.15F, 0.9F, 0.4F, 0.85F);
 		rotate(renderer, 1);
-		renderInvBlock(TFCBlocks.Planks, metadata, renderer);
+		renderInvBlock(TFCBlocks.planks, metadata, renderer);
 		rotate(renderer, 0);
 		renderInvBlock(block, metadata, renderer);
 
 		renderer.setRenderBounds(0.1F, 0F, 0.1F, 0.9F, 0.4F, 0.15F);
 		rotate(renderer, 1);
-		renderInvBlock(TFCBlocks.Planks, metadata, renderer);
+		renderInvBlock(TFCBlocks.planks, metadata, renderer);
 		rotate(renderer, 0);
 		renderInvBlock(block, metadata, renderer);
 
 		renderer.setRenderBounds(0.1F, 0F, 0.85F, 0.9F, 0.4F, 0.9F);
 		rotate(renderer, 1);
-		renderInvBlock(TFCBlocks.Planks, metadata, renderer);
+		renderInvBlock(TFCBlocks.planks, metadata, renderer);
 		rotate(renderer, 0);
 		renderInvBlock(block, metadata, renderer);
 	}

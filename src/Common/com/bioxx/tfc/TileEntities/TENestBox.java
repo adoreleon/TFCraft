@@ -16,6 +16,7 @@ import net.minecraft.util.AxisAlignedBB;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Entities.Mobs.EntityChickenTFC;
 import com.bioxx.tfc.Food.ItemFoodTFC;
+import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Entities.IAnimal.GenderEnum;
 import com.bioxx.tfc.api.Util.Helper;
 
@@ -48,7 +49,7 @@ public class TENestBox extends TileEntity implements IInventory
 			return ea;//(EntityAnimal)list.get(0);
 		}*/
 
-		if(list.size()!=0)
+		if (!list.isEmpty())
 		{
 			for(Object e : list)
 			{
@@ -69,7 +70,7 @@ public class TENestBox extends TileEntity implements IInventory
 				xCoord-5, yCoord, zCoord-5, 
 				xCoord+5, yCoord+2, zCoord+5));
 
-		if(list.size() != 0)
+		if (!list.isEmpty())
 		{
 			for(Object e : list)
 			{
@@ -197,7 +198,7 @@ public class TENestBox extends TileEntity implements IInventory
 						if(father != null)
 						{
 							NBTTagCompound nbt = item.getTagCompound();
-							nbt.setLong("Fertilized", TFC_Time.getTotalTicks()+(long)(TFC_Time.ticksInMonth*0.75f));
+							nbt.setLong("Fertilized", TFC_Time.getTotalTicks() + (long) (TFCOptions.animalTimeMultiplier * TFC_Time.ticksInMonth * 0.75f));
 							nbt.setTag("Genes", this.createGenes((EntityChickenTFC) bird, father));
 							item.setTagCompound(nbt);
 						}
@@ -215,8 +216,8 @@ public class TENestBox extends TileEntity implements IInventory
 				{
 					if(inventory[i].getTagCompound() != null && inventory[i].getTagCompound().hasKey("Fertilized"))
 					{
-						long _time = inventory[i].getTagCompound().getLong("Fertilized");
-						if(_time <= TFC_Time.getTotalTicks())
+						long time = inventory[i].getTagCompound().getLong("Fertilized");
+						if(time <= TFC_Time.getTotalTicks())
 						{
 							EntityChickenTFC chick = new EntityChickenTFC(worldObj, xCoord + 0.5, yCoord + 1, zCoord + 0.5, 
 									(NBTTagCompound) inventory[i].getTagCompound().getTag("Genes"));
@@ -248,8 +249,8 @@ public class TENestBox extends TileEntity implements IInventory
 	public NBTTagCompound createGenes(EntityChickenTFC mother, EntityChickenTFC father)
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setFloat("m_size", mother.getSize());
-		nbt.setFloat("f_size", father.getSize());
+		nbt.setFloat("m_size", mother.getSizeMod());
+		nbt.setFloat("f_size", father.getSizeMod());
 		return nbt;
 	}
 

@@ -2,14 +2,15 @@ package com.bioxx.tfc.WorldGen.Generators;
 
 import java.util.Random;
 
-import com.bioxx.tfc.TFCBlocks;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import com.bioxx.tfc.api.TFCBlocks;
+
 public class WorldGenCustomReed extends WorldGenerator
 {
+	@Override
 	public boolean generate(World par1World, Random par2Random, int par3, int par4, int par5)
 	{
 		for (int var6 = 0; var6 < 20; ++var6)
@@ -28,8 +29,8 @@ public class WorldGenCustomReed extends WorldGenerator
 				for (int var11 = 0; var11 < var10; ++var11)
 				{
 					//if (((BlockCustomReed)Blocks.reeds).canBlockStay(par1World, var7, var8 + var11, var9))
-					if (TFCBlocks.Reeds.canBlockStay(par1World, var7, var8 + var11, var9))
-						par1World.setBlock(var7, var8 + var11, var9, TFCBlocks.Reeds);
+					if (TFCBlocks.reeds.canBlockStay(par1World, var7, var8 + var11, var9))
+						par1World.setBlock(var7, var8 + var11, var9, TFCBlocks.reeds);
 				}
 			}
 		}

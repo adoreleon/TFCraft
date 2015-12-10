@@ -1,5 +1,6 @@
 package com.bioxx.tfc.Blocks.Terrain;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -15,17 +16,20 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
+import net.minecraftforge.oredict.OreDictionary;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.TileEntities.TEOre;
 import com.bioxx.tfc.WorldGen.DataLayer;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Constant.Global;
 
-public class BlockOre extends BlockCollapsable
+public class BlockOre extends BlockCollapsible
 {
 	public String[] blockNames = Global.ORE_METAL;
 
@@ -42,10 +46,10 @@ public class BlockOre extends BlockCollapsable
 		if(TFCOptions.enableDebugMode && world.isRemote)
 		{
 			int metadata = world.getBlockMetadata(x, y, z);
-			System.out.println("Meta = "+(new StringBuilder()).append(getUnlocalizedName()).append(":").append(metadata).toString());
+			TerraFirmaCraft.LOG.info("Meta = " + (new StringBuilder()).append(getUnlocalizedName()).append(":").append(metadata).toString());
 			TEOre te = (TEOre)world.getTileEntity(x, y, z);
 			if(te != null)
-				System.out.println("Ore  BaseID = " + te.baseBlockID + "| BaseMeta =" + te.baseBlockMeta);
+				TerraFirmaCraft.LOG.info("Ore  BaseID = " + te.baseBlockID + "| BaseMeta =" + te.baseBlockMeta);
 		}
 		return false;
 	}
@@ -53,15 +57,21 @@ public class BlockOre extends BlockCollapsable
 	@Override
 	public int[] getDropBlock(World world, int x, int y, int z)
 	{
-		int[] data = new int[2];
+		int[] data = new int[]{ -1, -1 };
 		DataLayer dl = TFC_Climate.getCacheManager(world).getRockLayerAt(x, z, TFC_Core.getRockLayerFromHeight(world, x, y, z));
+
 		if(dl != null)
 		{
-			data[0] = Block.getIdFromBlock(this.dropBlock);
-			data[1] = dl.data2;
+			BlockStone stone = null;
+			if (dl.block instanceof BlockStone)
+				stone = (BlockStone) dl.block;
+
+			if (stone != null)
+			{
+				data[0] = Block.getIdFromBlock(stone.dropBlock); // Cobblestone version of rock in that layer.
+				data[1] = dl.data2; // Metadata
+			}
 		}
-		data[0] = -1;
-		data[1] = -1;
 		return data;
 	}
 
@@ -84,6 +94,8 @@ public class BlockOre extends BlockCollapsable
 	@Override
 	public IIcon getIcon(int side, int meta)
 	{
+		if(meta >= icons.length)
+			return icons[0];
 		return icons[meta];
 	}
 
@@ -93,7 +105,7 @@ public class BlockOre extends BlockCollapsable
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
 		for(int i = 0; i < blockNames.length; i++)
-			icons[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "ores/"+ blockNames[i] + " Ore");
+			icons[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "ores/"+ blockNames[i] + " Ore");
 	}
 
 	@Override
@@ -107,20 +119,45 @@ public class BlockOre extends BlockCollapsable
 	{
 		if(!world.isRemote)
 		{
+			boolean dropOres = false;
+			boolean hasHammer = false;
 			int meta = world.getBlockMetadata(x, y, z);
-			TEOre te = (TEOre)world.getTileEntity(x, y, z);
-			int ore = getOreGrade(te, meta);
+			boolean isCoal = meta == 14 || meta == 15;
+			ItemStack itemstack = null;
 			if(player != null)
 			{
 				TFC_Core.addPlayerExhaustion(player, 0.001f);
 				player.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
+				dropOres = player.canHarvestBlock(this);
+				ItemStack heldItem = player.getCurrentEquippedItem();
+				if (heldItem != null)
+				{
+					int[] itemIDs = OreDictionary.getOreIDs(heldItem);
+					for (int id : itemIDs)
+					{
+						String name = OreDictionary.getOreName(id);
+						if (name.startsWith("itemHammer"))
+						{
+							hasHammer = true;
+							break;
+						}
+					}
+				}
 			}
 
-			ItemStack itemstack;
-			if(meta == 14 || meta == 15)
-				itemstack  = new ItemStack(TFCItems.Coal, 1 + world.rand.nextInt(2));
-			else
-				itemstack  = new ItemStack(TFCItems.OreChunk, 1, damageDropped(ore));
+			if (player == null || dropOres)
+			{
+				if (isCoal)
+					itemstack = new ItemStack(TFCItems.coal, 1 + world.rand.nextInt(2));
+				else
+				{
+					TEOre te = (TEOre) world.getTileEntity(x, y, z);
+					int ore = getOreGrade(te, meta);
+					itemstack = new ItemStack(TFCItems.oreChunk, 1, damageDropped(ore));
+				}
+			}
+			else if (hasHammer && !isCoal)
+				itemstack = new ItemStack(TFCItems.smallOreChunk, 1, meta);
 
 			if (itemstack != null)
 				dropBlockAsItem(world, x, y, z, itemstack);
@@ -131,22 +168,36 @@ public class BlockOre extends BlockCollapsable
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int x, int y, int z, int meta)
 	{
+		//Intentionally empty so that mining ore blocks cannot trigger a cave in.
 	}
 
 	@Override
-	public Item getItemDropped(int metadata, Random rand, int fortune)
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
 	{
-		if (metadata == 14 || metadata == 15) // coal
-			return TFCItems.Coal;
-		return TFCItems.OreChunk;
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+		TEOre te = (TEOre) world.getTileEntity(x, y, z);
+		int ore = getOreGrade(te, metadata);
+
+		int count = quantityDropped(metadata, fortune, world.rand);
+		for (int i = 0; i < count; i++)
+		{
+			ItemStack itemstack;
+			if (metadata == 14 || metadata == 15)
+				itemstack = new ItemStack(TFCItems.coal);
+			else
+				itemstack = new ItemStack(TFCItems.oreChunk, 1, damageDropped(ore));
+
+			ret.add(itemstack);
+		}
+		return ret;
 	}
 
 	public static Item getDroppedItem(int meta)
 	{
 		if(meta == 14 || meta == 15)
-			return TFCItems.Coal;
+			return TFCItems.coal;
 		else
-			return TFCItems.SmallOreChunk;
+			return TFCItems.smallOreChunk;
 	}
 
 	@Override
@@ -173,20 +224,20 @@ public class BlockOre extends BlockCollapsable
 			int ore = getOreGrade(te, meta);
 
 			if(meta == 14 || meta == 15)
-				itemstack = new ItemStack(TFCItems.Coal, 1 + random.nextInt(2));
+				itemstack = new ItemStack(TFCItems.coal, 1 + random.nextInt(2));
 			else
-				itemstack = new ItemStack(TFCItems.OreChunk, 1, ore);
-			if (itemstack != null)
-				dropBlockAsItem(world, x, y, z, itemstack);
+				itemstack = new ItemStack(TFCItems.oreChunk, 1, ore);
+
+			dropBlockAsItem(world, x, y, z, itemstack);
 			onBlockDestroyedByExplosion(world, x, y, z, exp);
 		}
 	}
 
-	private int getOreGrade(TEOre te, int ore)
+	public int getOreGrade(TEOre te, int ore)
 	{
 		if(te != null)
 		{
-			int grade = (te.extraData & 7);
+			int grade = te.extraData & 7;
 			if(grade == 1)
 				ore += 35;
 			else if(grade == 2)

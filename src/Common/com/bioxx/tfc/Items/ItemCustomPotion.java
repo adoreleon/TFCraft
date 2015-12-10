@@ -1,30 +1,28 @@
 package com.bioxx.tfc.Items;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCItems;
 
 public class ItemCustomPotion extends ItemPotion
 {
 	/** maps potion damage values to lists of effect names */
-	private HashMap effectCache = new HashMap();
-	private static final Map field_77835_b = new LinkedHashMap();
+	/*private HashMap effectCache = new HashMap();
+	private static final Map field_77835_b = new LinkedHashMap();*/
 
 	public ItemCustomPotion()
 	{
 		super();
+		this.setCreativeTab(TFCTabs.TFC_FOODS);
 	}
 
 	@Override
@@ -66,16 +64,16 @@ public class ItemCustomPotion extends ItemPotion
 
 			if (!broken && is.stackSize <= 0)
 			{
-				return new ItemStack(TFCItems.GlassBottle);
+				return new ItemStack(TFCItems.glassBottle);
 			}
 		}
 
 		return is;
 	}
 
-	@Override
+	/*@Override
 	public void registerIcons(IIconRegister par1IconRegister)
 	{
 		super.registerIcons(par1IconRegister);
-	}
+	}*/
 }

@@ -58,7 +58,8 @@ public enum RuleEnum
 
 	public boolean matches(int action, int position)
 	{
-		if((Action == action || Action == -1)) {
+		if (Action == action || Action == -1)
+		{
 			if(position >= Min && position <= Max) {
 				return true;
 			}
@@ -67,9 +68,10 @@ public enum RuleEnum
 		return false;
 	}
 
-	public boolean matches(RuleEnum R, int position)
+	public boolean matches(RuleEnum rule, int position)
 	{
-		if((Action == R.Action || Action == RuleEnum.ANY.Action)) {
+		if (Action == rule.Action || Action == RuleEnum.ANY.Action)
+		{
 			if(position >= Min && position <= Max) {
 				return true;
 			}
@@ -82,7 +84,8 @@ public enum RuleEnum
 	{
 		for(int i = Min; i <= Max; i++)
 		{
-			if((Action == actions[i] || Action == -1)) {
+			if (Action == actions[i] || Action == -1)
+			{
 				return true;
 			}
 		}

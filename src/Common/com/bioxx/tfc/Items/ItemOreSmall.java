@@ -32,15 +32,15 @@ public class ItemOreSmall extends ItemOre
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		MetaIcons = new IIcon[14];
+		metaIcons = new IIcon[14];
 		for(int i = 0; i < 14; i++)
 		{
-			MetaIcons[i] = registerer.registerIcon(Reference.ModID + ":" + textureFolder+MetaNames[i] + " Small Ore");
+			metaIcons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder+metaNames[i] + " Small Ore");
 		}
 	}
 
 	@Override
-	public short GetMetalReturnAmount(ItemStack is)
+	public short getMetalReturnAmount(ItemStack is)
 	{
 		int dam = is.getItemDamage();
 		switch(dam)

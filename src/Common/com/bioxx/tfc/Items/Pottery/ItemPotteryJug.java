@@ -6,26 +6,29 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Sounds;
+import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Core.Player.FoodStatsTFC;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
 
 public class ItemPotteryJug extends ItemPotteryBase
 {
-	IIcon WaterIcon;
+	private IIcon waterIcon;
 
 	public ItemPotteryJug()
 	{
 		super();
-		this.MetaNames = new String[]{"Clay Jug", "Ceramic Jug", "Water Jug"};
+		this.metaNames = new String[]{"Clay Jug", "Ceramic Jug", "Water Jug"};
 		this.stackable = false;
 
 		this.setWeight(EnumWeight.LIGHT);
@@ -46,8 +49,8 @@ public class ItemPotteryJug extends ItemPotteryBase
 			{
 				if(world.rand.nextInt(50) == 0)
 				{
+					world.playSoundAtEntity(player, TFC_Sounds.CERAMICBREAK, 0.7f, player.worldObj.rand.nextFloat() * 0.2F + 0.8F);
 					is.stackSize--;
-					player.playSound(TFC_Sounds.CERAMICBREAK, 0.7f, player.worldObj.rand.nextFloat() * 0.2F + 0.8F);
 				}
 				else
 				{
@@ -86,11 +89,32 @@ public class ItemPotteryJug extends ItemPotteryBase
 		FoodStatsTFC fs = TFC_Core.getPlayerFoodStats(entity);
 		Boolean canDrink = fs.getMaxWater(entity) - 500 > fs.waterLevel;
 
+		boolean playNote = false;
+		float lookAngle = 0;
 		if(mop == null)
 		{
 			if(is.getItemDamage() > 1 && canDrink)
 			{
 				entity.setItemInUse(is, this.getMaxItemUseDuration(is));
+			}
+			else if(is.getItemDamage() == 1){
+				Vec3 lookVec = entity.getLookVec();
+				lookAngle = (float)(lookVec.yCoord/2d);
+				if(!is.hasTagCompound()){
+					playNote = true;
+					is.stackTagCompound = new NBTTagCompound();
+					is.stackTagCompound.setLong("blowTime", TFC_Time.getTotalTicks());
+				}
+				else if(is.stackTagCompound.hasKey("blowTime") &&	
+							is.stackTagCompound.getLong("blowTime") + 10 < TFC_Time.getTotalTicks())
+				{
+					playNote = true;
+					is.stackTagCompound.setLong("blowTime", TFC_Time.getTotalTicks());
+				}
+				else if(!is.stackTagCompound.hasKey("blowTime")){
+					playNote = true;
+					is.stackTagCompound.setLong("blowTime", TFC_Time.getTotalTicks());
+				}
 			}
 		}
 		else
@@ -100,22 +124,40 @@ public class ItemPotteryJug extends ItemPotteryBase
 				int x = mop.blockX;
 				int y = mop.blockY;
 				int z = mop.blockZ;
-
-				if(!world.canMineBlock(entity, x, y, z))
+				
+				// Handle flowing water
+				int flowX = x;
+				int flowY = y;
+				int flowZ = z;
+				switch(mop.sideHit)
 				{
-					return is;
+				case 0:
+					flowY = y - 1;
+					break;
+				case 1:
+					flowY = y + 1;
+					break;
+				case 2:
+					flowZ = z - 1;
+					break;
+				case 3:
+					flowZ = z + 1;
+					break;
+				case 4:
+					flowX = x - 1;
+					break;
+				case 5:
+					flowX = x + 1;
+					break;
 				}
 
-				if(!entity.canPlayerEdit(x, y, z, mop.sideHit, is))
-				{
-					return is;
-				}
-
-				if(!world.isRemote && TFC_Core.isFreshWater(world.getBlock(x, y, z)) && !entity.isSneaking())
+				if (!entity.isSneaking() && !world.isRemote && 
+						TFC_Core.isFreshWater(world.getBlock(x, y, z)) || TFC_Core.isFreshWater(world.getBlock(flowX, flowY, flowZ)))
 				{
 					if(is.getItemDamage() == 1)
 					{
 						is.setItemDamage(2);
+						playNote = false;
 					}
 					else
 					{
@@ -131,8 +173,38 @@ public class ItemPotteryJug extends ItemPotteryBase
 					{
 						entity.setItemInUse(is, this.getMaxItemUseDuration(is));
 					}
+					else if(is.getItemDamage() == 1){
+						Vec3 lookVec = entity.getLookVec();
+						lookAngle = (float)(lookVec.yCoord/2d);
+						if(!is.hasTagCompound()){
+							is.stackTagCompound = new NBTTagCompound();
+							is.stackTagCompound.setLong("blowTime", TFC_Time.getTotalTicks());
+						}
+						else if(is.stackTagCompound.hasKey("blowTime") &&	
+									is.stackTagCompound.getLong("blowTime") + 10 < TFC_Time.getTotalTicks())
+						{
+							is.stackTagCompound.setLong("blowTime", TFC_Time.getTotalTicks());
+						}
+						else if(!is.stackTagCompound.hasKey("blowTime")){
+							playNote = true;
+							is.stackTagCompound.setLong("blowTime", TFC_Time.getTotalTicks());
+						}
+					}
+				}
+
+				if(!world.canMineBlock(entity, x, y, z))
+				{
+					return is;
+				}
+
+				if(!entity.canPlayerEdit(x, y, z, mop.sideHit, is))
+				{
+					return is;
 				}
 			}
+		}
+		if(playNote){
+			entity.playSound(TFC_Sounds.JUGBLOW, 1.0f, 1.0f + lookAngle);
 		}
 		return is;
 	}
@@ -141,21 +213,21 @@ public class ItemPotteryJug extends ItemPotteryBase
 	public IIcon getIconFromDamage(int damage)
 	{
 		if(damage == 0) {
-			return this.ClayIcon;
+			return this.clayIcon;
 		} else if(damage == 1) {
-			return this.CeramicIcon;
+			return this.ceramicIcon;
 		} else if(damage == 2) {
-			return this.WaterIcon;
+			return this.waterIcon;
 		}
 
-		return this.WaterIcon; 
+		return this.waterIcon; 
 	}
 
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
 		super.registerIcons(registerer);
-		this.WaterIcon = registerer.registerIcon(Reference.ModID + ":" + textureFolder + "Water Jug");
+		this.waterIcon = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder + "Water Jug");
 	}
 
 	@Override

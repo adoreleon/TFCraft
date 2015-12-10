@@ -10,21 +10,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.api.Constant.Global;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.api.Constant.Global;
+
 public class ItemMudBrick extends ItemTerra
 {
-	IIcon overlayIcon;
+	private IIcon overlayIcon;
 	public ItemMudBrick() 
 	{
 		super();
 		this.hasSubtypes = true;
 		this.setMaxDamage(0);
 		this.setFolder("pottery/");
+		this.setCreativeTab(null);
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class ItemMudBrick extends ItemTerra
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		overlayIcon = registerer.registerIcon(Reference.ModID+":"+this.textureFolder+"Mud Brick Overlay");
+		overlayIcon = registerer.registerIcon(Reference.MOD_ID+":"+this.textureFolder+"Mud Brick Overlay");
 		super.registerIcons(registerer);
 	}
 

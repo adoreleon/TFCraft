@@ -9,19 +9,24 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.client.MinecraftForgeClient;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Core.Player.FoodStatsTFC;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.Render.Item.FoodItemRenderer;
+import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.FoodRegistry;
+import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.TFC_ItemHeat;
+import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Enums.EnumFoodGroup;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
@@ -30,18 +35,19 @@ import com.bioxx.tfc.api.Util.Helper;
 
 public class ItemMeal extends ItemTerra implements IFood
 {
-	PotionEffect foodEffect;
-	private boolean alwaysEdible = false;
-	private String[] tasteArray = {"item.meal.terrible", "item.meal.poor", "item.meal.decent", "item.meal.good","item.meal.great","item.meal.fantastic"};
+	//private PotionEffect foodEffect;
+
+	//private boolean alwaysEdible = false;
 
 	public ItemMeal()
 	{
 		super();
 		this.hasSubtypes = true;
-		this.MetaNames = new String[]{"Meal0","Meal1","Meal2","Meal3","Meal4","Meal5","Meal6","Meal7","Meal8","Meal9","Meal10",};
-		this.MetaIcons = new IIcon[11];
+		this.metaNames = new String[]{"Meal0","Meal1","Meal2","Meal3","Meal4","Meal5","Meal6","Meal7","Meal8","Meal9","Meal10",};
+		this.metaIcons = new IIcon[11];
 		this.setFolder("food/");
 		this.stackable = false;
+		this.setCreativeTab(null);
 	}
 
 	@Override
@@ -54,7 +60,19 @@ public class ItemMeal extends ItemTerra implements IFood
 	@Override
 	public void getSubItems(Item item, CreativeTabs tabs, List list)
 	{
-		// Removes meals from creative tab because without NBT data, they are useless
+		list.add(createTag(new ItemStack(this, 1)));
+	}
+
+	//Creates empty food to prevent NBT errors when food is loaded in NEI
+	public static ItemStack createTag(ItemStack is)
+	{
+		if (!is.hasTagCompound())
+			is.setTagCompound(new NBTTagCompound());
+
+		Food.setWeight(is, 0);
+		Food.setDecay(is, 0);
+		Food.setDecayTimer(is, (int) TFC_Time.getTotalHours() + 1);
+		return is;
 	}
 
 	@Override
@@ -70,93 +88,77 @@ public class ItemMeal extends ItemTerra implements IFood
 		if(!TFC_Core.showShiftInformation())
 		{
 			arraylist.add("");
-			//arraylist.add("");
 		}
-		ItemFoodTFC.addHeatInformation(is, arraylist);
 
 		if (is.hasTagCompound())
 		{
-			NBTTagCompound nbt = is.getTagCompound();
+
+			ItemFoodTFC.addFoodHeatInformation(is, arraylist);
+			addFoodInformation(is, player, arraylist);
 
 			if(TFC_Core.showShiftInformation())
 			{
 				addFGInformation(is, arraylist);
 			}
-			/*if(nbt.hasKey("satisfaction"))
-			{
-				float _sat = Helper.roundNumber(nbt.getFloat("satisfaction"),100);
-				if(!isWarm(is))
-					_sat *= 0.25f;
-				int satIndex = Math.min(1+(int)(5 *_sat), 5);
-				arraylist.add("Taste: " + StatCollector.translateToLocal(tasteArray[satIndex]) + EnumChatFormatting.DARK_GRAY + " (" + (_sat * 100) + "%)");
-			}
-			else
-			{
-				arraylist.add("Taste: " + StatCollector.translateToLocal(tasteArray[0]) + EnumChatFormatting.DARK_GRAY + " (0.0%)");
-			}*/
-
-			if(nbt.hasKey("foodWeight"))
-			{
-				float ounces = nbt.getFloat("foodWeight");
-				if(ounces > 0)
-					arraylist.add("Amount " + Helper.roundNumber(ounces, 10) + "oz");
-				float decay = nbt.getFloat("foodDecay");
-				if(decay > 0)
-					arraylist.add(EnumChatFormatting.DARK_GRAY + "Decay " + Helper.roundNumber(decay / ounces * 100, 10) + "%");
-			}
-			else
-			{
-				arraylist.add(StatCollector.translateToLocal("gui.badnbt"));
-			}
-
-			if (TFC_Core.showCtrlInformation()) 
-				ItemFoodTFC.addTasteInformation(is, player, arraylist);
-			else
-				arraylist.add(StatCollector.translateToLocal("gui.showtaste"));
 		}
 		else
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.badnbt"));
+			arraylist.add(TFC_Core.translate("gui.badnbt"));
+			TerraFirmaCraft.LOG.error(TFC_Core.translate("error.error") + " " + is.getUnlocalizedName() + " " +
+					TFC_Core.translate("error.NBT") + " " + TFC_Core.translate("error.Contact"));
 		}
 	}
 
-	protected void addFGInformation(ItemStack is, List arraylist)
+	public void addFoodInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
-		if (is.hasTagCompound())
+		float ounces = Helper.roundNumber(Food.getWeight(is), 100);
+		if (ounces > 0)
+			arraylist.add(TFC_Core.translate("gui.food.amount") + " " + ounces + " oz / " + Global.FOOD_MAX_WEIGHT + " oz");
+		float decay = Food.getDecay(is);
+		if (decay > 0)
+			arraylist.add(EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.food.decay") + " " + Helper.roundNumber(decay / ounces * 100, 10) + "%");
+		if (TFCOptions.enableDebugMode)
 		{
-			NBTTagCompound nbt = is.getTagCompound();
-			if(nbt.hasKey("FG"))
-			{
-				int[] fg = nbt.getIntArray("FG");
-				for(int i = 0; i < fg.length; i++)
-				{
-					if(fg[i] != -1)
-						arraylist.add(localize(fg[i]));
-				}
-			}
+			arraylist.add(EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.food.decay") + ": " + decay);
+			arraylist.add(EnumChatFormatting.DARK_GRAY + "Decay Rate: " + this.getDecayRate(is));
+		}
+
+		if (TFC_Core.showCtrlInformation())
+			ItemFoodTFC.addTasteInformation(is, player, arraylist);
+		else
+			arraylist.add(TFC_Core.translate("gui.showtaste"));
+	}
+
+	protected void addFGInformation(ItemStack is, List<String> arraylist)
+	{
+		int[] fg = Food.getFoodGroups(is);
+		for (int i = 0; i < fg.length; i++)
+		{
+			if (fg[i] != -1)
+				arraylist.add(localize(fg[i]));
 		}
 	}
 
 	protected String localize(int id)
 	{
-		return ItemFoodTFC.getFoodGroupColor(FoodRegistry.getInstance().getFoodGroup(id)) + 
-				StatCollector.translateToLocal(FoodRegistry.getInstance().getFood(id).getUnlocalizedName() + ".name");
+		return ItemFoodTFC.getFoodGroupColor(FoodRegistry.getInstance().getFoodGroup(id)) +
+				TFC_Core.translate(FoodRegistry.getInstance().getFood(id).getUnlocalizedName() + ".name");
 	}
 
-	protected float[] getNutritionalWeights(int[] FG)
+	protected float[] getNutritionalWeights(int[] foodGroups)
 	{
-		float[] nw = new float[FG.length];
+		float[] nw = new float[foodGroups.length];
 		float[] fw = getFoodWeights();
 		float totalWeight = 0;
-		for(int i  = 0; i < FG.length; i++)
+		for(int i  = 0; i < foodGroups.length; i++)
 		{
-			if(FG[i] != -1)
+			if(foodGroups[i] != -1)
 			{
 				totalWeight += fw[i];
 			}
 		}
 
-		for(int i  = 0; i < FG.length; i++)
+		for(int i  = 0; i < foodGroups.length; i++)
 		{
 			nw[i] = fw[i]/totalWeight;
 		}
@@ -195,36 +197,47 @@ public class ItemMeal extends ItemTerra implements IFood
 		FoodStatsTFC foodstats = TFC_Core.getPlayerFoodStats(player);
 		if(!world.isRemote)
 		{
-			ItemMeal item = (ItemMeal) is.getItem();
-			float weight = item.getFoodWeight(is);
-			float decay = Math.max(item.getFoodDecay(is), 0);
-			float eatAmount = getEatAmount(foodstats, weight-decay);
-			float tasteFactor = foodstats.getTasteFactor(is);
 			//add the nutrition contents
-			int[] fg = is.getTagCompound().getIntArray("FG");
-			float[] nWeights = getNutritionalWeights(fg);
-			for(int i = 0; i < fg.length; i++)
+			if (is.hasTagCompound())
 			{
-				if(fg[i] != -1)
-					foodstats.addNutrition(FoodRegistry.getInstance().getFoodGroup(fg[i]), eatAmount*nWeights[i]*2.5f);
-			}
+				float weight = Food.getWeight(is);
+				float decay = Math.max(Food.getDecay(is), 0);
+				float eatAmount = getEatAmount(foodstats, weight - decay);
+				float tasteFactor = foodstats.getTasteFactor(is);
 
-			//fill the stomach
-			foodstats.stomachLevel += eatAmount * getFillingBoost();
-			foodstats.setSatisfaction(foodstats.getSatisfaction() + ((eatAmount/3f) * tasteFactor), fg);
-			//Now remove the eaten amount from the itemstack.
-			if(FoodStatsTFC.reduceFood(is, eatAmount))
+				int[] fg = Food.getFoodGroups(is);
+				float[] nWeights = getNutritionalWeights(fg);
+				for (int i = 0; i < fg.length; i++ )
+				{
+					if (fg[i] != -1)
+						foodstats.addNutrition(FoodRegistry.getInstance().getFoodGroup(fg[i]), eatAmount * nWeights[i] * 2.5f);
+				}
+
+				//fill the stomach
+				foodstats.stomachLevel += eatAmount * getFillingBoost();
+				foodstats.setSatisfaction(foodstats.getSatisfaction() + ((eatAmount / 3f) * tasteFactor), fg);
+
+				//Now remove the eaten amount from the itemstack.
+				if (FoodStatsTFC.reduceFood(is, eatAmount))
+				{
+					is.stackSize = 0;
+				}
+			}
+			else
 			{
-				is.stackSize = 0;
+				String error = TFC_Core.translate("error.error") + " " + is.getUnlocalizedName() + " " +
+						TFC_Core.translate("error.NBT") + " " + TFC_Core.translate("error.Contact");
+				TerraFirmaCraft.LOG.error(error);
+				TFC_Core.sendInfoMessage(player, new ChatComponentText(error));
 			}
 		}
 		TFC_Core.setPlayerFoodStats(player, foodstats);
 		return is;
 	}
 
-	private float getMaxWeight(ItemStack is)
+	/*private float getMaxWeight(ItemStack is)
 	{
-		int[] fg = is.getTagCompound().getIntArray("FG");
+		int[] fg = Food.getFoodGroups(is);
 		float w = 0;
 		for(int i = 0; i < fg.length; i++)
 		{
@@ -232,36 +245,11 @@ public class ItemMeal extends ItemTerra implements IFood
 				w += this.getFoodWeights()[i];
 		}
 		return w;
-	}
+	}*/
 
 	public static boolean isWarm(ItemStack is)
 	{
-		if(TFC_ItemHeat.GetTemp(is) > TFC_ItemHeat.IsCookable(is) * 0.1)
-			return true;
-		else
-			return false;
-	}
-
-	@Override
-	public float getFoodWeight(ItemStack is)
-	{
-		if(is.hasTagCompound() && is.getTagCompound().hasKey("foodWeight"))
-		{
-			NBTTagCompound nbt = is.getTagCompound();
-			return nbt.getFloat("foodWeight");
-		}
-		return 0f;
-	}
-
-	@Override
-	public float getFoodDecay(ItemStack is)
-	{
-		if(is.hasTagCompound() && is.getTagCompound().hasKey("foodDecay"))
-		{
-			NBTTagCompound nbt = is.getTagCompound();
-			return nbt.getFloat("foodDecay");
-		}
-		return 0f;
+		return TFC_ItemHeat.getTemp(is) > TFC_ItemHeat.isCookable(is) * 0.1;
 	}
 
 	/**
@@ -324,7 +312,7 @@ public class ItemMeal extends ItemTerra implements IFood
 	@Override
 	public float getDecayRate(ItemStack is)
 	{
-		return 0;
+		return Food.getDecayRate(is);
 	}
 
 	@Override
@@ -348,76 +336,41 @@ public class ItemMeal extends ItemTerra implements IFood
 	@Override
 	public int getTasteSweet(ItemStack is) {
 		int base = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteSweet"))
+		if (is != null && is.hasTagCompound() && is.getTagCompound().hasKey("tasteSweet"))
 			base = is.getTagCompound().getInteger("tasteSweet");
-		return base + getTasteSweetMod(is);
-	}
-
-	public int getTasteSweetMod(ItemStack is) {
-		int mod = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteSweetMod"))
-			mod = is.getTagCompound().getInteger("tasteSweetMod");
-		return mod;
+		return base + Food.getSweetMod(is);
 	}
 
 	@Override
 	public int getTasteSour(ItemStack is) {
 		int base = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteSour"))
+		if (is != null && is.hasTagCompound() && is.getTagCompound().hasKey("tasteSour"))
 			base = is.getTagCompound().getInteger("tasteSour");
-		return base + getTasteSourMod(is);
-	}
-
-	public int getTasteSourMod(ItemStack is) {
-		int mod = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteSourMod"))
-			mod = is.getTagCompound().getInteger("tasteSourMod");
-		return mod;
+		return base + Food.getSourMod(is);
 	}
 
 	@Override
 	public int getTasteSalty(ItemStack is) {
 		int base = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteSalty"))
-			base = is.getTagCompound().getInteger("tasteSalty");;
-			return base + getTasteSaltyMod(is);
-	}
-
-	public int getTasteSaltyMod(ItemStack is) {
-		int mod = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteSaltyMod"))
-			mod = is.getTagCompound().getInteger("tasteSaltyMod");
-		return mod;
+		if (is != null && is.hasTagCompound() && is.getTagCompound().hasKey("tasteSalty"))
+			base = is.getTagCompound().getInteger("tasteSalty");
+		return base + Food.getSaltyMod(is);
 	}
 
 	@Override
 	public int getTasteBitter(ItemStack is) {
 		int base = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteBitter"))
+		if (is != null && is.hasTagCompound() && is.getTagCompound().hasKey("tasteBitter"))
 			base = is.getTagCompound().getInteger("tasteBitter");
-		return base + getTasteBitterMod(is);
-	}
-
-	public int getTasteBitterMod(ItemStack is) {
-		int mod = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteBitterMod"))
-			mod = is.getTagCompound().getInteger("tasteBitterMod");
-		return mod;
+		return base + Food.getBitterMod(is);
 	}
 
 	@Override
 	public int getTasteSavory(ItemStack is) {
 		int base = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteUmami"))
+		if (is != null && is.hasTagCompound() && is.getTagCompound().hasKey("tasteUmami"))
 			base = is.getTagCompound().getInteger("tasteUmami");
-		return base + getTasteSavoryMod(is);
-	}
-
-	public int getTasteSavoryMod(ItemStack is) {
-		int mod = 0;
-		if(is != null && is.getTagCompound().hasKey("tasteUmamiMod"))
-			mod = is.getTagCompound().getInteger("tasteUmamiMod");
-		return mod;
+		return base + Food.getSavoryMod(is);
 	}
 
 	@Override

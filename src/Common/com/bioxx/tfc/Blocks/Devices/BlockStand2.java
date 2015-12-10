@@ -1,52 +1,37 @@
 package com.bioxx.tfc.Blocks.Devices;
 
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import org.lwjgl.opengl.GL11;
-
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Core.TFC_Textures;
-import com.bioxx.tfc.Items.ItemBlocks.ItemBarrels;
-import com.bioxx.tfc.TileEntities.TEStand;
-import com.bioxx.tfc.api.Constant.Global;
-import com.bioxx.tfc.api.Interfaces.IEquipable;
-import com.bioxx.tfc.api.Interfaces.IMultipleBlock;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Textures;
+import com.bioxx.tfc.TileEntities.TEStand;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
+import com.bioxx.tfc.api.Interfaces.IEquipable;
+import com.bioxx.tfc.api.Interfaces.IMultipleBlock;
+
 public class BlockStand2 extends BlockStand implements IMultipleBlock, IEquipable
 {
-	private final Random random = new Random();
-	String[] woodNames;
+	private String[] woodNames;
 	public BlockStand2()
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 		this.setBlockBounds(0.125f, 0, 0.125f, 0.875f, 1, 0.875f);
 		woodNames = new String[Global.WOOD_ALL.length - 16];
 		System.arraycopy(Global.WOOD_ALL, 16, woodNames, 0,Global.WOOD_ALL.length - 16);
@@ -55,14 +40,14 @@ public class BlockStand2 extends BlockStand implements IMultipleBlock, IEquipabl
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		this.blockIcon = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/BarrelHoop");
+		this.blockIcon = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/BarrelHoop");
 	}
 
 	@Override
 	public IIcon getIcon(int side, int meta)
 	{
 		if(side == 0 || side == 1)
-			return TFC_Textures.InvisibleTexture;
+			return TFC_Textures.invisibleTexture;
 		else
 			return this.blockIcon;
 	}
@@ -92,10 +77,10 @@ public class BlockStand2 extends BlockStand implements IMultipleBlock, IEquipabl
 	{
 		super.onBlockPlacedBy(world, i, j, k, entityliving, is);
 		TileEntity te = world.getTileEntity(i,j,k);
-		if(te != null && te instanceof TEStand)
+		if (te instanceof TEStand)
 		{
 			TEStand tes = (TEStand) te;
-			tes.yaw =(((int)((((entityliving.rotationYaw)%360)+360)+45)/90)*90)%360;
+			tes.yaw = (((int) (entityliving.rotationYaw % 360 + 360 + 45) / 90) * 90) % 360;
 			if(tes.yaw % 180 == 0)
 				tes.yaw+=180;
 			world.setBlock(i,j+1,k,this);
@@ -135,6 +120,6 @@ public class BlockStand2 extends BlockStand implements IMultipleBlock, IEquipabl
 	@Override
 	public Block getBlockTypeForRender()
 	{
-		return TFCBlocks.Planks2;
+		return TFCBlocks.planks2;
 	}
 }

@@ -1,7 +1,5 @@
 package com.bioxx.tfc.Containers;
 
-import com.bioxx.tfc.api.TFC_ItemHeat;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
@@ -10,12 +8,14 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import com.bioxx.tfc.api.TFC_ItemHeat;
+
 public class ContainerTFC extends Container
 {
-	public int bagsSlotNum = 0;
+	public int bagsSlotNum;
 	public EntityPlayer player;
-	protected boolean isLoading = false;
-	protected boolean doItemSaving = false;
+	protected boolean isLoading;
+	protected boolean doItemSaving;
 
 	@Override
 	public boolean canInteractWith(EntityPlayer var1)
@@ -50,7 +50,7 @@ public class ContainerTFC extends Container
 	@Override
 	protected boolean mergeItemStack(ItemStack is, int slotStart, int slotFinish, boolean par4)
 	{
-		boolean var5 = false;
+		boolean merged = false;
 		int slotIndex = slotStart;
 
 		if (par4)
@@ -81,14 +81,26 @@ public class ContainerTFC extends Container
 						is.stackSize = 0;
 						slotstack.stackSize = mergedStackSize;
 						slot.onSlotChanged();
-						var5 = true;
+						merged = true;
 					}
-					else if (slotstack.stackSize < is.getMaxStackSize())
+					else if (slotstack.stackSize < is.getMaxStackSize() && slotstack.stackSize < slot.getSlotStackLimit())
 					{
-						is.stackSize -= is.getMaxStackSize() - slotstack.stackSize;
-						slotstack.stackSize = is.getMaxStackSize();
-						slot.onSlotChanged();
-						var5 = true;
+						// Slot stack size is greater than or equal to the item's max stack size. Most containers are this case.
+						if (slot.getSlotStackLimit() >= is.getMaxStackSize())
+						{
+							is.stackSize -= is.getMaxStackSize() - slotstack.stackSize;
+							slotstack.stackSize = is.getMaxStackSize();
+							slot.onSlotChanged();
+							merged = true;
+						}
+						// Slot stack size is smaller than the item's normal max stack size. Example: Log Piles
+						else if (slot.getSlotStackLimit() < is.getMaxStackSize())
+						{
+							is.stackSize -= slot.getSlotStackLimit() - slotstack.stackSize;
+							slotstack.stackSize = slot.getSlotStackLimit();
+							slot.onSlotChanged();
+							merged = true;
+						}
 					}
 				}
 
@@ -117,7 +129,7 @@ public class ContainerTFC extends Container
 					is.stackSize -= slot.getSlotStackLimit();
 					slot.putStack(copy);
 					slot.onSlotChanged();
-					var5 = true;
+					merged = true;
 					//this.bagsSlotNum = slotIndex;
 					break;
 				}
@@ -126,7 +138,7 @@ public class ContainerTFC extends Container
 					slot.putStack(is.copy());
 					slot.onSlotChanged();
 					is.stackSize = 0;
-					var5 = true;
+					merged = true;
 					break;
 				}
 
@@ -137,7 +149,7 @@ public class ContainerTFC extends Container
 			}
 		}
 
-		return var5;
+		return merged;
 	}
 
 	protected int getSmaller(int i, int j)
@@ -151,8 +163,8 @@ public class ContainerTFC extends Container
 	@Override
 	public void detectAndSendChanges()
 	{
-		boolean _shouldSave = false;
-		boolean _shouldReload = false;
+		boolean shouldSave = false;
+		boolean shouldReload = false;
 
 		for (int i = 0; i < this.inventorySlots.size(); ++i)
 		{
@@ -162,14 +174,14 @@ public class ContainerTFC extends Container
 			if (!areItemStacksEqual(itemstack1, itemstack))
 			{
 				if(doItemSaving && i < inventoryItemStacks.size()-36 && !isLoading)
-					_shouldSave = true;
+					shouldSave = true;
 
 				itemstack1 = itemstack == null ? null : itemstack.copy();
 				if(itemstack1 != null && itemstack1.stackSize == 0)
 					itemstack1 = null;
 				this.inventoryItemStacks.set(i, itemstack1);
 
-				if(_shouldSave)
+				if(shouldSave)
 				{
 					int slotNum = bagsSlotNum + (inventoryItemStacks.size()-36);
 					this.saveContents((ItemStack)inventoryItemStacks.get(slotNum));
@@ -185,14 +197,16 @@ public class ContainerTFC extends Container
 
 		for (int i = 0; i < this.inventorySlots.size()-36; ++i)
 		{
-			ItemStack itemstack = this.loadContents(i);
-			ItemStack itemstack1 = (ItemStack)this.inventoryItemStacks.get(i);//the real invisible item
+			//ItemStack itemstack = this.loadContents(i);
+			//ItemStack itemstack1 = (ItemStack) this.inventoryItemStacks.get(i);//the real invisible item
+			// This method was mysteriously deleted with no trace on github. However adding it back causes a crash.
+			// if (!areItemStacksEqual(itemstack1, itemstack) && player.inventory.getItemStack() == null)
 			{
-				_shouldReload = true;
+				shouldReload = true;
 			}
 		}
 
-		if(_shouldReload && !isLoading)
+		if(shouldReload && !isLoading)
 			reloadContainer();
 
 		this.isLoading = false;
@@ -208,16 +222,16 @@ public class ContainerTFC extends Container
 
 	public static boolean areItemStacksEqual(ItemStack is1, ItemStack is2)
 	{
-		return is1 == null && is2 == null ? true : (is1 != null && is2 != null ? isItemStackEqual(is1, is2) : false);
+		return is1 == null && is2 == null ? true : is1 != null && is2 != null ? isItemStackEqual(is1, is2) : false;
 	}
 
 	public static boolean isItemStackEqual(ItemStack is1, ItemStack is2)
 	{
 		return is1.stackSize != is2.stackSize ? false :
-			(is1.getItem() != is2.getItem() ? false :
-				(is1.getItemDamage() != is2.getItemDamage() ? false :
-					(is1.stackTagCompound == null && is2.stackTagCompound != null ? false :
-						is1.stackTagCompound == null || areCompoundsEqual(is1, is2))));
+			is1.getItem() != is2.getItem() ? false :
+				is1.getItemDamage() != is2.getItemDamage() ? false :
+					is1.stackTagCompound == null && is2.stackTagCompound != null ? false :
+						is1.stackTagCompound == null || areCompoundsEqual(is1, is2);
 	}
 
 	public static boolean areCompoundsEqual(ItemStack is1, ItemStack is2)
@@ -228,13 +242,13 @@ public class ContainerTFC extends Container
 		NBTTagCompound is4Tags = is4.getTagCompound();
 
 		if (is3Tags == null)
-			return (is4Tags == null) || is4Tags.hasNoTags();
+			return is4Tags == null || is4Tags.hasNoTags();
 
 		if (is4Tags == null)
 			return is3Tags.hasNoTags();
 
-		float temp3 = TFC_ItemHeat.GetTemp(is1);
-		float temp4 = TFC_ItemHeat.GetTemp(is2);
+		float temp3 = TFC_ItemHeat.getTemp(is1);
+		float temp4 = TFC_ItemHeat.getTemp(is2);
 		is3Tags.removeTag("temp");
 		is4Tags.removeTag("temp");
 

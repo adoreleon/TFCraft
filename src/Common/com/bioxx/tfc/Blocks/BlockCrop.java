@@ -18,39 +18,40 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Food.CropIndex;
 import com.bioxx.tfc.Food.CropManager;
 import com.bioxx.tfc.Items.Tools.ItemCustomScythe;
 import com.bioxx.tfc.TileEntities.TECrop;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.TFCOptions;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCrop extends BlockContainer
 {
-	IIcon[] iconsCarrots = new IIcon[5];
-	IIcon[] iconsGarlic = new IIcon[5];
-	IIcon[] iconsCorn = new IIcon[6];
-	IIcon[] iconsCabbage = new IIcon[6];
-	IIcon[] iconsTomato = new IIcon[8];
-	IIcon[] iconsPepperRed = new IIcon[7];
-	IIcon[] iconsPepperYellow = new IIcon[7];
-	IIcon[] iconsWheat = new IIcon[8];
-	IIcon[] iconsRye = new IIcon[8];
-	IIcon[] iconsBarley = new IIcon[8];
-	IIcon[] iconsOat = new IIcon[8];
-	IIcon[] iconsRice = new IIcon[8];
-	IIcon[] iconsGreenbean = new IIcon[7];
-	IIcon[] iconsOnion = new IIcon[7];
-	IIcon[] iconsPotato = new IIcon[7];
-	IIcon[] iconsSoybean = new IIcon[7];
-	IIcon[] iconsSquash = new IIcon[7];
-	IIcon[] iconsJute = new IIcon[6];
-	IIcon[] iconsSugarcane = new IIcon[8];
+	private IIcon[] iconsCarrots = new IIcon[5];
+	private IIcon[] iconsGarlic = new IIcon[5];
+	private IIcon[] iconsCorn = new IIcon[6];
+	private IIcon[] iconsCabbage = new IIcon[6];
+	private IIcon[] iconsTomato = new IIcon[8];
+	private IIcon[] iconsPepperRed = new IIcon[7];
+	private IIcon[] iconsPepperYellow = new IIcon[7];
+	private IIcon[] iconsWheat = new IIcon[8];
+	private IIcon[] iconsRye = new IIcon[8];
+	private IIcon[] iconsBarley = new IIcon[8];
+	private IIcon[] iconsOat = new IIcon[8];
+	private IIcon[] iconsRice = new IIcon[8];
+	private IIcon[] iconsGreenbean = new IIcon[7];
+	private IIcon[] iconsOnion = new IIcon[7];
+	private IIcon[] iconsPotato = new IIcon[7];
+	private IIcon[] iconsSoybean = new IIcon[7];
+	private IIcon[] iconsSquash = new IIcon[7];
+	private IIcon[] iconsJute = new IIcon[6];
+	private IIcon[] iconsSugarcane = new IIcon[8];
 
 	public IIcon iconInfest;
 
@@ -71,37 +72,37 @@ public class BlockCrop extends BlockContainer
 	{
 		for(int i = 1; i < 6; i++)
 		{
-			iconsCarrots[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Carrots (" + i + ")");
-			iconsGarlic[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Garlic (" + i + ")");
+			iconsCarrots[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Carrots (" + i + ")");
+			iconsGarlic[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Garlic (" + i + ")");
 		}
 		for(int i = 1; i < 7; i++)
 		{
-			iconsCorn[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Corn (" + i + ")");
-			iconsCabbage[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Cabbage (" + i + ")");
-			iconsJute[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Jute (" + i + ")");
+			iconsCorn[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Corn (" + i + ")");
+			iconsCabbage[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Cabbage (" + i + ")");
+			iconsJute[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Jute (" + i + ")");
 		}
 		for(int i = 1; i < 8; i++)
 		{
-			iconsPepperRed[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/PepperRed (" + i + ")");
-			iconsPepperYellow[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/PepperYellow (" + i + ")");
-			iconsGreenbean[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Greenbean (" + i + ")");
-			iconsOnion[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Onion (" + i + ")");
-			iconsPotato[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Potato (" + i + ")");
-			iconsSquash[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Squash (" + i + ")");
-			iconsSoybean[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Soybean (" + i + ")");
+			iconsPepperRed[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/PepperRed (" + i + ")");
+			iconsPepperYellow[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/PepperYellow (" + i + ")");
+			iconsGreenbean[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Greenbean (" + i + ")");
+			iconsOnion[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Onion (" + i + ")");
+			iconsPotato[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Potato (" + i + ")");
+			iconsSquash[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Squash (" + i + ")");
+			iconsSoybean[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Soybean (" + i + ")");
 		}
 		for(int i = 1; i < 9; i++)
 		{
-			iconsTomato[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Tomato (" + i + ")");
-			iconsWheat[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Wheat (" + i + ")");
-			iconsRye[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Rye (" + i + ")");
-			iconsBarley[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Barley (" + i + ")");
-			iconsOat[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Oat (" + i + ")");
-			iconsRice[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Rice (" + i + ")");
-			iconsSugarcane[i - 1] = register.registerIcon(Reference.ModID + ":" + "plants/crops/Sugarcane (" + i + ")");
+			iconsTomato[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Tomato (" + i + ")");
+			iconsWheat[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Wheat (" + i + ")");
+			iconsRye[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Rye (" + i + ")");
+			iconsBarley[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Barley (" + i + ")");
+			iconsOat[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Oat (" + i + ")");
+			iconsRice[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Rice (" + i + ")");
+			iconsSugarcane[i - 1] = register.registerIcon(Reference.MOD_ID + ":" + "plants/crops/Sugarcane (" + i + ")");
 		}
 
-		iconInfest = register.registerIcon(Reference.ModID + ":bugs");
+		iconInfest = register.registerIcon(Reference.MOD_ID + ":bugs");
 	}
 
 	@Override
@@ -171,41 +172,11 @@ public class BlockCrop extends BlockContainer
 		TECrop te = (TECrop) world.getTileEntity(x, y, z);
 		CropIndex crop = CropManager.getInstance().getCropFromId(te.cropId);
 
-		/*if(crop != null && !world.isRemote)
-		{
-			if(crop.cropId == 4 && te.growth >= 7)
-			{
-				te.onHarvest(world, entityplayer, false);
-				te.growth = 4;
-				world.markBlockForUpdate(i, j, k);
-				te.broadcastPacketInRange();
-				return true;
-			}
-			else if((crop.cropId == 19 || crop.cropId == 20) && te.growth >= 5 && te.growth < 6)
-			{
-				te.onHarvest(world, entityplayer, false);
-				te.growth = 3;
-				world.markBlockForUpdate(i, j, k);
-				te.broadcastPacketInRange();
-				return true;
-			}
-			else if((crop.cropId == 19 || crop.cropId == 20) && te.growth >= 6)
-			{
-				te.onHarvest(world, entityplayer, false);
-				te.growth = 3;
-				world.markBlockForUpdate(i, j, k);
-				te.broadcastPacketInRange();
-				return true;
-			}
-
-			te.broadcastPacketInRange();
-		}*/
-
 		if(TFCOptions.enableDebugMode)
 		{
-			System.out.println("Crop ID: " + te.cropId);
-			System.out.println("Growth: " + te.growth);
-			System.out.println("Est Growth: " + te.getEstimatedGrowth(crop));
+			TerraFirmaCraft.LOG.info("Crop ID: " + te.cropId);
+			TerraFirmaCraft.LOG.info("Growth: " + te.growth);
+			TerraFirmaCraft.LOG.info("Est Growth: " + te.getEstimatedGrowth(crop));
 		}
 
 		return false;
@@ -295,9 +266,7 @@ public class BlockCrop extends BlockContainer
 	@Override
 	public boolean canBlockStay(World world, int x, int y, int z)
 	{
-		if (!(world.getBlock(x, y - 1, z) == TFCBlocks.tilledSoil || world.getBlock(x, y - 1, z) == TFCBlocks.tilledSoil2 || TFC_Core.isSoil(world.getBlock(x, y - 1, z))))
-			return false;
-		return true;
+		return TFC_Core.isFarmland(world.getBlock(x, y - 1, z)) || TFC_Core.isSoil(world.getBlock(x, y - 1, z));
 	}
 
 	@Override

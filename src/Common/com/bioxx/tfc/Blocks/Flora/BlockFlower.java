@@ -13,14 +13,14 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Blocks.BlockTerra;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockFlower extends BlockTerra
 {
@@ -34,7 +34,7 @@ public class BlockFlower extends BlockTerra
 		this.setTickRandomly(true);
 		float var4 = 0.2F;
 		this.setBlockBounds(0.5F - var4, 0.0F, 0.5F - var4, 0.5F + var4, var4 * 3.0F, 0.5F + var4);
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 		flowerNames = new String[]{"flower_dandelion","flower_nasturtium", "flower_meads_milkweed", "flower_tropical_milkweed", "flower_butterfly_milkweed", "flower_calendula"};
 	}
 
@@ -86,7 +86,7 @@ public class BlockFlower extends BlockTerra
 
 		for (int i = 0; i < this.icons.length; ++i)
 		{
-			this.icons[i] = register.registerIcon(Reference.ModID+":plants/"+flowerNames[i]);
+			this.icons[i] = register.registerIcon(Reference.MOD_ID+":plants/"+flowerNames[i]);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class BlockFlower extends BlockTerra
 
 	protected boolean canThisPlantGrowOnThisBlock(Block block)
 	{
-		return TFC_Core.isSoil(block);
+		return TFC_Core.isSoil(block) || TFC_Core.isFarmland(block);
 	}
 
 	@Override

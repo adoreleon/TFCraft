@@ -17,21 +17,23 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Blocks.BlockTerra;
-import com.bioxx.tfc.Core.Recipes;
-import com.bioxx.tfc.api.Constant.Global;
+import net.minecraftforge.oredict.OreDictionary;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Blocks.BlockTerra;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.Constant.Global;
+
 public class BlockLogNatural extends BlockTerra
 {
-	String[] woodNames;
-	int searchDist = 10;
-	static int damage = 0;
-	boolean isStone = false;
+	protected String[] woodNames;
+	private int searchDist = 10;
+	private static int damage;
+	private static int logs;
+	private boolean isStone;
 	public IIcon[] sideIcons;
 	public IIcon[] innerIcons;
 	public IIcon[] rotatedSideIcons;
@@ -40,11 +42,11 @@ public class BlockLogNatural extends BlockTerra
 	{
 		super(Material.wood);
 		this.setTickRandomly(true);
-		woodNames = Global.WOOD_ALL.clone();
+		this.woodNames = new String[16];
 		System.arraycopy(Global.WOOD_ALL, 0, woodNames, 0, 16);
-		sideIcons = new IIcon[woodNames.length];
-		innerIcons = new IIcon[woodNames.length];
-		rotatedSideIcons = new IIcon[woodNames.length];
+		this.sideIcons = new IIcon[woodNames.length];
+		this.innerIcons = new IIcon[woodNames.length];
+		this.rotatedSideIcons = new IIcon[woodNames.length];
 	}
 
 	@Override
@@ -54,17 +56,22 @@ public class BlockLogNatural extends BlockTerra
 		{
 			if(!world.getBlock(x, y - 1, z).isOpaqueCube())
 			{
-				if(world.getBlock(x + 1, y, z) != this && world.getBlock(x - 1, y, z) != this &&
-						world.getBlock(x, y, z + 1) != this && world.getBlock(x, y, z - 1) != this &&
-						world.getBlock(x + 1, y, z + 1) != this && world.getBlock(x + 1, y, z - 1) != this &&
-						world.getBlock(x - 1, y, z + 1) != this && world.getBlock(x - 1, y, z - 1) != this &&
-						world.getBlock(x + 1, y - 1, z) != this && world.getBlock(x - 1, y - 1, z) != this &&
-						world.getBlock(x, y - 1, z + 1) != this && world.getBlock(x, y - 1, z - 1) != this &&
-						world.getBlock(x + 1, y - 1, z + 1) != this && world.getBlock(x + 1, y - 1, z - 1) != this &&
-						world.getBlock(x - 1, y - 1, z + 1) != this && world.getBlock(x - 1, y - 1, z - 1) != this)
+				if (noLogsNearby(world, x + 1, y, z) && noLogsNearby(world, x - 1, y, z) &&
+					noLogsNearby(world, x, y, z + 1) && noLogsNearby(world, x, y, z - 1) &&
+					noLogsNearby(world, x + 1, y, z + 1) && noLogsNearby(world, x + 1, y, z - 1) &&
+					noLogsNearby(world, x - 1, y, z + 1) && noLogsNearby(world, x - 1, y, z - 1) &&
+					noLogsNearby(world, x + 1, y - 1, z) && noLogsNearby(world, x - 1, y - 1, z) &&
+					noLogsNearby(world, x, y - 1, z + 1) && noLogsNearby(world, x, y - 1, z - 1) &&
+					noLogsNearby(world, x + 1, y - 1, z + 1) && noLogsNearby(world, x + 1, y - 1, z - 1) &&
+					noLogsNearby(world, x - 1, y - 1, z + 1) && noLogsNearby(world, x - 1, y - 1, z - 1))
 					world.setBlock(x, y, z, Blocks.air, 0, 0x2);
 			}
 		}
+	}
+
+	private boolean noLogsNearby(World world, int x, int y, int z)
+	{
+		return world.blockExists(x, y, z) && world.getBlock(x, y, z) != this;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -86,9 +93,7 @@ public class BlockLogNatural extends BlockTerra
 
 	private boolean checkOut(World world, int x, int y, int z, int meta)
 	{
-		if(world.getBlock(x, y, z) == this && world.getBlockMetadata(x, y, z) == meta)
-			return true;
-		return false;
+		return world.getBlock(x, y, z) == this && world.getBlockMetadata(x, y, z) == meta;
 	}
 
 	@Override
@@ -101,9 +106,7 @@ public class BlockLogNatural extends BlockTerra
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int side, int meta)
 	{
-		if (side == 1)
-			return innerIcons[meta];
-		if (side == 0)
+		if (side == 0 || side == 1)
 			return innerIcons[meta];
 		return sideIcons[meta];
 	}
@@ -113,9 +116,9 @@ public class BlockLogNatural extends BlockTerra
 	{
 		for(int i = 0; i < woodNames.length; i++)
 		{
-			sideIcons[i] = reg.registerIcon(Reference.ModID + ":" + "wood/trees/" + woodNames[i] + " Log");
-			innerIcons[i] = reg.registerIcon(Reference.ModID + ":" + "wood/trees/" + woodNames[i] + " Log Top");
-			rotatedSideIcons[i] = reg.registerIcon(Reference.ModID + ":" + "wood/trees/" + woodNames[i] + " Log Side");
+			sideIcons[i] = reg.registerIcon(Reference.MOD_ID + ":" + "wood/trees/" + woodNames[i] + " Log");
+			innerIcons[i] = reg.registerIcon(Reference.MOD_ID + ":" + "wood/trees/" + woodNames[i] + " Log Top");
+			rotatedSideIcons[i] = reg.registerIcon(Reference.MOD_ID + ":" + "wood/trees/" + woodNames[i] + " Log Side");
 		}
 	}
 
@@ -123,53 +126,64 @@ public class BlockLogNatural extends BlockTerra
 	public void harvestBlock(World world, EntityPlayer entityplayer, int x, int y, int z, int meta)
 	{		
 		//we need to make sure the player has the correct tool out
-		boolean isAxeorSaw = false;
+		boolean isAxe = false;
 		boolean isHammer = false;
 		ItemStack equip = entityplayer.getCurrentEquippedItem();
 		if(!world.isRemote)
 		{
-			if(equip!=null)
+			if (equip != null)
 			{
-				for(int cnt = 0; cnt < Recipes.Axes.length && !isAxeorSaw; cnt++)
+				int[] equipIDs = OreDictionary.getOreIDs(equip);
+				for (int id : equipIDs)
 				{
-					if(equip.getItem() == Recipes.Axes[cnt])
+					String name = OreDictionary.getOreName(id);
+					if (name.startsWith("itemAxe"))
 					{
-						isAxeorSaw = true;
-						if(cnt < 4)
+						isAxe = true;
+						if (name.startsWith("itemAxeStone"))
+						{
 							isStone = true;
+							break;
+						}
 					}
-				}
-				/*for(int cnt = 0; cnt < Recipes.Saws.length && !isAxeorSaw; cnt++)
-				{
-					if(equip.getItem() == Recipes.Saws[cnt])
+					else if (name.startsWith("itemHammer"))
 					{
-						isAxeorSaw = true;
-					}
-				}*/
-				for(int cnt = 0; cnt < Recipes.Hammers.length && !isAxeorSaw; cnt++)
-				{
-					if(equip.getItem() == Recipes.Hammers[cnt])
 						isHammer = true;
+						break;
+					}
 				}
-			}
-			if(isAxeorSaw)
-			{
-				damage = -1;
-				ProcessTree(world, x, y, z, meta, equip);
 
-				if(damage + equip.getItemDamage() > equip.getMaxDamage())
+				if (isAxe)
 				{
-					int ind = entityplayer.inventory.currentItem;
-					entityplayer.inventory.setInventorySlotContents(ind, null);
-					world.setBlock(x, y, z, this, meta, 0x2);
+					damage = -1;
+					processTree(world, x, y, z, meta, equip);
+
+					if (damage + equip.getItemDamage() > equip.getMaxDamage())
+					{
+						int ind = entityplayer.inventory.currentItem;
+						entityplayer.inventory.setInventorySlotContents(ind, null);
+						world.setBlock(x, y, z, this, meta, 0x2);
+					}
+					else
+						equip.damageItem(damage, entityplayer);
+
+					int smallStack = logs % 16;
+					dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.logs, smallStack, damageDropped(meta)));
+					logs -= smallStack;
+
+					// In theory this section should never be triggered since the full stacks are dropped higher up the tree, but keeping it here just in case.
+					while (logs > 0)
+					{
+						dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.logs, 16, damageDropped(meta)));
+						logs -= 16;
+					}
+
 				}
-				else
-					equip.damageItem(damage, entityplayer);
-			}
-			else if(isHammer)
-			{
-				EntityItem item = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.Stick, 1 + world.rand.nextInt(3)));
-				world.spawnEntityInWorld(item);
+				else if (isHammer)
+				{
+					EntityItem item = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.stick, 1 + world.rand.nextInt(3)));
+					world.spawnEntityInWorld(item);
+				}
 			}
 			else
 				world.setBlock(x, y, z, this, meta, 0x2);
@@ -198,17 +212,17 @@ public class BlockLogNatural extends BlockTerra
 	@Override
 	public void onBlockDestroyedByExplosion(World world, int x, int y, int z, Explosion ex)
 	{
-		ProcessTree(world, x, y, z, world.getBlockMetadata(x, y, z), null);
+		processTree(world, x, y, z, world.getBlockMetadata(x, y, z), null);
 	}
 
-	private void ProcessTree(World world, int x, int y, int z, ItemStack is)
+	/*private void processTree(World world, int x, int y, int z, ItemStack is)
 	{
 		//TODO Rewrite the treecap algorithm using a list of coords instead of the ugly array. Shoudl also use a maxmium list size to prevent 
 		//any memory issues and should take shortcuts to find the top of the tree and search down
-	}
+	}*/
 
 	@Deprecated
-	private void ProcessTree(World world, int x, int y, int z, int meta, ItemStack is)
+	private void processTree(World world, int x, int y, int z, int meta, ItemStack is)
 	{
 		boolean[][][] checkArray = new boolean[searchDist * 2 + 1][256][searchDist * 2 + 1];
 		scanLogs(world, x, y, z, meta, checkArray, (byte)0, (byte)0, (byte)0, is);
@@ -217,7 +231,7 @@ public class BlockLogNatural extends BlockTerra
 	@Override
 	public Item getItemDropped(int i, Random random, int j)
 	{
-		return TFCItems.Logs;
+		return TFCItems.logs;
 	}
 
 	@Override
@@ -239,12 +253,12 @@ public class BlockLogNatural extends BlockTerra
 		if(!check)
 		{
 			world.setBlockToAir(x, y, z);
-			dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.Logs, 1, meta));
+			dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.logs, 1, meta));
 		}
 	}
 
 
-	private void scanLogs(World world, int i, int j, int k, int l, boolean[][][] checkArray, byte x, byte y, byte z, ItemStack stack)
+	private void scanLogs(World world, int i, int j, int k, int meta, boolean[][][] checkArray, byte x, byte y, byte z, ItemStack stack)
 	{
 		if(y >= 0 && j + y < 256)
 		{
@@ -259,10 +273,10 @@ public class BlockLogNatural extends BlockTerra
 					{
 						if(Math.abs(x + offsetX) <= searchDist && j + y + offsetY < 256 && Math.abs(z + offsetZ) <= searchDist)
 						{
-							if(checkOut(world, i + x + offsetX, j + y + offsetY, k + z + offsetZ, l)
+							if(checkOut(world, i + x + offsetX, j + y + offsetY, k + z + offsetZ, meta)
 									&& !(offsetX == 0 && offsetY == 0 && offsetZ == 0)
 									&& !checkArray[x + offsetX + searchDist][y + offsetY][z + offsetZ + searchDist])
-								scanLogs(world,i, j, k, l, checkArray, (byte)(x + offsetX),(byte)(y + offsetY),(byte)(z + offsetZ), stack);
+								scanLogs(world,i, j, k, meta, checkArray, (byte)(x + offsetX),(byte)(y + offsetY),(byte)(z + offsetZ), stack);
 						}
 					}
 				}
@@ -274,15 +288,25 @@ public class BlockLogNatural extends BlockTerra
 				if(damage+stack.getItemDamage() <= stack.getMaxDamage())
 				{
 					world.setBlock(i + x, j + y, k + z, Blocks.air, 0, 0x2);
-					if((isStone && world.rand.nextInt(10) != 0) || !isStone)
-						dropBlockAsItem(world, i + x, j + y, k + z, new ItemStack(TFCItems.Logs, 1, damageDropped(l)));
+					if (!isStone || world.rand.nextInt(10) != 0)
+						logs++;
+					if (logs >= 16)
+					{
+						dropBlockAsItem(world, i + x, j + y, k + z, new ItemStack(TFCItems.logs, 16, damageDropped(meta)));
+						logs -= 16;						
+					}
 					notifyLeaves(world, i + x, j + y, k + z);
 				}
 			}
 			else
 			{
 				world.setBlockToAir(i, j, k);
-				dropBlockAsItem(world, i, j, k, new ItemStack(TFCItems.Logs, 1, damageDropped(l)));
+				logs++;
+				if (logs >= 16)
+				{
+					dropBlockAsItem(world, i, j, k, new ItemStack(TFCItems.logs, 16, damageDropped(meta)));
+					logs -= 16;						
+				}
 				notifyLeaves(world, i + x, j + y, k + z);
 			}
 		}

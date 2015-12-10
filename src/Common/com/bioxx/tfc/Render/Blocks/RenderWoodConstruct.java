@@ -4,10 +4,10 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.world.IBlockAccess;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TileEntities.TileEntityWoodConstruct;
-
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
+import com.bioxx.tfc.TileEntities.TEWoodConstruct;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 {
@@ -25,11 +25,11 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 
 	private void renderOld(int i, int j, int k, Block block, RenderBlocks renderer)
 	{
-		TileEntityWoodConstruct te = (TileEntityWoodConstruct) renderer.blockAccess.getTileEntity(i, j, k);
-		int md = renderer.blockAccess.getBlockMetadata(i, j, k);
+		TEWoodConstruct te = (TEWoodConstruct) renderer.blockAccess.getTileEntity(i, j, k);
+		//int md = renderer.blockAccess.getBlockMetadata(i, j, k);
 
-		int d = TileEntityWoodConstruct.PlankDetailLevel;
-		int dd = TileEntityWoodConstruct.PlankDetailLevel * TileEntityWoodConstruct.PlankDetailLevel;
+		int d = TEWoodConstruct.plankDetailLevel;
+		int dd = TEWoodConstruct.plankDetailLevel * TEWoodConstruct.plankDetailLevel;
 		int dd2 = dd * 2;
 
 		float div = 1f / d;
@@ -47,7 +47,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 		boolean render = false;
 		for(int index = 0; index < dd;)
 		{
-			int in3 = (index >> 3);
+			int in3 = index >> 3;
 			if(te.solidCheck[in3])
 			{
 				minX = 0;
@@ -57,7 +57,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 				minZ = div * in3;
 				maxZ = minZ + div;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index]);
 				index++;
 				render = true;
 			}
@@ -65,12 +65,12 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 			{
 				minX = 0;
 				maxX = 1;
-				minY = div * ((index & 7)+in3);
+				minY = div * ((index & 7) + in3); //NOPMD
 				maxY = minY + div;
 				minZ = 0;
 				maxZ = 1;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index]);
 				index+=8;
 				render = true;
 			}
@@ -83,7 +83,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 				minZ = div * in3;
 				maxZ = minZ + div;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index]);
 				index++;
 				render = true;
 			}
@@ -115,7 +115,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 				minZ = div * (index >> 3);
 				maxZ = minZ + div;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index + dd]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index + dd]);
 				index+=8;
 				render = true;
 			}
@@ -128,7 +128,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 				minZ = div * (index >> 3);
 				maxZ = minZ + div;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index + dd]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index + dd]);
 				index++;
 				render = true;
 			}
@@ -167,7 +167,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 				minZ = 0;
 				maxZ = 1;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index + dd2]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index + dd2]);
 				index+=8;
 				render = true;
 			}
@@ -180,7 +180,7 @@ public class RenderWoodConstruct implements ISimpleBlockRenderingHandler
 				minZ = 0;
 				maxZ = 1;
 				if(!breaking)
-					renderer.overrideBlockTexture = TFCBlocks.WoodConstruct.getIcon(0, te.woodTypes[index + dd2]);
+					renderer.overrideBlockTexture = TFCBlocks.woodConstruct.getIcon(0, te.woodTypes[index + dd2]);
 				index++;
 				render = true;
 			}

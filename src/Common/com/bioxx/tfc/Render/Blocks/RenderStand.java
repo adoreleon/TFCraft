@@ -5,18 +5,18 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
+import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.TFCBlocks;
-
-import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class RenderStand  implements ISimpleBlockRenderingHandler
 {
-	static float pixel3 = 3f/16f;
-	static float pixel5 = 5f/16f;
-	static float pixel12 = 12f/16f;
-	static float pixel14 = 14f/16f;
+	/*private static float pixel3 = 3f / 16f;
+	private static float pixel5 = 5f / 16f;
+	private static float pixel12 = 12f / 16f;
+	private static float pixel14 = 14f / 16f;*/
 
 	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int i, int j, int k, Block block, int modelId, RenderBlocks renderer)
@@ -35,8 +35,8 @@ public class RenderStand  implements ISimpleBlockRenderingHandler
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderer)
 	{
-		Block blockToRender = block == TFCBlocks.ArmourStand ? TFCBlocks.Planks : TFCBlocks.Planks2;
-		Block woodblock = block == TFCBlocks.ArmourStand ? TFCBlocks.WoodSupportH : TFCBlocks.WoodSupportH2;
+		Block blockToRender = block == TFCBlocks.armorStand ? TFCBlocks.planks : TFCBlocks.planks2;
+		Block woodblock = block == TFCBlocks.armorStand ? TFCBlocks.woodSupportH : TFCBlocks.woodSupportH2;
 
 		float yScale = 0.7f;
 		float blockScale = 0.5f;

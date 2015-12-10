@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
@@ -18,29 +19,29 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Textures;
 import com.bioxx.tfc.TileEntities.TEMetalTrapDoor;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockMetalTrapDoor extends BlockTerraContainer
 {
 	public IIcon[] icons;
-	public String[] metalNames = {"Bismuth","Bismuth Bronze","Black Bronze","Black Steel","Blue Steel","Brass","Bronze",
+	public static String[] metalNames = {"Bismuth","Bismuth Bronze","Black Bronze","Black Steel","Blue Steel","Brass","Bronze",
 			"Copper","Gold","Wrought Iron","Lead","Nickel","Pig Iron","Platinum","Red Steel","Rose Gold","Silver","Steel",
-			"Sterling Silver","Tin","Zinc","Unknown"};
+			"Sterling Silver","Tin","Zinc"/*,"Unknown"*/}; // There is no trapdoor anvil recipe involving unknown ingots.
 
 	public BlockMetalTrapDoor()
 	{
 		super(Material.iron);
-		float f = 0.5F;
-		float f1 = 1.0F;
+		//float f = 0.5F;
+		//float f1 = 1.0F;
 		this.setBlockBounds(0, 0, 0, 0.001f, 0.001f, 0.001f);
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 	}
 
 	@Override
@@ -56,9 +57,11 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 	 */
 	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List list)
 	{
-		for(int j = 0; j < metalNames.length; j++)
-			for(int i = 0; i < metalNames.length; i++)
-				list.add(new ItemStack(this,1,i+(j<<5)));
+		for (int i = 0; i < metalNames.length; i++)
+		{
+			// Only add trap doors where both pieces are the same metal to reduce clutter from the creative menu and NEI. Other combinations can still be created.
+			list.add(new ItemStack(this, 1, i + (i << 5)));
+		}
 	}
 
 	@Override
@@ -171,6 +174,7 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 						}
 						default:
 							fx2 = f;
+							break;
 						}
 					}
 					else if(hinge == 1)
@@ -185,6 +189,7 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 						}
 						default:
 							fz2 = f;
+							break;
 						}
 					}
 					else if(hinge == 2)
@@ -199,6 +204,7 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 						}
 						default:
 							fx = 1-f;
+							break;
 						}
 					}
 					else if(hinge == 3)
@@ -219,6 +225,7 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 						}
 						default:
 							fz = 1-f;
+							break;
 						}
 					}
 				}
@@ -317,7 +324,7 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 	{
 		icons = new IIcon[metalNames.length];
 		for(int i = 0; i < icons.length; i++)
-			icons[i] = registerer.registerIcon(Reference.ModID + ":" + "metal/"+metalNames[i]+" Trap Door");
+			icons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "metal/"+metalNames[i]+" Trap Door");
 	}
 
 	@Override
@@ -328,7 +335,7 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 		if(te!= null && te.sheetStack != null)
 			return icons[te.sheetStack.getItemDamage() & 31];
 		else
-			return TFC_Textures.InvisibleTexture;
+			return TFC_Textures.invisibleTexture;
 	}
 
 	@Override
@@ -336,5 +343,19 @@ public class BlockMetalTrapDoor extends BlockTerraContainer
 	public IIcon getIcon(int side, int meta)
 	{
 		return icons[meta&31];
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
+	{
+		return true;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
+	{
+		return world.getBlock(x, y, z) == this;
 	}
 }

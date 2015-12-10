@@ -16,18 +16,18 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
-import com.bioxx.tfc.TileEntities.TileEntitySapling;
+import com.bioxx.tfc.TileEntities.TESapling;
 import com.bioxx.tfc.WorldGen.TFCBiome;
 import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Constant.Global;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockSapling extends BlockTerraContainer
 {
@@ -42,7 +42,7 @@ public class BlockSapling extends BlockTerraContainer
 		this.woodNames = new String[16];
 		System.arraycopy(Global.WOOD_ALL, 0, this.woodNames, 0, 16);
 		this.setTickRandomly(true);
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 		this.icons = new IIcon[woodNames.length];
 	}
 
@@ -70,7 +70,7 @@ public class BlockSapling extends BlockTerraContainer
 	public void registerBlockIcons(IIconRegister registerer)
 	{
 		for(int i = 0; i < woodNames.length; i++)
-			this.icons[i] = registerer.registerIcon(Reference.ModID + ":" + "wood/trees/" + this.woodNames[i] + " Sapling");
+			this.icons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "wood/trees/" + this.woodNames[i] + " Sapling");
 
 	}
 
@@ -96,13 +96,11 @@ public class BlockSapling extends BlockTerraContainer
 		}
 	}
 
-	@Override
-	public void updateTick(World world, int i, int j, int k, Random rand)
-	{
-		if (world.isRemote)
-			return;
 
-		super.updateTick(world, i, j, k, rand);
+	// Set the sapling growth timer the moment it is planted, instead of the first random tick it gets after being planted.
+	@Override
+	public void onBlockAdded(World world, int i, int j, int k)
+	{
 		int meta = world.getBlockMetadata(i, j, k);
 		float growSpeed = 1;
 		if(meta == 1 || meta == 11)
@@ -112,14 +110,31 @@ public class BlockSapling extends BlockTerraContainer
 		else if(meta == 9 || meta == 14|| meta == 15)
 			growSpeed = 1.6f;
 
-		TileEntitySapling te = (TileEntitySapling) world.getTileEntity(i, j, k);
+		if (world.getTileEntity(i, j, k) instanceof TESapling)
+		{
+			TESapling te = (TESapling) world.getTileEntity(i, j, k);
 
-		if(te != null && te.growTime == 0)
-			te.growTime = (long) (((TFC_Time.getTotalTicks() + (TFC_Time.dayLength * 7) * growSpeed) + (world.rand.nextFloat() * TFC_Time.dayLength)) * TFCOptions.saplingTimerMultiplier);
+			// Set the growTime tick timestamp to be 7-11.2 days times config multiplier from now, plus up to an extra day.
+			if (te != null && te.growTime == 0)
+				te.growTime = (long) (TFC_Time.getTotalTicks() + (TFC_Time.DAY_LENGTH * 7 * growSpeed * TFCOptions.saplingTimerMultiplier) + (world.rand.nextFloat() * TFC_Time.DAY_LENGTH));
+		}
+	}
 
-		if (world.getBlockLightValue(i, j + 1, k) >= 9 && te!= null && TFC_Time.getTotalTicks() > te.growTime)
-			growTree(world, i, j, k, rand);
+	@Override
+	public void updateTick(World world, int i, int j, int k, Random rand)
+	{
+		if (world.isRemote)
+			return;
 
+		super.updateTick(world, i, j, k, rand);
+
+		if (world.getTileEntity(i, j, k) instanceof TESapling)
+		{
+			TESapling te = (TESapling) world.getTileEntity(i, j, k);
+
+			if (world.getBlockLightValue(i, j + 1, k) >= 9 && te != null && TFC_Time.getTotalTicks() > te.growTime)
+				growTree(world, i, j, k, rand);
+		}
 		//this.checkChange(world, i, j, k);
 	}
 
@@ -197,7 +212,7 @@ public class BlockSapling extends BlockTerraContainer
 	@Override
 	public TileEntity createNewTileEntity(World var1, int var2)
 	{
-		return new TileEntitySapling();
+		return new TESapling();
 	}
 
 	protected void checkChange(World world, int x, int y, int z)

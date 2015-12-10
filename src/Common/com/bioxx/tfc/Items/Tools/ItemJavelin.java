@@ -17,10 +17,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Entities.EntityJavelin;
 import com.bioxx.tfc.Items.ItemQuiver;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
 import com.bioxx.tfc.api.Enums.EnumAmmo;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
@@ -44,7 +44,7 @@ public class ItemJavelin extends ItemTerraTool implements ICausesDamage, IProjec
 		this.weaponDamage = damage;
 		this.weaponRangeDamage = damage;
 		this.setMaxDamage(par2EnumToolMaterial.getMaxUses()/2);
-		setCreativeTab(TFCTabs.TFCWeapons);
+		setCreativeTab(TFCTabs.TFC_WEAPONS);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class ItemJavelin extends ItemTerraTool implements ICausesDamage, IProjec
 		name = name.replace("IgEx ", "");
 		name = name.replace("Sed ", "");
 		name = name.replace("MM ", "");
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + "tools/" + name);
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/" + name);
 	}
 
 	/**
@@ -95,9 +95,7 @@ public class ItemJavelin extends ItemTerraTool implements ICausesDamage, IProjec
 	public boolean onItemUse(ItemStack itemStack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		Block b = world.getBlock(x, y, z);
-		if (b == TFCBlocks.ToolRack)
-			return true;
-		return false;
+		return b == TFCBlocks.toolRack;
 	}
 
 	/**
@@ -122,7 +120,9 @@ public class ItemJavelin extends ItemTerraTool implements ICausesDamage, IProjec
 			float force = Math.min(var6/20.0f, 1.0f);
 
 			EntityJavelin javelin = new EntityJavelin(world, player, 1.5f*force);
-			javelin.setDamage(getRangedDamage());
+			javelin.setDamage(getRangedDamage(itemstack));
+			javelin.duraBuff = AnvilManager.getDurabilityBuff(itemstack);
+			javelin.damageBuff = AnvilManager.getDamageBuff(itemstack);
 
 			int var9 = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, itemstack);
 
@@ -210,15 +210,18 @@ public class ItemJavelin extends ItemTerraTool implements ICausesDamage, IProjec
 	}
 
 	@Override
-	public EnumDamageType GetDamageType() 
+	public EnumDamageType getDamageType() 
 	{
 		return EnumDamageType.PIERCING;
 	}
 
 	@Override
-	public float getRangedDamage() 
+	public float getRangedDamage(ItemStack is)
 	{
-		return weaponRangeDamage;
+		if (is != null)
+			return weaponRangeDamage + (weaponRangeDamage * AnvilManager.getDamageBuff(is));
+		else
+			return weaponRangeDamage;
 	}
 
 	@Override

@@ -1,13 +1,14 @@
 package com.bioxx.tfc.api.Util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.client.settings.KeyBinding;
 
 public class KeyBindings
 {
-	public static ArrayList<KeyBinding> keyBindingsList;
-	public static ArrayList<Boolean> isRepeatingList;
+	public static List<KeyBinding> keyBindingsList;
+	public static List<Boolean> isRepeatingList;
 
 	public static void addKeyBinding(String name, int value, String category)
 	{
@@ -16,11 +17,11 @@ public class KeyBindings
 		keyBindingsList.add(new KeyBinding(name, value, category));
 	}
 
-	public static void addKeyBinding(KeyBinding KB)
+	public static void addKeyBinding(KeyBinding binding)
 	{
 		if (keyBindingsList == null)
 			keyBindingsList = new ArrayList<KeyBinding>();
-		keyBindingsList.add(KB);
+		keyBindingsList.add(binding);
 	}
 
 	public static void addIsRepeating(boolean value)

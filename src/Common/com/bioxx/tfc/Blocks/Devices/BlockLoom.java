@@ -1,7 +1,7 @@
 package com.bioxx.tfc.Blocks.Devices;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -21,28 +21,27 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Textures;
 import com.bioxx.tfc.Items.ItemBlocks.ItemBarrels;
 import com.bioxx.tfc.TileEntities.TELoom;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Constant.Global;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockLoom extends BlockTerraContainer
 {
-	private final Random random = new Random();
 	private String[] woodNames;
 
 	public BlockLoom()
 	{
 		super(Material.wood);
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 		this.setBlockBounds(0.1f, 0, 0.1f, 0.9f, 1, 0.9f);
 		woodNames = Global.WOOD_ALL;
 	}
@@ -50,7 +49,7 @@ public class BlockLoom extends BlockTerraContainer
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		blockIcon = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/BarrelHoop");
+		blockIcon = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/BarrelHoop");
 	}
 
 	@Override
@@ -61,13 +60,13 @@ public class BlockLoom extends BlockTerraContainer
 		{
 			side-=10;
 			if(side == 0 || side == 1)
-				return TFC_Textures.InvisibleTexture;
+				return TFC_Textures.invisibleTexture;
 			else
 				return blockIcon;
 		}
 		if(meta<16)
-			return TFCBlocks.Planks.getIcon(side, meta);
-		return TFCBlocks.Planks2.getIcon(side, meta-16);
+			return TFCBlocks.planks.getIcon(side, meta);
+		return TFCBlocks.planks2.getIcon(side, meta-16);
 
 
 	}
@@ -76,7 +75,7 @@ public class BlockLoom extends BlockTerraContainer
 	public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side)
 	{
 		if(side == 0 || side == 1)
-			return TFC_Textures.InvisibleTexture;
+			return TFC_Textures.invisibleTexture;
 		else
 			return blockIcon;
 	}
@@ -152,8 +151,8 @@ public class BlockLoom extends BlockTerraContainer
 		int j = 0;
 		String s = this.getUnlocalizedName();
 		for(int i = 0; i < woodNames.length;i++)
-			j = s.substring(s.indexOf("l", s.length())) == ((ItemBarrels)(TFCItems.Loom)).MetaNames[i] ? i : 0;
-		return new ItemStack(TFCItems.Loom, 1, j);
+			j = s.substring(s.indexOf('l', s.length())) == ((ItemBarrels) (TFCItems.loom)).metaNames[i] ? i : 0;
+		return new ItemStack(TFCItems.loom, 1, j);
 	}
 
 	/**
@@ -162,10 +161,10 @@ public class BlockLoom extends BlockTerraContainer
 	@Override
 	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
 	{
-		TELoom te = (TELoom)world.getTileEntity(x, y, z);
-
-		if (te != null)
+		if (world.getTileEntity(x, y, z) instanceof TELoom)
 		{
+			TELoom te = (TELoom) world.getTileEntity(x, y, z);
+
 			ItemStack is = new ItemStack(Item.getItemFromBlock(block), 1, te.loomType);
 			NBTTagCompound nbt = writeLoomToNBT(te);
 			is.setTagCompound(nbt);
@@ -203,7 +202,8 @@ public class BlockLoom extends BlockTerraContainer
 		else
 		{
 			TileEntity te = world.getTileEntity(x, y, z);
-			if(te != null && te instanceof TELoom){
+			if (te instanceof TELoom)
+			{
 				TELoom loomTE = (TELoom)te;
 				//player.addChatMessage(new ChatComponentText(loomTE.rotation + ""));
 				if(!loomTE.isFinished()){
@@ -258,5 +258,31 @@ public class BlockLoom extends BlockTerraContainer
 	public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
 	{
 		return true;
+	}
+	
+    /**
+     * Get the block's damage value (for use with pick block).
+     */
+    @Override
+	public int getDamageValue(World world, int x, int y, int z)
+    {
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof TELoom)
+			return ((TELoom)te).loomType;
+		return 0;
+    }
+
+    /**
+     * This returns a complete list of items dropped from this block.
+     */
+	@Override
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	{
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+		
+		int damageValue = getDamageValue(world, x, y, z);
+		ret.add(new ItemStack(this, 1, damageValue));
+		
+		return ret;
 	}
 }

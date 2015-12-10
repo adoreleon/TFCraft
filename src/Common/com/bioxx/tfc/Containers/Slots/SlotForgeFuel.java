@@ -5,7 +5,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.api.TFCItems;
 
 public class SlotForgeFuel extends Slot
 {
@@ -14,13 +14,13 @@ public class SlotForgeFuel extends Slot
 		super(iinventory, i, j, k);
 	}
 
+	@Override
 	public boolean isItemValid(ItemStack itemstack)
 	{
-		if(itemstack.getItem() == TFCItems.Coal)
-			return true;
-		return false;
+		return itemstack.getItem() == TFCItems.coal;
 	}
 
+	@Override
 	public int getSlotStackLimit()
 	{
 		return 1;

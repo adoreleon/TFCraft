@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Containers.Slots.SlotForShowOnly;
 import com.bioxx.tfc.Containers.Slots.SlotLiquidVessel;
 import com.bioxx.tfc.Core.TFC_Achievements;
@@ -18,27 +17,28 @@ import com.bioxx.tfc.Items.ItemMeltedMetal;
 import com.bioxx.tfc.Items.Pottery.ItemPotteryMold;
 import com.bioxx.tfc.api.HeatRegistry;
 import com.bioxx.tfc.api.Metal;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFC_ItemHeat;
 
 public class ContainerLiquidVessel extends ContainerTFC 
 {
 	private World world;
-	private int posX;
-	private int posY;
-	private int posZ;
+	//private int posX;
+	//private int posY;
+	//private int posZ;
 	private EntityPlayer player;
 	public InventoryCrafting containerInv = new InventoryCrafting(this, 1, 1);
 
-	public int bagsSlotNum = 0;
-	public int metalAmount = 0;
+	public int bagsSlotNum;
+	public int metalAmount;
 
 	public ContainerLiquidVessel(InventoryPlayer playerinv, World world, int x, int y, int z)
 	{
 		this.player = playerinv.player;
 		this.world = world;
-		this.posX = x;
-		this.posY = y;
-		this.posZ = z;
+		//this.posX = x;
+		//this.posY = y;
+		//this.posZ = z;
 		bagsSlotNum = player.inventory.currentItem;
 		layoutContainer(playerinv);
 	}
@@ -88,114 +88,118 @@ public class ContainerLiquidVessel extends ContainerTFC
 	public void detectAndSendChanges()
 	{
 		//Load the metal info from the liquid container
-		NBTTagCompound nbt = player.inventory.getStackInSlot(bagsSlotNum).getTagCompound();
+		ItemStack stack = player.inventory.getStackInSlot(bagsSlotNum);
 
-		if(nbt != null)
+		NBTTagCompound nbt = stack != null && stack.hasTagCompound() ? stack.getTagCompound() : null;
+
+		if (nbt != null)
 		{
-			Metal m = MetalRegistry.instance.getMetalFromString((nbt.getString("MetalType")));
+			ItemStack input = containerInv.getStackInSlot(0);
+
+			// Trigger the copper age achievement simply when there is a full tool mold in the input slot.
+			if (input != null && input.getItem() instanceof ItemPotteryMold && input.getItemDamage() > 1 /*Ceramic*/ && input.getItemDamage() <= 5 /*Full of Metal*/)
+				player.triggerAchievement(TFC_Achievements.achCopperAge);
+
+			Metal m = MetalRegistry.instance.getMetalFromString(nbt.getString("MetalType"));
 			metalAmount = nbt.getInteger("MetalAmount");
 
-			if(!world.isRemote && m != null)
+			if (!world.isRemote && m != null && stack != null)
 			{
-				ItemStack input = containerInv.getStackInSlot(0);
-				if(input != null && input.getItem() == TFCItems.CeramicMold && input.getItemDamage() == 1 && input.stackSize == 1 && metalAmount > 0)
+				if (input != null && input.getItem() == TFCItems.ceramicMold && input.getItemDamage() == 1 && input.stackSize == 1 && metalAmount > 0)
 				{
 					int amt = 99;
-					ItemStack is = new ItemStack(m.MeltedItem, 1, amt);
-					TFC_ItemHeat.SetTemp(is, (short)(HeatRegistry.getInstance().getMeltingPoint(is) * 1.5f));
+					ItemStack is = new ItemStack(m.meltedItem, 1, amt);
+					TFC_ItemHeat.setTemp(is, (short) (HeatRegistry.getInstance().getMeltingPoint(is) * 1.5f));
 					containerInv.setInventorySlotContents(0, is);
-					if(metalAmount-1 <= 0)
+					if (metalAmount - 1 <= 0)
 					{
 						nbt.removeTag("MetalType");
 						nbt.removeTag("MetalAmount");
 						nbt.removeTag("TempTimer");
-						player.inventory.getStackInSlot(bagsSlotNum).setItemDamage(1);
+						stack.setItemDamage(1);
 					}
 					else
 					{
-						nbt.setInteger("MetalAmount", metalAmount-2);
+						nbt.setInteger("MetalAmount", metalAmount - 2);
 					}
 
-					player.inventory.getStackInSlot(bagsSlotNum).setTagCompound(nbt);
+					stack.setTagCompound(nbt);
 				}
-				else if(input != null && input.getItem() == m.MeltedItem && input.getItemDamage() > 0)
+				else if (input != null && input.getItem() == m.meltedItem && input.getItemDamage() > 0)
 				{
 					input.setItemDamage(input.getItemDamage() - 1);
-					TFC_ItemHeat.SetTemp(input, (short)(HeatRegistry.getInstance().getMeltingPoint(input) * 1.5f));
-					if(metalAmount-1 <= 0)
+					TFC_ItemHeat.setTemp(input, (short) (HeatRegistry.getInstance().getMeltingPoint(input) * 1.5f));
+					if (metalAmount - 1 <= 0)
 					{
 						nbt.removeTag("MetalType");
 						nbt.removeTag("MetalAmount");
 						nbt.removeTag("TempTimer");
-						player.inventory.getStackInSlot(bagsSlotNum).setItemDamage(1);
+						stack.setItemDamage(1);
 					}
 					else
 					{
-						nbt.setInteger("MetalAmount", metalAmount-1);
+						nbt.setInteger("MetalAmount", metalAmount - 1);
 					}
 				}
-				else if(input != null && input.getItem() instanceof ItemPotteryMold && input.getItemDamage() == 1 && input.stackSize == 1 && metalAmount > 0  && (m.Name.equals("Copper") || m.Name.equals("Bronze") || m.Name.equals("Bismuth Bronze") || m.Name.equals("Black Bronze")))
+				else if (input != null &&input.getItem() instanceof ItemPotteryMold && input.getItemDamage() == 1 && input.stackSize == 1 && metalAmount > 0 &&
+							("Copper".equals(m.name) || "Bronze".equals(m.name) || "Bismuth Bronze".equals(m.name) || "Black Bronze".equals(m.name)))
 				{
 					int amt = -1;
-					if(m.Name.equals("Copper"))
+					if ("Copper".equals(m.name))
 						amt = 398;
-					else if(m.Name.equals("Bronze"))
+					else if ("Bronze".equals(m.name))
 						amt = 399;
-					else if(m.Name.equals("Bismuth Bronze"))
+					else if ("Bismuth Bronze".equals(m.name))
 						amt = 400;
-					else if(m.Name.equals("Black Bronze"))
+					else if ("Black Bronze".equals(m.name))
 						amt = 401;
 
 					ItemStack is = new ItemStack(input.getItem(), 1, amt);
-					TFC_ItemHeat.SetTemp(is, (short)(HeatRegistry.getInstance().getMeltingPoint(is) * 1.5f));
+					TFC_ItemHeat.setTemp(is, (short) (HeatRegistry.getInstance().getMeltingPoint(is) * 1.5f));
 					containerInv.setInventorySlotContents(0, is);
-					if(metalAmount-1 <= 0)
+					if (metalAmount - 1 <= 0)
 					{
 						nbt.removeTag("MetalType");
 						nbt.removeTag("MetalAmount");
 						nbt.removeTag("TempTimer");
-						player.inventory.getStackInSlot(bagsSlotNum).setItemDamage(1);
+						stack.setItemDamage(1);
 					}
 					else
 					{
-						nbt.setInteger("MetalAmount", metalAmount-2);
+						nbt.setInteger("MetalAmount", metalAmount - 2);
 					}
 
-					player.inventory.getStackInSlot(bagsSlotNum).setTagCompound(nbt);
+					stack.setTagCompound(nbt);
 				}
-				else if(input != null && input.getItem() instanceof ItemPotteryMold && input.getItemDamage() > 1)
+				else if (input != null && input.getItem() instanceof ItemPotteryMold && input.getItemDamage() > 1)
 				{
 					boolean correctMetalFlag = false;
-					if(m.Name.equals("Copper") && (input.getItemDamage()-2)%4 == 0)
+					if ("Copper".equals(m.name) && (input.getItemDamage() - 2) % 4 == 0)
 						correctMetalFlag = true;
-					else if(m.Name.equals("Bronze") && (input.getItemDamage()-2)%4 == 1)
+					else if ("Bronze".equals(m.name) && (input.getItemDamage() - 2) % 4 == 1)
 						correctMetalFlag = true;
-					else if(m.Name.equals("Bismuth Bronze") && (input.getItemDamage()-2)%4 == 2)
+					else if ("Bismuth Bronze".equals(m.name) && (input.getItemDamage() - 2) % 4 == 2)
 						correctMetalFlag = true;
-					else if(m.Name.equals("Black Bronze") && (input.getItemDamage()-2)%4 == 3)
+					else if ("Black Bronze".equals(m.name) && (input.getItemDamage() - 2) % 4 == 3)
 						correctMetalFlag = true;
 
-					if(correctMetalFlag)
+					if (correctMetalFlag)
 					{
-						if(input.getItemDamage() > 5)
+						if (input.getItemDamage() > 5)
 						{
 							input.setItemDamage(input.getItemDamage() - 4);
-							TFC_ItemHeat.SetTemp(input, (short)(HeatRegistry.getInstance().getMeltingPoint(input) * 1.5f));
-							if(metalAmount-1 <= 0)
+							TFC_ItemHeat.setTemp(input, (short) (HeatRegistry.getInstance().getMeltingPoint(input) * 1.5f));
+							if (metalAmount - 1 <= 0)
 							{
 								nbt.removeTag("MetalType");
 								nbt.removeTag("MetalAmount");
 								nbt.removeTag("TempTimer");
-								player.inventory.getStackInSlot(bagsSlotNum).setItemDamage(1);
-								//player.triggerAchievement(TFC_Achievements.achCopperAge);
+								stack.setItemDamage(1);
 							}
 							else
 							{
-								nbt.setInteger("MetalAmount", metalAmount-1);
+								nbt.setInteger("MetalAmount", metalAmount - 1);
 							}
-						}
-						else{
-							player.triggerAchievement(TFC_Achievements.achCopperAge);
 						}
 					}
 				}
@@ -205,45 +209,45 @@ public class ContainerLiquidVessel extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer player, int clickedIndex)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		ItemStack returnedStack = null;
-		Slot clickedSlot = (Slot)this.inventorySlots.get(clickedIndex);
-		Slot slot1 = (Slot)inventorySlots.get(0);
+		ItemStack origStack = null;
+		Slot slot = (Slot)this.inventorySlots.get(slotNum);
+		Slot outputSlot = (Slot)inventorySlots.get(0);
 
-		if (clickedSlot != null && clickedSlot.getHasStack())
+		if (slot != null && slot.getHasStack())
 		{
-			ItemStack clickedStack = clickedSlot.getStack();
-			returnedStack = clickedStack.copy();
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
 
-			if (clickedIndex == 0)
+			// From vessel to inventory
+			if (slotNum < 1)
 			{
-				if (!this.mergeItemStack(clickedStack, 1, inventorySlots.size(), true))
+				if (!this.mergeItemStack(slotStack, 1, inventorySlots.size(), true))
 					return null;
 			}
-			else if (clickedIndex > 0 && clickedIndex < inventorySlots.size() &&
-					((clickedStack.getItem() == TFCItems.CeramicMold && clickedStack.getItemDamage() == 1) ||
-					(clickedStack.getItem() instanceof ItemMeltedMetal && clickedStack.getItemDamage() > 1) ||
-					(clickedStack.getItem() instanceof ItemPotteryMold && clickedStack.getItemDamage() > 0)))
+			else if (!outputSlot.getHasStack() &&
+					(slotStack.getItem() == TFCItems.ceramicMold && slotStack.getItemDamage() == 1 ||
+					slotStack.getItem() instanceof ItemMeltedMetal && slotStack.getItemDamage() > 1 ||
+					slotStack.getItem() instanceof ItemPotteryMold && slotStack.getItemDamage() > 0))
 			{
-				if(slot1.getHasStack())
-					return null;
-				ItemStack stack = clickedStack.copy();
+				ItemStack stack = slotStack.copy();
 				stack.stackSize = 1;
-				slot1.putStack(stack);
-				clickedStack.stackSize--;
+				outputSlot.putStack(stack);
+				slotStack.stackSize--;
 			}
 
-			if (clickedStack.stackSize == 0)
-				clickedSlot.putStack((ItemStack)null);
+			if (slotStack.stackSize <= 0)
+				slot.putStack(null);
 			else
-				clickedSlot.onSlotChanged();
+				slot.onSlotChanged();
 
-			if (clickedStack.stackSize == returnedStack.stackSize)
+			if (slotStack.stackSize == origStack.stackSize)
 				return null;
 
-			clickedSlot.onPickupFromSlot(player, clickedStack);
+			slot.onPickupFromSlot(player, slotStack);
 		}
-		return returnedStack;
+
+		return origStack;
 	}
 }

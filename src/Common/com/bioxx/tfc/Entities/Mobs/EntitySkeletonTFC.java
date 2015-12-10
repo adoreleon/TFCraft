@@ -3,23 +3,8 @@ package com.bioxx.tfc.Entities.Mobs;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.IEntityLivingData;
-import net.minecraft.entity.IRangedAttackMob;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIArrowAttack;
-import net.minecraft.entity.ai.EntityAIAttackOnCollide;
-import net.minecraft.entity.ai.EntityAIFleeSun;
-import net.minecraft.entity.ai.EntityAIHurtByTarget;
-import net.minecraft.entity.ai.EntityAILookIdle;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
-import net.minecraft.entity.ai.EntityAIRestrictSun;
-import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAIWander;
-import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.*;
+import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -33,12 +18,13 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFC_MobData;
 import com.bioxx.tfc.Entities.EntityJavelin;
 import com.bioxx.tfc.Entities.EntityProjectileTFC;
 import com.bioxx.tfc.Items.Tools.ItemCustomBow;
 import com.bioxx.tfc.Items.Tools.ItemJavelin;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Interfaces.ICausesDamage;
 import com.bioxx.tfc.api.Interfaces.IInnateArmor;
@@ -46,9 +32,9 @@ import com.bioxx.tfc.api.Interfaces.IProjectile;
 
 public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, ICausesDamage, IInnateArmor
 {
-	private EntityAIArrowAttack aiArrowAttack = new EntityAIArrowAttack(this, 1.0D, 20, 120, 15.0F);
-	private EntityAIAttackOnCollide aiAttackOnCollide = new EntityAIAttackOnCollide(this, EntityPlayer.class, 1.2D, false);
-	private static final float[] armorProbability = new float[] {0.0F, 0.5F, 0.10F, 0.15F};
+	private final EntityAIArrowAttack aiArrowAttack = new EntityAIArrowAttack(this, 1.0D, 20, 120, 15.0F);
+	private final EntityAIAttackOnCollide aiAttackOnCollide = new EntityAIAttackOnCollide(this, EntityPlayer.class, 1.2D, false);
+	private static final float[] ARMOR_PROBABILITY = new float[] {0.0F, 0.5F, 0.10F, 0.15F};
 
 	public EntitySkeletonTFC(World par1World)
 	{
@@ -72,7 +58,7 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 		this.tasks.removeTask(this.aiArrowAttack);
 		ItemStack itemstack = this.getHeldItem();
 
-		if (itemstack != null && (itemstack.getItem() == Items.bow || (itemstack.getItem() instanceof ItemJavelin)))
+		if (itemstack != null && (itemstack.getItem() == TFCItems.bow || itemstack.getItem() instanceof ItemJavelin))
 		{
 			this.tasks.addTask(4, this.aiArrowAttack);
 		}
@@ -158,7 +144,7 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(TFC_MobData.SkeletonHealth);//MaxHealth
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(TFC_MobData.SKELETON_HEALTH);//MaxHealth
 		this.getEntityAttribute(SharedMonsterAttributes.movementSpeed).setBaseValue(0.25D);
 	}
 
@@ -166,7 +152,7 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 	protected void entityInit()
 	{
 		super.entityInit();
-		this.dataWatcher.addObject(13, new Byte((byte)rand.nextInt(2)));
+		this.dataWatcher.addObject(13, Byte.valueOf((byte) rand.nextInt(2)));
 	}
 
 	@Override
@@ -177,14 +163,11 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 			this.attackEntityFrom(DamageSource.onFire, 50);
 	}
 
-	@Override
+	/*@Override
 	public boolean attackEntityAsMob(Entity par1Entity)
 	{
-		if (super.attackEntityAsMob(par1Entity))
-			return true;
-		else
-			return false;
-	}
+		return super.attackEntityAsMob(par1Entity);
+	}*/
 
 	/**
 	 * Get this Entity's EnumCreatureAttribute
@@ -270,19 +253,19 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 	protected void dropFewItems(boolean par1, int par2)
 	{
 		int amnt;
-		int count;
+		//int count;
 
 		if (this.getSkeletonType() == 1)
 		{
-			if(this.getHeldItem().getItem() instanceof ItemJavelin && this.rand.nextFloat() < 0.03f)
+			if (this.getHeldItem() != null && this.getHeldItem().getItem() instanceof ItemJavelin && this.rand.nextFloat() < 0.03f)
 				this.dropItem(getHeldItem().getItem(), 1);
 		}
 		else
 		{
-			if(this.getHeldItem().getItem() instanceof ItemCustomBow)
+			if (this.getHeldItem() != null && this.getHeldItem().getItem() instanceof ItemCustomBow)
 			{
 				amnt = this.rand.nextInt(3 + par2);
-				this.dropItem(TFCItems.Arrow, amnt);
+				this.dropItem(TFCItems.arrow, amnt);
 			}
 		}
 
@@ -296,14 +279,14 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 	}
 
 	@Override
-	protected void dropEquipment(boolean p_82160_1_, int p_82160_2_)
+	protected void dropEquipment(boolean forceDrop, int dropChance)
 	{
 		for (int j = 0; j < this.getLastActiveItems().length; ++j)
 		{
 			ItemStack itemstack = this.getEquipmentInSlot(j);
 			boolean flag1 = this.equipmentDropChances[j] > 1.0F;
 
-			if (itemstack != null && (p_82160_1_ || flag1) && this.rand.nextFloat() - (float)p_82160_2_ * 0.01F < this.equipmentDropChances[j])
+			if (itemstack != null && (forceDrop || flag1) && this.rand.nextFloat() - dropChance * 0.01F < this.equipmentDropChances[j])
 			{
 				if (!flag1 && itemstack.isItemStackDamageable())
 				{
@@ -334,7 +317,7 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 		superAddRandomArmor();
 		if(this.getSkeletonType() == 0)
 		{
-			this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.Bow));
+			this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.bow));
 		}
 		else if(this.getSkeletonType() == 1)
 		{
@@ -347,15 +330,15 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 				++i;
 
 			if(i == 0)
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.SedStoneJavelin));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.sedStoneJavelin));
 			else if(i == 1)
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.IgExStoneJavelin));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.igExStoneJavelin));
 			else if(i == 2)
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.CopperJavelin));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.copperJavelin));
 			else if(i == 3)
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.BronzeJavelin));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.bronzeJavelin));
 			else if(i == 4)
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.WroughtIronJavelin));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.wroughtIronJavelin));
 		}
 	}
 
@@ -370,56 +353,62 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 		{
 		case 4:
 			if (par1 == 0)
-				return TFCItems.LeatherHelmet;
+				return TFCItems.leatherHelmet;
 			else if (par1 == 1)
-				return TFCItems.CopperHelmet;
+				return TFCItems.copperHelmet;
 			else if (par1 == 2)
-				return TFCItems.BronzeHelmet;
+				return TFCItems.bronzeHelmet;
 			else if (par1 == 3)
-				return TFCItems.WroughtIronHelmet;
+				return TFCItems.wroughtIronHelmet;
 			else if (par1 == 4)
-				return TFCItems.SteelHelmet;
+				return TFCItems.steelHelmet;
+			break;
 		case 3:
 			if (par1 == 0)
-				return TFCItems.LeatherChestplate;
+				return TFCItems.leatherChestplate;
 			else if (par1 == 1)
-				return TFCItems.CopperChestplate;
+				return TFCItems.copperChestplate;
 			else if (par1 == 2)
-				return TFCItems.BronzeChestplate;
+				return TFCItems.bronzeChestplate;
 			else if (par1 == 3)
-				return TFCItems.WroughtIronChestplate;
+				return TFCItems.wroughtIronChestplate;
 			else if (par1 == 4)
-				return TFCItems.SteelChestplate;
+				return TFCItems.steelChestplate;
+			break;
 		case 2:
 			if (par1 == 0)
-				return TFCItems.LeatherLeggings;
+				return TFCItems.leatherLeggings;
 			else if (par1 == 1)
-				return TFCItems.CopperGreaves;
+				return TFCItems.copperGreaves;
 			else if (par1 == 2)
-				return TFCItems.BronzeGreaves;
+				return TFCItems.bronzeGreaves;
 			else if (par1 == 3)
-				return TFCItems.WroughtIronGreaves;
+				return TFCItems.wroughtIronGreaves;
 			else if (par1 == 4)
-				return TFCItems.SteelGreaves;
+				return TFCItems.steelGreaves;
+			break;
 		case 1:
 			if (par1 == 0)
-				return TFCItems.LeatherBoots;
+				return TFCItems.leatherBoots;
 			else if (par1 == 1)
-				return TFCItems.CopperBoots;
+				return TFCItems.copperBoots;
 			else if (par1 == 2)
-				return TFCItems.BronzeBoots;
+				return TFCItems.bronzeBoots;
 			else if (par1 == 3)
-				return TFCItems.WroughtIronBoots;
+				return TFCItems.wroughtIronBoots;
 			else if (par1 == 4)
-				return TFCItems.SteelBoots;
+				return TFCItems.steelBoots;
+			break;
 		default:
 			return null;
 		}
+
+		return null;
 	}
 
 	private void superAddRandomArmor()
 	{
-		if (this.rand.nextFloat() < armorProbability[this.worldObj.difficultySetting.getDifficultyId()])
+		if (this.rand.nextFloat() < ARMOR_PROBABILITY[this.worldObj.difficultySetting.getDifficultyId()])
 		{
 			int i = this.rand.nextInt(2);
 			float f = this.worldObj.difficultySetting == EnumDifficulty.HARD ? 0.1F : 0.25F;
@@ -477,7 +466,7 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 			if(is!= null && is.getItem() instanceof IProjectile)
 			{
 				projectile = new EntityJavelin(this.worldObj, this, par1EntityLiving, 1.6F, 12.0F);
-				double dam = ((IProjectile)is.getItem()).getRangedDamage();
+				double dam = ((IProjectile) is.getItem()).getRangedDamage(is);
 				projectile.setDamage(dam);
 			}
 		}
@@ -515,21 +504,35 @@ public class EntitySkeletonTFC extends EntityMob implements IRangedAttackMob, IC
 	}
 
 	@Override
-	public EnumDamageType GetDamageType()
+	public EnumDamageType getDamageType()
 	{
 		return EnumDamageType.PIERCING;
 	}
 
 	@Override
-	public int GetCrushArmor() {
+	public int getCrushArmor() {
 		return -335;
 	}
 	@Override
-	public int GetSlashArmor() {
+	public int getSlashArmor() {
 		return 1000;
 	}
 	@Override
-	public int GetPierceArmor() {
+	public int getPierceArmor() {
 		return 500000;//this is not an error. this makes piercing damage useless.
+	}
+
+	@Override
+	public boolean getCanSpawnHere()
+	{
+		int x = MathHelper.floor_double(this.posX);
+		int y = MathHelper.floor_double(this.boundingBox.minY);
+		int z = MathHelper.floor_double(this.posZ);
+		Block b = this.worldObj.getBlock(x, y, z);
+
+		if(b == TFCBlocks.leaves || b == TFCBlocks.leaves2 || b == TFCBlocks.thatch)
+			return false;
+
+		return super.getCanSpawnHere();
 	}
 }

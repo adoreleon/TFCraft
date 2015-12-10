@@ -9,17 +9,14 @@ import javax.imageio.ImageIO;
 
 import net.minecraft.world.WorldType;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.WorldGen.DataLayer;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerFuzzyZoomTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerSmoothTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerVoronoiZoomTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerZoomTFC;
+import com.bioxx.tfc.WorldGen.GenLayers.*;
 
 public abstract class GenRainLayerTFC extends GenLayerTFC
 {
-	public static int WET = DataLayer.Rain_4000.ID;
-	public static int DRY = DataLayer.Rain_125.ID;
+	public static final int WET = DataLayer.RAIN_4000.layerID;
+	public static final int DRY = DataLayer.RAIN_125.layerID;
 
 	public static GenLayerTFC initialize(long seed, WorldType worldType)
 	{
@@ -73,7 +70,7 @@ public abstract class GenRainLayerTFC extends GenLayerTFC
 		return continent;
 	}
 
-	static boolean shouldDraw = false;
+	private static boolean shouldDraw;
 	public static void drawImage(int size, GenLayerTFC genlayer, String name)
 	{
 		if(!shouldDraw)
@@ -87,7 +84,7 @@ public abstract class GenRainLayerTFC extends GenLayerTFC
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = (Graphics2D) outBitmap.getGraphics();
 			graphics.clearRect(0, 0, size, size);
-			System.out.println("Starting "+name+".bmp");
+			TerraFirmaCraft.LOG.info("Starting " + name + ".bmp");
 			for(int x = 0; x < size; x++)
 			{
 				for(int z = 0; z < size; z++)
@@ -100,12 +97,12 @@ public abstract class GenRainLayerTFC extends GenLayerTFC
 					graphics.drawRect(x, z, 1, 1);
 				}
 			}
-			System.out.println("Finished "+name+".bmp");
+			TerraFirmaCraft.LOG.info("Finished " + name + ".bmp");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 

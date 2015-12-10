@@ -10,15 +10,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Core.Player.FoodStatsTFC;
 import com.bioxx.tfc.Items.ItemTerra;
+import com.bioxx.tfc.api.Food;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Enums.EnumFoodGroup;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
@@ -30,7 +30,7 @@ public class ItemCustomBucketMilk extends ItemTerra implements IFood
 	{
 		super();
 		this.setMaxStackSize(1);
-		setCreativeTab(TFCTabs.TFCFoods);
+		setCreativeTab(TFCTabs.TFC_FOODS);
 		this.setFolder("tools/");
 	}
 
@@ -49,38 +49,33 @@ public class ItemCustomBucketMilk extends ItemTerra implements IFood
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag)
 	{
-		if(is.hasTagCompound() && is.getTagCompound().hasKey("foodWeight"))
+		float ounces = Food.getWeight(is);
+		if (ounces > 0)
+			arraylist.add(ounces + " oz");
+		float decay = Food.getDecay(is);
+		if (decay > 0)
 		{
-			float ounces = is.getTagCompound().getFloat("foodWeight");
-			if(ounces > 0)
-				arraylist.add(ounces+" oz");
-			float decay = is.getTagCompound().getFloat("foodDecay");
-			if(decay > 0)
-			{
-				float perc = decay/ounces;
-				String s = EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("gui.milk.fresh");
-				if(perc > 50)
-					s = EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("gui.milk.old");
-				if(perc > 70)
-					s = EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("gui.milk.sour");
+			float perc = decay / ounces;
+			String s = EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.milk.fresh");
+			if (perc > 50)
+				s = EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.milk.old");
+			if (perc > 70)
+				s = EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.milk.sour");
 
-				arraylist.add(s);
-			}
-			if(TFCOptions.enableDebugMode)
-				arraylist.add(EnumChatFormatting.DARK_GRAY + "Decay: " + decay);
+			arraylist.add(s);
 		}
+		if (TFCOptions.enableDebugMode)
+			arraylist.add(EnumChatFormatting.DARK_GRAY + "Decay: " + decay);
 	}
 
 	public static ItemStack createTag(ItemStack is, float weight)
 	{
-		NBTTagCompound nbt = is.getTagCompound();
-		if(nbt == null)
-			nbt = new NBTTagCompound();
-		nbt.setFloat("foodWeight", weight);
-		nbt.setFloat("foodDecay", 0);
-		nbt.setInteger("decayTimer", (int)TFC_Time.getTotalHours() + 1);
+		if (!is.hasTagCompound())
+			is.setTagCompound(new NBTTagCompound());
 
-		is.setTagCompound(nbt);
+		Food.setWeight(is, weight);
+		Food.setDecay(is, 0);
+		Food.setDecayTimer(is, (int) TFC_Time.getTotalHours() + 1);
 		return is;
 	}
 
@@ -94,9 +89,9 @@ public class ItemCustomBucketMilk extends ItemTerra implements IFood
 
 			if(is.hasTagCompound())
 			{
-				NBTTagCompound nbt = is.getTagCompound();
-				float weight = ((IFood)(is.getItem())).getFoodWeight(is);
-				float decay = Math.max(((IFood)(is.getItem())).getFoodDecay(is), 0);
+				//NBTTagCompound nbt = is.getTagCompound();
+				//float weight = ((IFood)(is.getItem())).getFoodWeight(is);
+				//float decay = Math.max(((IFood)(is.getItem())).getFoodDecay(is), 0);
 
 				float tasteFactor = foodstats.getTasteFactor(is);
 				foodstats.addNutrition(((IFood)(is.getItem())).getFoodGroup(), 20*tasteFactor);
@@ -106,7 +101,7 @@ public class ItemCustomBucketMilk extends ItemTerra implements IFood
 
 			TFC_Core.setPlayerFoodStats(player, foodstats);
 
-			is = new ItemStack(TFCItems.WoodenBucketEmpty);
+			is = new ItemStack(TFCItems.woodenBucketEmpty);
 			is.stackTagCompound = null;
 		}
 		return is;
@@ -162,7 +157,7 @@ public class ItemCustomBucketMilk extends ItemTerra implements IFood
 	@Override
 	public ItemStack onDecayed(ItemStack is, World world, int i, int j, int k) 
 	{
-		return new ItemStack(TFCItems.WoodenBucketEmpty);
+		return new ItemStack(TFCItems.woodenBucketEmpty);
 	}
 
 	@Override
@@ -175,28 +170,6 @@ public class ItemCustomBucketMilk extends ItemTerra implements IFood
 	public EnumItemReach getReach(ItemStack is)
 	{
 		return EnumItemReach.SHORT;
-	}
-
-	@Override
-	public float getFoodWeight(ItemStack is)
-	{
-		if(is.hasTagCompound() && is.getTagCompound().hasKey("foodWeight"))
-		{
-			NBTTagCompound nbt = is.getTagCompound();
-			return nbt.getFloat("foodWeight");
-		}
-		return 0f;
-	}
-
-	@Override
-	public float getFoodDecay(ItemStack is)
-	{
-		if(is.hasTagCompound() && is.getTagCompound().hasKey("foodDecay"))
-		{
-			NBTTagCompound nbt = is.getTagCompound();
-			return nbt.getFloat("foodDecay");
-		}
-		return 0f;
 	}
 
 	@Override

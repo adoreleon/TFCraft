@@ -5,8 +5,8 @@ import java.util.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class WorldGenCustomCactus extends WorldGenerator
 {
@@ -24,8 +24,8 @@ public class WorldGenCustomCactus extends WorldGenerator
 				int var10 = 1 + random.nextInt(random.nextInt(3) + 1);
 				for (int var11 = 0; var11 < var10; ++var11)
 				{
-					if (TFC_Core.isSand(world.getBlock(xCoord, yCoord - 1, zCoord)) || TFCBlocks.Cactus.canBlockStay(world, xCoord, yCoord + var11, zCoord))
-						world.setBlock(xCoord, yCoord + var11, zCoord, TFCBlocks.Cactus, 0, 0x2);
+					if (TFC_Core.isSand(world.getBlock(xCoord, yCoord - 1, zCoord)) || TFCBlocks.cactus.canBlockStay(world, xCoord, yCoord + var11, zCoord))
+						world.setBlock(xCoord, yCoord + var11, zCoord, TFCBlocks.cactus, 0, 0x2);
 				}
 			}
 		}

@@ -6,18 +6,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.api.Food;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class TESmokeRack extends NetworkTileEntity implements IInventory
 {
 	public ItemStack[] storage = new ItemStack[2];
 	public int[] driedCounter = new int[]{0,0};
+	private int dryTimer;
+
+	//temporary smoke timer that should not be saved
+	public int lastSmokedTime;
 
 	public TESmokeRack()
 	{
@@ -34,10 +38,16 @@ public class TESmokeRack extends NetworkTileEntity implements IInventory
 			env = 0.75f; base = 0.75f;
 		}
 
+		this.dryTimer++;
+		if (dryTimer > 1000)
+		{
+			dryTimer = 0;
+			dryFoods();
+		}
 
-		if(!worldObj.isRaining())
+		if(!worldObj.isRaining() && TFC_Time.getTotalHours() > this.lastSmokedTime+1)
 			TFC_Core.handleItemTicking(this, worldObj, xCoord, yCoord, zCoord, env, base);
-		else
+		else if(TFC_Climate.getHeightAdjustedTemp(worldObj, xCoord, yCoord, zCoord) > 0)
 			TFC_Core.handleItemTicking(this, worldObj, xCoord, yCoord, zCoord, env*2, base*2);
 	}
 
@@ -45,8 +55,7 @@ public class TESmokeRack extends NetworkTileEntity implements IInventory
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord +1, yCoord + 1, zCoord + 1);
-		return bb;
+		return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1);
 	}
 
 	@Override
@@ -107,6 +116,7 @@ public class TESmokeRack extends NetworkTileEntity implements IInventory
 				driedCounter[i] = (int) (TFC_Time.getTotalHours() - Food.getDried(itemstack));
 			else
 				driedCounter[i] = (int)TFC_Time.getTotalHours();//Reset the counter if its a new item
+			flag = true;
 		}
 		if(flag)
 		{
@@ -121,6 +131,20 @@ public class TESmokeRack extends NetworkTileEntity implements IInventory
 		Food.setDried(is, (int)TFC_Time.getTotalHours()-this.driedCounter[i]);
 		this.setInventorySlotContents(i, null);
 		return is;
+	}
+
+	public void dryFoods()
+	{
+		for (int i = 0; i < storage.length; i++)
+		{
+			if (getStackInSlot(i) != null)
+			{
+				ItemStack is = getStackInSlot(i);
+				Food.setDried(is, (int) TFC_Time.getTotalHours() - this.driedCounter[i]);
+				driedCounter[i] = (int) (TFC_Time.getTotalHours() - Food.getDried(is));
+			}
+
+		}
 	}
 
 	@Override

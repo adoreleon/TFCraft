@@ -6,49 +6,55 @@
 
 
 generator.TFCDefault=TFC デフォルト
-generator.TFCFlat=TFC フラット
+generator.TFCFlat=TFC フラット(未使用)
+generator.TFCAmplified=TFC アンプリファイド(未使用)
+generator.TFCLargeBiomes=TFC ラージバイオーム(未使用)
 
 key.ToolMode=ツールモード切替
 key.LockTool=ツールの位置をロックする
 
 effect.bleed=出血
+death.attack.alcohol=%1$s は急性アル中で死んでしまった
+death.attack.heatStroke=%1$s は熱中症で死んでしまった
 
 #==============
-#= Spawn Eggs =
+#= Entities = 
 #==============
-entity.squidTFC.name=イカ
-entity.cowTFC.name=牛
-entity.wolfTFC.name=狼
 entity.bearTFC.name=熊
-entity.deerTFC.name=鹿
 entity.chickenTFC.name=ニワトリ
-entity.pigTFC.name=豚
-entity.skeletonTFC.name=スケルトン
-entity.zombieTFC.name=ゾンビ
-entity.spiderTFC.name=蜘蛛
-entity.slimeTFC.name=スライム
-entity.silverfishTFC.name=シルバーフィッシュ
-entity.ghastTFC.name=ガスト
-entity.caveSpiderTFC.name=洞窟グモ
-entity.blazeTFC.name=ブレイズ
-entity.endermanTFC.name=エンダーマン
-entity.pigZombieTFC.name=ゾンビピッグ
-entity.creeperTFC.name=クリーパー
-entity.sheepTFC.name=羊
-entity.pheasantTFC.name=雉
-entity.horseTFC.name=馬
-entity.irongolemTFC.name=アイアンゴーレム
+entity.cowTFC.name=牛
+entity.deerTFC.name=鹿
 entity.fishTFC.name=バス
+entity.horseTFC.name=馬
+entity.pheasantTFC.name=雉
+entity.pigTFC.name=豚
+entity.sheepTFC.name=羊
+entity.squidTFC.name=イカ
+entity.wolfTFC.name=狼
 
+entity.blazeTFC.name=ブレイズ
+entity.caveSpiderTFC.name=洞窟グモ
+entity.creeperTFC.name=クリーパー
+entity.endermanTFC.name=エンダーマン
+entity.ghastTFC.name=ガスト
+entity.irongolemTFC.name=アイアンゴーレム
+entity.pigZombieTFC.name=ゾンビピッグマン
+entity.silverfishTFC.name=シルバーフィッシュ
+entity.skeletonTFC.name=スケルトン
+entity.slimeTFC.name=スライム
+entity.spiderTFC.name=蜘蛛
+entity.zombieTFC.name=ゾンビ
 
-#==========
-#= Entity =
-#==========
-entity.notFamiliar=
-fishingRod.lineTension=
-fishingRod.lineSnap=
-fishingRod.bite=
-fishingRod.gotAway=
+entity.arrowTFC.name=矢
+entity.standTFC.name=
+entity.barrel.name=
+entity.fallingBlock.name=
+
+entity.notFamiliar=動物は嫌がっている
+fishingRod.lineTension=糸が切れそうだ！
+fishingRod.lineSnap=糸が切れてしまった
+fishingRod.bite=食いついた！
+fishingRod.gotAway=逃げてしまった・・・
 
 #================
 #= Achievements =
@@ -71,7 +77,7 @@ achievement.achSaw=大工さん
 achievement.achSaw.desc=のこぎりを作る
 achievement.achAnvil=ハンマータイム
 achievement.achAnvil.desc=石の金床を作る
-achievement.achPickaxe=いざ採掘!(最後)
+achievement.achPickaxe=いざ採掘の時！
 achievement.achPickaxe.desc=つるはしを作る
 achievement.achDiamond=ダイヤモ－ちょっとまって、いらない
 achievement.achDiamond.desc=ダイヤモンドを見つける
@@ -81,19 +87,42 @@ achievement.achBronzeAge=青銅器時代
 achievement.achBronzeAge.desc=銅の鉄床を作製する
 achievement.achIronAge=鉄器時代
 achievement.achIronAge.desc=塊鉄を掘り出す
-achievement.achPokeCreeper=
-achievement.achPokeCreeper.desc=
+achievement.achPokeCreeper=スティーブ・アーウィン
+achievement.achPokeCreeper.desc=木の棒で小突く
 
 #============
 #= Commands =
 #============
-commands.transferTamed.noTamed=
-commands.transferTamed.tooMany=
-commands.transferTamed.wrongOwner=
-commands.transferTamed.sameTarget=
-commands.transferTamed.display.incoming=
-commands.transferTamed.display.outgoing=
-commands.transferTamed.wrongSender=
+commands.transferTamed.noTamed=範囲内に友好な動物はいないようだ！
+commands.transferTamed.tooMany=範囲内に動物が多すぎる！
+commands.transferTamed.wrongOwner=その動物のオーナーはあなたではない
+commands.transferTamed.sameTarget=その動物は自分に転送できない
+commands.transferTamed.display.incoming=動物が%sによって転送された。
+commands.transferTamed.display.outgoing=あなたは%sに動物を転送した。
+commands.transferTamed.wrongSender=その動物は転送できない！
+
+#==========
+#= Fluids =
+#==========
+fluid.freshwater=真水
+fluid.saltwater=海水
+fluid.lavatfc=溶岩
+fluid.hotwater=熱湯
+fluid.beer=ビール
+fluid.cider=リンゴ酒
+fluid.rum=ラム酒
+fluid.ryewhiskey=ライウイスキー
+fluid.sake=日本酒
+fluid.vodka=ウォッカ
+fluid.whiskey=ウイスキー
+fluid.cornwhiskey=コーンウイスキー
+fluid.milk=ミルク
+fluid.milkcurdled=カード
+fluid.milkvinegar=ミルク＋酢 混合
+fluid.limewater=石灰水
+fluid.tannin=タンニン
+fluid.vinegar=酢
+fluid.brine=食塩水
 
 #========
 #= Food =
@@ -105,6 +134,11 @@ item.meal.decent=まずまず
 item.meal.good=美味しい
 item.meal.great=とても美味しい
 item.meal.fantastic=絶品
+item.Sandwich.name=サンドイッチ
+item.Salad.name=サラダ
+item.Soup.name=スープ
+item.Sugar.name=砂糖
+item.Sea Weed.name=海藻
 
 #== Grains ==
 item.Barley Bread.name=大麦パン
@@ -152,7 +186,7 @@ item.Seeds Wheat.name=小麦の種
 item.Green Apple.name=青りんご
 item.Red Apple.name=赤いリンゴ
 item.Banana.name=バナナ
-item.Cherry.name=桜桃
+item.Cherry.name=さくらんぼ
 item.Lemon.name=レモン
 item.Olive.name=オリーブ
 item.Orange.name=オレンジ
@@ -259,7 +293,7 @@ item.RyeWhiskey.name=ライウイスキー
 item.Sake.name=日本酒
 item.Vodka.name=ウォッカ
 item.Whiskey.name=ウイスキー
-item.CornWhiskey.name=
+item.CornWhiskey.name=コーンウイスキー
 
 #===========
 #= Pottery =
@@ -267,117 +301,117 @@ item.CornWhiskey.name=
 item.Clay.Clay.name=粘土
 item.Clay.Fire Clay.name=耐火粘土
 
-item.clay.clayflatlight.name=平らな明るめの粘土
-item.clay.clayflatdark.name=平らな暗めの粘土
-item.clay.clayflatfire.name=平らな耐火粘土
-item.clay.clayflatdarkfire.name=平らな暗めの耐火粘土
+item.Flat Clay.clay flat light.name=平らな明るめの粘土
+item.Flat Clay.clay flat dark.name=平らな暗めの粘土
+item.Flat Clay.clay flat fire.name=平らな耐火粘土
+item.Flat Clay.clay flat dark fire.name=平らな暗めの耐火粘土
 
 item.Jug.Clay Jug.name=粘土の水差し
-item.Jug.Ceramic Jug.name=セラミック水差し
+item.Jug.Ceramic Jug.name=陶器の水差し
 item.Jug.Water Jug.name=水入り水差し
 
 item.Pot.Clay Pot.name=粘土の壷
-item.Pot.Ceramic Pot.name=セラミックの壷
+item.Pot.Ceramic Pot.name=陶器の壷
 
 item.Small Vessel.Clay Vessel.name=粘土の小鍋
-item.Small Vessel.Ceramic Vessel.name=セラミックの小鍋
+item.Small Vessel.Ceramic Vessel.name=陶器の小鍋
 
 item.Large Vessel.Clay Vessel [Large].name=粘土の大鍋
-item.Large Vessel.Ceramic Vessel [Large].name=セラミックの大鍋
+item.Large Vessel.Ceramic Vessel [Large].name=陶器の大鍋
 
 item.Mold.Clay Mold.name=粘土の鋳型
-item.Mold.Ceramic Mold.name=セラミック鋳型
+item.Mold.Ceramic Mold.name=陶器の鋳型
 
 item.Axe Mold.Clay Mold Axe.name=斧の粘土型
 item.Axe Mold.Ceramic Mold Axe.name=斧の鋳型
-item.Axe Mold.Ceramic Mold Axe Copper.name=斧の鋳型（銅）
-item.Axe Mold.Ceramic Mold Axe Bronze.name=斧の鋳型（青銅）
-item.Axe Mold.Ceramic Mold Axe Black Bronze.name=斧の鋳型（黒青銅）
-item.Axe Mold.Ceramic Mold Axe Bismuth Bronze.name=斧の鋳型（蒼青銅）
+item.Axe Mold.Ceramic Mold Axe Copper.name=斧の鋳型(銅)
+item.Axe Mold.Ceramic Mold Axe Bronze.name=斧の鋳型(青銅)
+item.Axe Mold.Ceramic Mold Axe Black Bronze.name=斧の鋳型(黒青銅)
+item.Axe Mold.Ceramic Mold Axe Bismuth Bronze.name=斧の鋳型(蒼青銅)
 
 item.Chisel Mold.Clay Mold Chisel.name=のみの粘土型
 item.Chisel Mold.Ceramic Mold Chisel.name=のみの鋳型
-item.Chisel Mold.Ceramic Mold Chisel Copper.name=のみの鋳型（銅）
-item.Chisel Mold.Ceramic Mold Chisel Bronze.name=のみの鋳型（青銅）
-item.Chisel Mold.Ceramic Mold Chisel Black Bronze.name=のみの鋳型（黒青銅）
-item.Chisel Mold.Ceramic Mold Chisel Bismuth Bronze.name=のみの鋳型（蒼青銅）
+item.Chisel Mold.Ceramic Mold Chisel Copper.name=のみの鋳型(銅)
+item.Chisel Mold.Ceramic Mold Chisel Bronze.name=のみの鋳型(青銅)
+item.Chisel Mold.Ceramic Mold Chisel Black Bronze.name=のみの鋳型(黒青銅)
+item.Chisel Mold.Ceramic Mold Chisel Bismuth Bronze.name=のみの鋳型(蒼青銅)
 
 item.Hammer Mold.Clay Mold Hammer.name=ハンマーの粘土型
 item.Hammer Mold.Ceramic Mold Hammer.name=ハンマーの鋳型
-item.Hammer Mold.Ceramic Mold Hammer Copper.name=ハンマーの鋳型（銅）
-item.Hammer Mold.Ceramic Mold Hammer Bronze.name=ハンマーの鋳型（青銅）
-item.Hammer Mold.Ceramic Mold Hammer Black Bronze.name=ハンマーの鋳型（黒青銅）
-item.Hammer Mold.Ceramic Mold Hammer Bismuth Bronze.name=ハンマーの鋳型（蒼青銅）
+item.Hammer Mold.Ceramic Mold Hammer Copper.name=ハンマーの鋳型(銅)
+item.Hammer Mold.Ceramic Mold Hammer Bronze.name=ハンマーの鋳型(青銅)
+item.Hammer Mold.Ceramic Mold Hammer Black Bronze.name=ハンマーの鋳型(黒青銅)
+item.Hammer Mold.Ceramic Mold Hammer Bismuth Bronze.name=ハンマーの鋳型(蒼青銅)
 
 item.Hoe Mold.Clay Mold Hoe.name=クワの粘土型
 item.Hoe Mold.Ceramic Mold Hoe.name=クワの鋳型
-item.Hoe Mold.Ceramic Mold Hoe Copper.name=クワの鋳型（銅）
-item.Hoe Mold.Ceramic Mold Hoe Bronze.name=クワの鋳型（青銅）
-item.Hoe Mold.Ceramic Mold Hoe Black Bronze.name=クワの鋳型（黒青銅）
-item.Hoe Mold.Ceramic Mold Hoe Bismuth Bronze.name=クワの鋳型（蒼青銅）
+item.Hoe Mold.Ceramic Mold Hoe Copper.name=クワの鋳型(銅)
+item.Hoe Mold.Ceramic Mold Hoe Bronze.name=クワの鋳型(青銅)
+item.Hoe Mold.Ceramic Mold Hoe Black Bronze.name=クワの鋳型(黒青銅)
+item.Hoe Mold.Ceramic Mold Hoe Bismuth Bronze.name=クワの鋳型(蒼青銅)
 
 item.Knife Mold.Clay Mold Knife.name=ナイフの粘土型
 item.Knife Mold.Ceramic Mold Knife.name=ナイフの鋳型
-item.Knife Mold.Ceramic Mold Knife Copper.name=ナイフの鋳型（銅）
-item.Knife Mold.Ceramic Mold Knife Bronze.name=ナイフの鋳型（青銅）
-item.Knife Mold.Ceramic Mold Knife Black Bronze.name=ナイフの鋳型（黒青銅）
-item.Knife Mold.Ceramic Mold Knife Bismuth Bronze.name=ナイフの鋳型（蒼青銅）
+item.Knife Mold.Ceramic Mold Knife Copper.name=ナイフの鋳型(銅)
+item.Knife Mold.Ceramic Mold Knife Bronze.name=ナイフの鋳型(青銅)
+item.Knife Mold.Ceramic Mold Knife Black Bronze.name=ナイフの鋳型(黒青銅)
+item.Knife Mold.Ceramic Mold Knife Bismuth Bronze.name=ナイフの鋳型(蒼青銅)
 
 item.Javelin Mold.Clay Mold Javelin.name=ジャベリンの粘土型
 item.Javelin Mold.Ceramic Mold Javelin.name=ジャベリンの鋳型
-item.Javelin Mold.Ceramic Mold Javelin Copper.name=ジャベリンの鋳型（銅）
-item.Javelin Mold.Ceramic Mold Javelin Bronze.name=ジャベリンの鋳型（青銅）
-item.Javelin Mold.Ceramic Mold Javelin Black Bronze.name=ジャベリンの鋳型（黒青銅）
-item.Javelin Mold.Ceramic Mold Javelin Bismuth Bronze.name=ジャベリンの鋳型（蒼青銅）
+item.Javelin Mold.Ceramic Mold Javelin Copper.name=ジャベリンの鋳型(銅)
+item.Javelin Mold.Ceramic Mold Javelin Bronze.name=ジャベリンの鋳型(青銅)
+item.Javelin Mold.Ceramic Mold Javelin Black Bronze.name=ジャベリンの鋳型(黒青銅)
+item.Javelin Mold.Ceramic Mold Javelin Bismuth Bronze.name=ジャベリンの鋳型(蒼青銅)
 
 item.Mace Mold.Clay Mold Mace.name=メイスの粘土型
 item.Mace Mold.Ceramic Mold Mace.name=メイスの鋳型
-item.Mace Mold.Ceramic Mold Mace Copper.name=メイスの鋳型（銅）
-item.Mace Mold.Ceramic Mold Mace Bronze.name=メイスの鋳型（青銅）
-item.Mace Mold.Ceramic Mold Mace Black Bronze.name=メイスの鋳型（黒青銅）
-item.Mace Mold.Ceramic Mold Mace Bismuth Bronze.name=メイスの鋳型（蒼青銅）
+item.Mace Mold.Ceramic Mold Mace Copper.name=メイスの鋳型(銅)
+item.Mace Mold.Ceramic Mold Mace Bronze.name=メイスの鋳型(青銅)
+item.Mace Mold.Ceramic Mold Mace Black Bronze.name=メイスの鋳型(黒青銅)
+item.Mace Mold.Ceramic Mold Mace Bismuth Bronze.name=メイスの鋳型(蒼青銅)
 
 item.Pick Mold.Clay Mold Pick.name=つるはしの粘土型
 item.Pick Mold.Ceramic Mold Pick.name=つるはしの鋳型
-item.Pick Mold.Ceramic Mold Pick Copper.name=つるはしの鋳型（銅）
-item.Pick Mold.Ceramic Mold Pick Bronze.name=つるはしの鋳型（青銅）
-item.Pick Mold.Ceramic Mold Pick Black Bronze.name=つるはしの鋳型（黒青銅）
-item.Pick Mold.Ceramic Mold Pick Bismuth Bronze.name=つるはしの鋳型（蒼青銅）
+item.Pick Mold.Ceramic Mold Pick Copper.name=つるはしの鋳型(銅)
+item.Pick Mold.Ceramic Mold Pick Bronze.name=つるはしの鋳型(青銅)
+item.Pick Mold.Ceramic Mold Pick Black Bronze.name=つるはしの鋳型(黒青銅)
+item.Pick Mold.Ceramic Mold Pick Bismuth Bronze.name=つるはしの鋳型(蒼青銅)
 
 item.ProPick Mold.Clay Mold ProPick.name=探鉱鎚の粘土型
 item.ProPick Mold.Ceramic Mold ProPick.name=探鉱鎚の鋳型
-item.ProPick Mold.Ceramic Mold ProPick Copper.name=探鉱鎚の鋳型（銅）
-item.ProPick Mold.Ceramic Mold ProPick Bronze.name=探鉱鎚の鋳型（青銅）
-item.ProPick Mold.Ceramic Mold ProPick Black Bronze.name=探鉱鎚の鋳型（黒青銅）
-item.ProPick Mold.Ceramic Mold ProPick Bismuth Bronze.name=探鉱鎚の鋳型（蒼青銅）
+item.ProPick Mold.Ceramic Mold ProPick Copper.name=探鉱鎚の鋳型(銅)
+item.ProPick Mold.Ceramic Mold ProPick Bronze.name=探鉱鎚の鋳型(青銅)
+item.ProPick Mold.Ceramic Mold ProPick Black Bronze.name=探鉱鎚の鋳型(黒青銅)
+item.ProPick Mold.Ceramic Mold ProPick Bismuth Bronze.name=探鉱鎚の鋳型(蒼青銅)
 
 item.Saw Mold.Clay Mold Saw.name=のこぎりの粘土型
 item.Saw Mold.Ceramic Mold Saw.name=のこぎりの鋳型
-item.Saw Mold.Ceramic Mold Saw Copper.name=のこぎりの鋳型（銅）
-item.Saw Mold.Ceramic Mold Saw Bronze.name=のこぎりの鋳型（青銅）
-item.Saw Mold.Ceramic Mold Saw Black Bronze.name=のこぎりの鋳型（黒青銅）
-item.Saw Mold.Ceramic Mold Saw Bismuth Bronze.name=のこぎりの鋳型（蒼青銅）
+item.Saw Mold.Ceramic Mold Saw Copper.name=のこぎりの鋳型(銅)
+item.Saw Mold.Ceramic Mold Saw Bronze.name=のこぎりの鋳型(青銅)
+item.Saw Mold.Ceramic Mold Saw Black Bronze.name=のこぎりの鋳型(黒青銅)
+item.Saw Mold.Ceramic Mold Saw Bismuth Bronze.name=のこぎりの鋳型(蒼青銅)
 
 item.Scythe Mold.Clay Mold Scythe.name=鎌の粘土型
 item.Scythe Mold.Ceramic Mold Scythe.name=鎌の鋳型
-item.Scythe Mold.Ceramic Mold Scythe Copper.name=鎌の鋳型（銅）
-item.Scythe Mold.Ceramic Mold Scythe Bronze.name=鎌の鋳型（青銅）
-item.Scythe Mold.Ceramic Mold Scythe Black Bronze.name=鎌の鋳型（黒青銅）
-item.Scythe Mold.Ceramic Mold Scythe Bismuth Bronze.name=鎌の鋳型（蒼青銅）
+item.Scythe Mold.Ceramic Mold Scythe Copper.name=鎌の鋳型(銅)
+item.Scythe Mold.Ceramic Mold Scythe Bronze.name=鎌の鋳型(青銅)
+item.Scythe Mold.Ceramic Mold Scythe Black Bronze.name=鎌の鋳型(黒青銅)
+item.Scythe Mold.Ceramic Mold Scythe Bismuth Bronze.name=鎌の鋳型(蒼青銅)
 
 item.Shovel Mold.Clay Mold Shovel.name=シャベルの粘土型
 item.Shovel Mold.Ceramic Mold Shovel.name=シャベルの鋳型
-item.Shovel Mold.Ceramic Mold Shovel Copper.name=シャベルの鋳型（銅）
-item.Shovel Mold.Ceramic Mold Shovel Bronze.name=シャベルの鋳型（青銅）
-item.Shovel Mold.Ceramic Mold Shovel Black Bronze.name=シャベルの鋳型（黒青銅）
-item.Shovel Mold.Ceramic Mold Shovel Bismuth Bronze.name=シャベルの鋳型（蒼青銅）
+item.Shovel Mold.Ceramic Mold Shovel Copper.name=シャベルの鋳型(銅)
+item.Shovel Mold.Ceramic Mold Shovel Bronze.name=シャベルの鋳型(青銅)
+item.Shovel Mold.Ceramic Mold Shovel Black Bronze.name=シャベルの鋳型(黒青銅)
+item.Shovel Mold.Ceramic Mold Shovel Bismuth Bronze.name=シャベルの鋳型(蒼青銅)
 
 item.Sword Mold.Clay Mold Sword.name=剣の粘土型
 item.Sword Mold.Ceramic Mold Sword.name=剣の鋳型
-item.Sword Mold.Ceramic Mold Sword Copper.name=剣の鋳型（銅）
-item.Sword Mold.Ceramic Mold Sword Bronze.name=剣の鋳型（青銅）
-item.Sword Mold.Ceramic Mold Sword Black Bronze.name=剣の鋳型（黒青銅）
-item.Sword Mold.Ceramic Mold Sword Bismuth Bronze.name=剣の鋳型（蒼青銅）
+item.Sword Mold.Ceramic Mold Sword Copper.name=剣の鋳型(銅)
+item.Sword Mold.Ceramic Mold Sword Bronze.name=剣の鋳型(青銅)
+item.Sword Mold.Ceramic Mold Sword Black Bronze.name=剣の鋳型(黒青銅)
+item.Sword Mold.Ceramic Mold Sword Bismuth Bronze.name=剣の鋳型(蒼青銅)
 
 item.Spindle.name=紡錘
 item.Spindle Head.Clay Spindle.name=粘土の紡錘
@@ -386,6 +420,10 @@ item.Spindle Head.Spindle Head.name=紡錘のヘッド
 item.Fire Brick.Fire Brick.name=耐火レンガ
 item.Fire Brick.Clay Fire Brick.name=生の耐火レンガ
 tile.FireBrick.name=耐火レンガ
+tile.Pottery.name=
+
+item.ClayBowl.Ceramic Bowl.name=陶器のボウル
+item.ClayBowl.Clay Bowl.name=粘土のボウル
 
 #= Gems =
 item.Agate.Chipped.name=欠けたメノウ
@@ -402,19 +440,19 @@ item.Sapphire.Chipped.name=欠けたサファイア
 item.Topaz.Chipped.name=欠けたトパーズ
 item.Tourmaline.Chipped.name=欠けたトルマリン
 
-item.Agate.Flawed.name=キズのあるメノウ
-item.Amethyst.Flawed.name=キズのあるアメジスト
-item.Beryl.Flawed.name=キズのあるベリル
-item.Diamond.Flawed.name=キズのあるダイヤモンド
-item.Emerald.Flawed.name=キズのあるエメラルド
-item.Garnet.Flawed.name=キズのあるガーネット
-item.Jade.Flawed.name=キズのある翡翠
-item.Jasper.Flawed.name=キズのあるジャスパー
-item.Opal.Flawed.name=キズのあるオパール
-item.Ruby.Flawed.name=キズのあるルビー
-item.Sapphire.Flawed.name=キズのあるサファイア
-item.Topaz.Flawed.name=キズのあるトパーズ
-item.Tourmaline.Flawed.name=キズのあるトルマリン
+item.Agate.Flawed.name=傷ついたメノウ
+item.Amethyst.Flawed.name=傷ついたアメジスト
+item.Beryl.Flawed.name=傷ついたベリル
+item.Diamond.Flawed.name=傷ついたダイヤモンド
+item.Emerald.Flawed.name=傷ついたエメラルド
+item.Garnet.Flawed.name=傷ついたガーネット
+item.Jade.Flawed.name=傷ついた翡翠
+item.Jasper.Flawed.name=傷ついたジャスパー
+item.Opal.Flawed.name=傷ついたオパール
+item.Ruby.Flawed.name=傷ついたルビー
+item.Sapphire.Flawed.name=傷ついたサファイア
+item.Topaz.Flawed.name=傷ついたトパーズ
+item.Tourmaline.Flawed.name=傷ついたトルマリン
 
 item.Agate.Normal.name=メノウ
 item.Amethyst.Normal.name=アメジスト
@@ -430,33 +468,33 @@ item.Sapphire.Normal.name=サファイア
 item.Topaz.Normal.name=トパーズ
 item.Tourmaline.Normal.name=トルマリン
 
-item.Agate.Flawless.name=完璧なメノウ
-item.Amethyst.Flawless.name=完璧なアメジスト
-item.Beryl.Flawless.name=完璧なベリル
-item.Diamond.Flawless.name=完璧なダイヤモンド
-item.Emerald.Flawless.name=完璧なエメラルド
-item.Garnet.Flawless.name=完璧なガーネット
-item.Jade.Flawless.name=完璧な翡翠
-item.Jasper.Flawless.name=完璧なジャスパー
-item.Opal.Flawless.name=完璧なオパール
-item.Ruby.Flawless.name=完璧なルビー
-item.Sapphire.Flawless.name=完璧なサファイア
-item.Topaz.Flawless.name=完璧なトパーズ
-item.Tourmaline.Flawless.name=完璧なトルマリン
+item.Agate.Flawless.name=無傷のメノウ
+item.Amethyst.Flawless.name=無傷のアメジスト
+item.Beryl.Flawless.name=無傷のベリル
+item.Diamond.Flawless.name=無傷のダイヤモンド
+item.Emerald.Flawless.name=無傷のエメラルド
+item.Garnet.Flawless.name=無傷のガーネット
+item.Jade.Flawless.name=無傷の翡翠
+item.Jasper.Flawless.name=無傷のジャスパー
+item.Opal.Flawless.name=無傷のオパール
+item.Ruby.Flawless.name=無傷のルビー
+item.Sapphire.Flawless.name=無傷のサファイア
+item.Topaz.Flawless.name=無傷のトパーズ
+item.Tourmaline.Flawless.name=無傷のトルマリン
 
-item.Agate.Exquisite.name=絶妙なメノウ
-item.Amethyst.Exquisite.name=絶妙なアメジスト
-item.Beryl.Exquisite.name=絶妙なベリル
-item.Diamond.Exquisite.name=絶妙なダイヤモンド
-item.Emerald.Exquisite.name=絶妙なエメラルド
-item.Garnet.Exquisite.name=絶妙なガーネット
-item.Jade.Exquisite.name=絶妙な翡翠
-item.Jasper.Exquisite.name=絶妙なジャスパー
-item.Opal.Exquisite.name=絶妙なオパール
-item.Ruby.Exquisite.name=絶妙なルビー
-item.Sapphire.Exquisite.name=絶妙なサファイア
-item.Topaz.Exquisite.name=絶妙なトパーズ
-item.Tourmaline.Exquisite.name=絶妙なトルマリン
+item.Agate.Exquisite.name=完璧なメノウ
+item.Amethyst.Exquisite.name=完璧なアメジスト
+item.Beryl.Exquisite.name=完璧なベリル
+item.Diamond.Exquisite.name=完璧なダイヤモンド
+item.Emerald.Exquisite.name=完璧なエメラルド
+item.Garnet.Exquisite.name=完璧なガーネット
+item.Jade.Exquisite.name=完璧な翡翠
+item.Jasper.Exquisite.name=完璧なジャスパー
+item.Opal.Exquisite.name=完璧なオパール
+item.Ruby.Exquisite.name=完璧なルビー
+item.Sapphire.Exquisite.name=完璧なサファイア
+item.Topaz.Exquisite.name=完璧なトパーズ
+item.Tourmaline.Exquisite.name=完璧なトルマリン
 
 #===========
 #= Powders =
@@ -627,27 +665,27 @@ tile.WallBrick.Schist.name=片岩レンガの壁
 tile.WallBrick.Shale.name=頁岩レンガの壁
 tile.WallBrick.Slate.name=粘板岩レンガの壁
 
-tile.WallSmooth.Andesite.name=安山岩のスムースストーンの壁
-tile.WallSmooth.Basalt.name=玄武岩のスムースストーンの壁
-tile.WallSmooth.Chalk.name=白亜のスムースストーンの壁
-tile.WallSmooth.Chert.name=燵岩のスムースストーンの壁
-tile.WallSmooth.Claystone.name=粘土岩のスムースストーンの壁
-tile.WallSmooth.Conglomerate.name=礫岩のスムースストーンの壁
-tile.WallSmooth.Dacite.name=デイサイト岩のスムースストーンの壁
-tile.WallSmooth.Diorite.name=閃緑岩のスムースストーンの壁
-tile.WallSmooth.Dolomite.name=苦灰石のスムースストーンの壁
-tile.WallSmooth.Gabbro.name=斑糲岩のスムースストーンの壁
-tile.WallSmooth.Gneiss.name=片麻岩のスムースストーンの壁
-tile.WallSmooth.Granite.name=花崗岩のスムースストーンの壁
-tile.WallSmooth.Limestone.name=石灰岩のスムースストーンの壁
-tile.WallSmooth.Marble.name=大理石のスムースストーンの壁
-tile.WallSmooth.Phyllite.name=千枚岩のスムースストーンの壁
-tile.WallSmooth.Quartzite.name=珪岩のスムースストーンの壁
-tile.WallSmooth.Rhyolite.name=流紋岩のスムースストーンの壁
-tile.WallSmooth.Rock Salt.name=岩塩のスムースストーンの壁
-tile.WallSmooth.Schist.name=片岩のスムースストーンの壁
-tile.WallSmooth.Shale.name=頁岩のスムースストーンの壁
-tile.WallSmooth.Slate.name=粘板岩のスムースストーンの壁
+tile.WallSmooth.Andesite.name=滑らかな安山岩の壁
+tile.WallSmooth.Basalt.name=滑らかな玄武岩の壁
+tile.WallSmooth.Chalk.name=滑らかな白亜の壁
+tile.WallSmooth.Chert.name=滑らかな燵岩の壁
+tile.WallSmooth.Claystone.name=滑らかな粘土岩の壁
+tile.WallSmooth.Conglomerate.name=滑らかな礫岩の壁
+tile.WallSmooth.Dacite.name=滑らかなデイサイト岩の壁
+tile.WallSmooth.Diorite.name=滑らかな閃緑岩の壁
+tile.WallSmooth.Dolomite.name=滑らかな苦灰石の壁
+tile.WallSmooth.Gabbro.name=滑らかな斑糲岩の壁
+tile.WallSmooth.Gneiss.name=滑らかな片麻岩の壁
+tile.WallSmooth.Granite.name=滑らかな花崗岩の壁
+tile.WallSmooth.Limestone.name=滑らかな石灰岩の壁
+tile.WallSmooth.Marble.name=滑らかな大理石の壁
+tile.WallSmooth.Phyllite.name=滑らかな千枚岩の壁
+tile.WallSmooth.Quartzite.name=滑らかな珪岩の壁
+tile.WallSmooth.Rhyolite.name=滑らかな流紋岩の壁
+tile.WallSmooth.Rock Salt.name=滑らかな岩塩の壁
+tile.WallSmooth.Schist.name=滑らかな片岩の壁
+tile.WallSmooth.Shale.name=滑らかな頁岩の壁
+tile.WallSmooth.Slate.name=滑らかな粘板岩の壁
 
 tile.IgExRock.Andesite.name=安山岩
 tile.IgExRock.Basalt.name=玄武岩
@@ -693,27 +731,27 @@ tile.MMRockCobble.Schist.name=片岩の丸石
 tile.SedRockCobble.Shale.name=頁岩の丸石
 tile.MMRockCobble.Slate.name=粘板岩の丸石
 
-tile.IgExRockSmooth.Andesite.name=安山岩のスムースストーン
-tile.IgExRockSmooth.Basalt.name=玄武岩のスムースストーン
-tile.SedRockSmooth.Chalk.name=白亜のスムースストーン
-tile.SedRockSmooth.Chert.name=燵岩のスムースストーン
-tile.SedRockSmooth.Claystone.name=粘土岩のスムースストーン
-tile.SedRockSmooth.Conglomerate.name=礫岩のスムースストーン
-tile.IgExRockSmooth.Dacite.name=デイサイト岩のスムースストーン
-tile.IgInRockSmooth.Diorite.name=閃緑岩のスムースストーン
-tile.SedRockSmooth.Dolomite.name=苦灰石のスムースストーン
-tile.IgInRockSmooth.Gabbro.name=斑糲岩のスムースストーン
-tile.MMRockSmooth.Gneiss.name=片麻岩のスムースストーン
-tile.IgInRockSmooth.Granite.name=花崗岩のスムースストーン
-tile.SedRockSmooth.Limestone.name=石灰岩のスムースストーン
-tile.MMRockSmooth.Marble.name=大理石のスムースストーン
-tile.MMRockSmooth.Phyllite.name=千枚岩のスムースストーン
-tile.MMRockSmooth.Quartzite.name=珪岩のスムースストーン
-tile.IgExRockSmooth.Rhyolite.name=流紋岩のスムースストーン
-tile.SedRockSmooth.Rock Salt.name=岩塩のスムースストーン
-tile.MMRockSmooth.Schist.name=片岩のスムースストーン
-tile.SedRockSmooth.Shale.name=頁岩のスムースストーン
-tile.MMRockSmooth.Slate.name=粘板岩のスムースストーン
+tile.IgExRockSmooth.Andesite.name=滑らかな安山岩
+tile.IgExRockSmooth.Basalt.name=滑らかな玄武岩
+tile.SedRockSmooth.Chalk.name=滑らかな白亜
+tile.SedRockSmooth.Chert.name=滑らかな燵岩
+tile.SedRockSmooth.Claystone.name=滑らかな粘土岩
+tile.SedRockSmooth.Conglomerate.name=滑らかな礫岩
+tile.IgExRockSmooth.Dacite.name=滑らかなデイサイト岩
+tile.IgInRockSmooth.Diorite.name=滑らかな閃緑岩
+tile.SedRockSmooth.Dolomite.name=滑らかな苦灰石
+tile.IgInRockSmooth.Gabbro.name=滑らかな斑糲岩
+tile.MMRockSmooth.Gneiss.name=滑らかな片麻岩
+tile.IgInRockSmooth.Granite.name=滑らかな花崗岩
+tile.SedRockSmooth.Limestone.name=滑らかな石灰岩
+tile.MMRockSmooth.Marble.name=滑らかな大理石
+tile.MMRockSmooth.Phyllite.name=滑らかな千枚岩
+tile.MMRockSmooth.Quartzite.name=滑らかな珪岩
+tile.IgExRockSmooth.Rhyolite.name=滑らかな流紋岩
+tile.SedRockSmooth.Rock Salt.name=滑らかな岩塩
+tile.MMRockSmooth.Schist.name=滑らかな片岩
+tile.SedRockSmooth.Shale.name=滑らかな頁岩
+tile.MMRockSmooth.Slate.name=滑らかな粘板岩
 
 tile.IgExRockBrick.Andesite.name=安山岩レンガ
 tile.IgExRockBrick.Basalt.name=玄武岩レンガ
@@ -824,6 +862,7 @@ item.Small Ore.Sphalerite.name=閃亜鉛鉱の小片
 item.Small Ore.Tetrahedrite.name=四面銅鉱の小片
 
 #== Ore Blocks ==
+tile.Ore.name=小鉱石
 tile.Ore.Bituminous Coal.name=歴青炭
 tile.Ore.Borax.name=ホウ砂
 tile.Ore.Cinnabar.name=辰砂
@@ -937,26 +976,43 @@ item.Barrel.White Cedar.name=栴檀の樽
 item.Barrel.White Elm.name=楡の樽
 item.Barrel.Willow.name=柳の樽
 
-item.Loom.Acacia.name=
-item.Loom.Ash.name=
-item.Loom.Aspen.name=
-item.Loom.Birch.name=
-item.Loom.Chestnut.name=
-item.Loom.Douglas Fir.name=
-item.Loom.Hickory.name=
-item.Loom.Kapok.name=
-item.Loom.Maple.name=
-item.Loom.Oak.name=
-item.Loom.Pine.name=
-item.Loom.Sequoia.name=
-item.Loom.Spruce.name=
-item.Loom.Sycamore.name=
-item.Loom.White Cedar.name=
-item.Loom.White Elm.name=
-item.Loom.Willow.name=
+item.Loom.Acacia.name=アカシアの織機
+item.Loom.Ash.name=トネリコの織機
+item.Loom.Aspen.name=アスペンの織機
+item.Loom.Birch.name=白樺の織機
+item.Loom.Chestnut.name=栗の木の織機
+item.Loom.Douglas Fir.name=ダグラス・ファーの織機
+item.Loom.Hickory.name=クルミの織機
+item.Loom.Kapok.name=パンヤの織機
+item.Loom.Maple.name=楓の織機
+item.Loom.Oak.name=樫の織機
+item.Loom.Pine.name=松の織機
+item.Loom.Sequoia.name=セコイアの織機
+item.Loom.Spruce.name=トウヒの織機
+item.Loom.Sycamore.name=サイカモアの織機
+item.Loom.White Cedar.name=栴檀の織機
+item.Loom.White Elm.name=楡の織機
+item.Loom.Willow.name=柳の織機
 
 #== Wood Blocks ==
-tile.log.Acacia.name=アカシアの丸太
+tile.Chest.Acacia.name=アカシアのチェスト
+tile.Chest.Ash.name=トネリコのチェスト
+tile.Chest.Aspen.name=アスペンのチェスト
+tile.Chest.Birch.name=白樺のチェスト
+tile.Chest.Chestnut.name=栗の木のチェスト
+tile.Chest.Douglas Fir.name=ダグラス・ファーのチェスト
+tile.Chest.Hickory.name=クルミのチェスト
+tile.Chest.Kapok.name=パンヤのチェスト
+tile.Chest.Maple.name=楓のチェスト
+tile.Chest.Oak.name=樫のチェスト
+tile.Chest.Pine.name=松のチェスト
+tile.Chest.Sequoia.name=セコイアのチェスト
+tile.Chest.Spruce.name=トウヒのチェスト
+tile.Chest.Sycamore.name=サイカモアのチェスト
+tile.Chest.White Cedar.name=栴檀のチェスト
+tile.Chest.White Elm.name=楡のチェスト
+tile.Chest.Willow.name=柳のチェスト
+
 tile.log2.Acacia.name=アカシアの丸太
 tile.log.Ash.name=トネリコの丸太
 tile.log.Aspen.name=アスペンの丸太
@@ -1029,7 +1085,8 @@ tile.sapling.White Cedar.name=栴檀の苗木
 tile.sapling.White Elm.name=楡の苗木
 tile.sapling.Willow.name=柳の苗木
 
-tile.leaves.Acacia.name=アカシアの葉
+tile.leaves2.name=アカシアの葉
+tile.leaves2.Acacia.name=アカシアの葉
 tile.leaves.Ash.name=トネリコの葉
 tile.leaves.Aspen.name=アスペンの葉
 tile.leaves.Birch.name=白樺の葉
@@ -1064,6 +1121,10 @@ tile.wood.Sycamore.name=サイカモアの木板
 tile.wood.White Cedar.name=栴檀の木板
 tile.wood.White Elm.name=楡の木板
 tile.wood.Willow.name=柳の木板
+
+tile.fruitTreeWood.name=果樹
+tile.fruitTreeLeaves.name=果樹の葉
+tile.fruitTreeLeaves2.name=果樹の葉
 
 tile.Door Acacia.name=アカシアのドア
 tile.Door Ash.name=トネリコのドア
@@ -1101,23 +1162,23 @@ tile.Barrel.White Cedar.name=栴檀の樽
 tile.Barrel.White Elm.name=楡の樽
 tile.Barrel.Willow.name=柳の樽
 
-tile.Loom.Acacia.name=
-tile.Loom.Ash.name=
-tile.Loom.Aspen.name=
-tile.Loom.Birch.name=
-tile.Loom.Chestnut.name=
-tile.Loom.Douglas Fir.name=
-tile.Loom.Hickory.name=
-tile.Loom.Kapok.name=
-tile.Loom.Maple.name=
-tile.Loom.Oak.name=
-tile.Loom.Pine.name=
-tile.Loom.Sequoia.name=
-tile.Loom.Spruce.name=
-tile.Loom.Sycamore.name=
-tile.Loom.White Cedar.name=
-tile.Loom.White Elm.name=
-tile.Loom.Willow.name=
+tile.Loom.Acacia.name=アカシアの織機
+tile.Loom.Ash.name=トネリコの織機
+tile.Loom.Aspen.name=アスペンの織機
+tile.Loom.Birch.name=白樺の織機
+tile.Loom.Chestnut.name=栗の木の織機
+tile.Loom.Douglas Fir.name=ダグラス・ファーの織機
+tile.Loom.Hickory.name=クルミの織機
+tile.Loom.Kapok.name=パンヤの織機
+tile.Loom.Maple.name=楓の織機
+tile.Loom.Oak.name=樫の織機
+tile.Loom.Pine.name=松の織機
+tile.Loom.Sequoia.name=セコイアの織機
+tile.Loom.Spruce.name=トウヒの織機
+tile.Loom.Sycamore.name=サイカモアの織機
+tile.Loom.White Cedar.name=栴檀の織機
+tile.Loom.White Elm.name=楡の織機
+tile.Loom.Willow.name=柳の織機
 
 tile.FenceTFC.Acacia.name=アカシアのフェンス
 tile.FenceTFC.Ash.name=トネリコのフェンス
@@ -1190,6 +1251,25 @@ tile.WoodSupportV.Sycamore.name=サイカモアの用梁
 tile.WoodSupportV.White Cedar.name=栴檀の用梁
 tile.WoodSupportV.White Elm.name=楡の用梁
 tile.WoodSupportV.Willow.name=柳の用梁
+
+tile.WoodSupportH2.name=
+tile.WoodSupportH2.Acacia.name=アカシアの用梁
+tile.WoodSupportH.Ash.name=トネリコの用梁
+tile.WoodSupportH.Aspen.name=アスペンの用梁
+tile.WoodSupportH.Birch.name=白樺の用梁
+tile.WoodSupportH.Chestnut.name=栗の木の用梁
+tile.WoodSupportH.Douglas Fir.name=ダグラス・ファーの用梁
+tile.WoodSupportH.Hickory.name=胡桃の木の用梁
+tile.WoodSupportH.Kapok.name=パンヤの用梁
+tile.WoodSupportH.Maple.name=楓の用梁
+tile.WoodSupportH.Oak.name=樫の用梁
+tile.WoodSupportH.Pine.name=松の用梁
+tile.WoodSupportH.Sequoia.name=セコイアの用梁
+tile.WoodSupportH.Spruce.name=トウヒの用梁
+tile.WoodSupportH.Sycamore.name=サイカモアの用梁
+tile.WoodSupportH.White Cedar.name=栴檀の用梁
+tile.WoodSupportH.White Elm.name=楡の用梁
+tile.WoodSupportH.Willow.name=柳の用梁
 
 tile.Toolrack.Acacia.name=アカシアのツールラック
 tile.Toolrack.Ash.name=トネリコのツールラック
@@ -1794,6 +1874,9 @@ item.Tin Double Sheet.name=錫のダブル延板
 item.Wrought Iron Double Sheet.name=錬鉄のダブル延板
 item.Zinc Double Sheet.name=亜鉛のダブル延板
 
+#== Misc ==
+item.Blueprint=ブループリント
+
 #===========
 #= Devices =
 #===========
@@ -1803,10 +1886,16 @@ tile.BlastFurnace.name=溶鉱炉
 tile.SpawnMeter.name=スポーン保護メーター
 tile.Quern.name=下臼
 tile.EarlyBloomery.name=塊鉄炉
+tile.Molten.name=溶けた鉱石
 tile.Crucible.name=るつぼ
 tile.NestBox.name=巣箱
 item.SluiceItem.name=流し樋
-tile.LeatherRack.name=
+tile.Sluice.name=流し樋
+tile.LeatherRack.name=-Leather Rack
+tile.FoodPrep.name=
+tile.MetalSheet.name=
+tile.ingotpile.name=
+tile.SmokeRack.name=
 
 #== Anvils ==
 tile.Anvil.Stone.name=石の金床
@@ -1834,8 +1923,8 @@ tile.ClayGrass.name=草
 tile.dirt.name=土
 tile.sand.name=砂
 tile.Peat.name=泥炭
-tile.tilledSoil.name=
-tile.LooseRock.name=
+tile.tilledSoil.name=農地
+tile.LooseRock.name=-Debris
 tile.Ice.name=氷
 
 #=================
@@ -1848,54 +1937,54 @@ item.stick.name=棒
 item.coal.coal.name=石炭
 item.coal.charcoal.name=木炭
 item.Fertilizer.name=肥料
-item.Reeds.name=
+item.Reeds.name=リード
 
-item.Wooden Bucket Empty.name=木のバケツ（空）
-item.Wooden Bucket Water.name=木のバケツ（水）
-item.Wooden Bucket Salt Water.name=木のバケツ（塩水）
-item.Wooden Bucket Milk.name=木のバケツ（牛乳）
+item.Wooden Bucket Empty.name=木のバケツ(空)
+item.Wooden Bucket Water.name=木のバケツ(水)
+item.Wooden Bucket Salt Water.name=木のバケツ(塩水)
+item.Wooden Bucket Milk.name=木のバケツ(牛乳)
 item.Lime Water.name=石灰水
 
-item.Red Steel Bucket Empty.name=赤鋼のバケツ（空）
-item.Red Steel Bucket Water.name=赤鋼のバケツ（水）
-item.Red Steel Bucket Salt Water.name=赤鋼のバケツ（塩水）
-item.Blue Steel Bucket Empty.name=青鋼のバケツ（空）
-item.Blue Steel Bucket Lava.name=青鋼のバケツ（溶岩）
+item.Red Steel Bucket Empty.name=赤鋼のバケツ(空)
+item.Red Steel Bucket Water.name=赤鋼のバケツ(水)
+item.Red Steel Bucket Salt Water.name=赤鋼のバケツ(塩水)
+item.Blue Steel Bucket Empty.name=青鋼のバケツ(空)
+item.Blue Steel Bucket Lava.name=青鋼のバケツ(溶岩)
 
 item.GoldPan.name=選鉱鍋
-item.Gold Pan.Sand.name=選鉱鍋（砂）
-item.Gold Pan.Gravel.name=選鉱鍋（砂利）
-item.Gold Pan.Clay.name=選鉱鍋（粘土）
-item.Gold Pan.Dirt.name=選鉱鍋（土）
+item.Gold Pan.Sand.name=選鉱鍋(砂)
+item.Gold Pan.Gravel.name=選鉱鍋(砂利)
+item.Gold Pan.Clay.name=選鉱鍋(粘土)
+item.Gold Pan.Dirt.name=選鉱鍋(土)
 item.Ink.name=打ち墨
 item.Firestarter.name=火熾し器
 
 item.Quern.name=上臼
 item.Blueprint.name=ブループリント
-item.Nametag.name=
+item.Nametag.name=名札
 item.WoolYarn.name=羊毛糸
 item.Wool.name=羊毛
 item.WoolCloth.name=羊毛布
-item.SilkCloth.name=
-item.BurlapCloth.name=
+item.SilkCloth.name=絹布
+item.BurlapCloth.name=麻布
 item.Mortar.name=モルタル
 item.Vinegar.name=酢
 
-item.Hide.small.name=生皮（小）
-item.Hide.medium.name=生皮（中）
-item.Hide.large.name=生皮（大）
-item.Soaked Hide.small.name=石灰に漬けた生皮（小）
-item.Soaked Hide.medium.name=石灰に漬けた生皮（中）
-item.Soaked Hide.large.name=石灰に漬けた生皮（大）
-item.Scraped Hide.small.name=なめし革（小）
-item.Scraped Hide.medium.name=なめし革（中）
-item.Scraped Hide.large.name=なめし革（大）
-item.Prep Hide.small.name=仕上げ前の革（小）
-item.Prep Hide.medium.name=仕上げ前の革（中）
-item.Prep Hide.large.name=仕上げ前の革（大）
-item.Sheep Skin.small.name=羊皮（小）
-item.Sheep Skin.medium.name=羊皮（中）
-item.Sheep Skin.large.name=羊皮（大）
+item.Hide.small.name=生皮(小)
+item.Hide.medium.name=生皮(中)
+item.Hide.large.name=生皮(大)
+item.Soaked Hide.small.name=石灰に漬けた生皮(小)
+item.Soaked Hide.medium.name=石灰に漬けた生皮(中)
+item.Soaked Hide.large.name=石灰に漬けた生皮(大)
+item.Scraped Hide.small.name=なめし革(小)
+item.Scraped Hide.medium.name=なめし革(中)
+item.Scraped Hide.large.name=なめし革(大)
+item.Prep Hide.small.name=仕上げ前の革(小)
+item.Prep Hide.medium.name=仕上げ前の革(中)
+item.Prep Hide.large.name=仕上げ前の革(大)
+item.Sheep Skin.small.name=羊皮(小)
+item.Sheep Skin.medium.name=羊皮(中)
+item.Sheep Skin.large.name=羊皮(大)
 item.TFC Leather.name=革
 item.Flat Leather.name=フラットレザー
 item.leather.name=革
@@ -1905,17 +1994,35 @@ item.fishingRod.name=釣り竿
 
 item.Quiver.name=矢筒
 item.Rope.name=ロープ
+item.Mud Brick.name=泥レンガ
+item.Wet Mud Brick.name=濡れた泥レンガ
 
 #======== Misc. Blocks========
 tile.Straw Hide Bed.name=藁と皮のベッド
+tile.StrawHideBed.name=藁と皮のベッド
 tile.customBed.sleep=こんなベッドではとても寝られない
 tile.BasicPipe.name=パイプ
 tile.ValvePipe.name=パイプの栓
+tile.Smoke.name=煙
 tile.Torch.name=松明
 tile.Chest.name=チェスト
 tile.Bookshelf.name=本棚
 tile.Workbench.name=作業台
 tile.ButtonWood.name=木のボタン
+tile.Firepit.name=焚火
+tile.LogPile.name=丸太の山
+tile.Charcoal.name=木炭
+tile.StoneDetailed.name=詳細モード
+tile.stoneStairs.name=階段モード
+tile.stoneSlabs.name=スラブモード
+tile.stoneStalac.name=鍾乳石
+tile.WoodConstruct.name=板材
+tile.MetalTrapDoor.name=トラップドア
+tile.Vessel.name=大きな容器
+tile.Grill.name=グリル
+
+tile.Sulfur.name=硫黄
+tile.Reeds.name=リード
 
 #= Misc. Plants =
 item.Sugarcane.name=サトウキビ
@@ -1924,10 +2031,11 @@ item.Straw.name=藁
 item.Jute.name=ジュート
 item.Jute Fibre.name=ジュート繊維
 
-tile.Fungi.mushroom_brown.name=キノコ
-tile.Fungi.mushroom_red.name=
+tile.Fungi.mushroom_brown.name=茶キノコ
+tile.Fungi.mushroom_red.name=赤キノコ
 tile.Cactus.name=サボテン
 tile.Pumpkin.name=カボチャ
+tile.LitPumpkin.name=
 tile.Moss.name=苔
 tile.Thatch.name=ふきわら
 tile.Flora.Golden Rod.name=麒麟草
@@ -1937,20 +2045,20 @@ item.Seeds Sugarcane.name=サトウキビの種
 item.Seeds Hemp.name=麻の種
 item.Seeds Jute.name=ジュートの種
 
-tile.TallGrass.tallgrass.name=
+tile.TallGrass.tallgrass.name=-Tall Grass
 tile.TallGrass.fern.name=シダ
-tile.TallGrass.shortgrass.name=
+tile.TallGrass.shortgrass.name=-Short Grass
 tile.LilyPad.name=スイレンの葉
 tile.Vine.name=つる
-tile.SeaGrassStill.name=
-tile.SeaGrassIce.name=
+tile.SeaGrassStill.name=海藻
+tile.SeaGrassIce.name=-Frozen Seagrass
 
-tile.Flowers.flower_nasturtium.name=
+tile.Flowers.flower_nasturtium.name=ナスタチウム
 tile.Flowers.flower_dandelion.name=タンポポ
-tile.Flowers.flower_meads_milkweed.name=
-tile.Flowers.flower_tropical_milkweed.name=
-tile.Flowers.flower_butterfly_milkweed.name=
-tile.Flowers.flower_calendula.name=
+tile.Flowers.flower_meads_milkweed.name=ミーズミルクウィード
+tile.Flowers.flower_tropical_milkweed.name=トロピカルミルクウィード
+tile.Flowers.flower_butterfly_milkweed.name=バタフライミルクウィード
+tile.Flowers.flower_calendula.name=マリーゴールド
 tile.Flowers2.flower_rose.name=ポピー
 tile.Flowers2.flower_blue_orchid.name=ヒスイラン
 tile.Flowers2.flower_allium.name=アリウム
@@ -1961,10 +2069,18 @@ tile.Flowers2.flower_tulip_white.name=白色のチューリップ
 tile.Flowers2.flower_tulip_pink.name=桃色のチューリップ
 tile.Flowers2.flower_oxeye_daisy.name=フランスギク
 
+tile.SaltWater.name=海水(流水)
+tile.SaltWaterStationary.name=海水
+tile.FreshWater.name=真水(流水)
+tile.FreshWaterStationary.name=真水
+tile.HotWater.name=温水(流水)
+tile.HotWaterStationary.name=温水
+tile.Lava.name=溶岩(流れる)
+tile.LavaStationary.name=溶岩
+
 #=======
 #= GUI =
 #=======
-gui.badnbt=
 
 #== Anvil GUI ==
 gui.Anvil.Plans=設計図
@@ -1982,14 +2098,14 @@ gui.Anvil.Shrink=狭める
 
 gui.Anvil.Rules=手順
 gui.Anvil.Rule1=どの方法でも可
-gui.Anvil.Rule2=打つ（順不同）
+gui.Anvil.Rule2=打つ(順不同)
 gui.Anvil.Rule3=最後に"打つ"
 gui.Anvil.Rule4=２番目に"打つ"
 gui.Anvil.Rule5=3番目に"打つ"
 gui.Anvil.Rule6=最後から２番目に"打つ"
 gui.Anvil.Rule7=最後から3番目に"打つ"
 gui.Anvil.Rule8=最後以外に"打つ"
-gui.Anvil.Rule9=穴を開ける（順不同）
+gui.Anvil.Rule9=穴を開ける(順不同)
 gui.Anvil.Rule10=最後に"穴を開ける"
 gui.Anvil.Rule11=２番目に"穴を開ける"
 gui.Anvil.Rule12=３番目に"穴を開ける"
@@ -2026,15 +2142,11 @@ gui.Anvil.Rule42=最後から３番目に"曲げる"
 gui.Anvil.Rule43=最後以外に"曲げる"
 
 #== Tools/Weapons/Armor GUI ==
-gui.Armor.Advanced=発展型
-gui.Armor.Shift=変形
 gui.Armor.ForgedBy=製作者：
-gui.Armor.Hold=押す
 gui.Armor.Crush=打撃
 gui.Armor.Pierce=刺突
 gui.Armor.Slash=斬撃
 
-gui.Bow.Advanced=発展型
 gui.Bow.Javelins=ジャベリン
 gui.Bow.Arrows=矢
 gui.Bow.ForgedBy=製作者：
@@ -2047,23 +2159,25 @@ gui.DamageType.Slashing=斬撃
 #== Barrel GUI ==
 gui.Barrel.Empty=空にする
 gui.Barrel.Seal=密封
-gui.Barrel.Unseal=
+gui.Barrel.Unseal=開封
 gui.Barrel.ToggleOff=開栓
 gui.Barrel.ToggleOn=注入
-gui.Barrel.SealedOn=
-gui.Barrel.Solid=
-gui.Barrel.Liquid=
+gui.Barrel.SealedOn=密封済み
+gui.Barrel.Solid=個体保管
+gui.Barrel.Liquid=液体貯蔵
+gui.barrel.pickling=酢漬け中
+gui.barrel.brining=塩漬け中
+gui.barrel.preserving=保存中
 
 #== Bloomery GUI ==
 gui.Bloomery.Charcoal=木炭
 gui.Bloomery.Ore=鉱石
-gui.Bloomery.Output=精製済み
 
 #== Calendar GUI ==
 gui.Calendar.Calendar=カレンダー
 gui.Calendar.DateBioxx=Bioxxの誕生日!
 gui.Calendar.DateDunk=Dunkの誕生日!
-gui.Calendar.DateKitty=
+gui.Calendar.DateKitty=Kittyの誕生日!
 
 gui.Calendar.Hour=時刻
 gui.Calendar.WitchHour=丑三つ時
@@ -2092,18 +2206,18 @@ gui.Calendar.Winter=冬
 gui.Calendar.LateWinter=晩冬
 
 gui.Calendar.Date=日付
-gui.Calendar.January=１月
-gui.Calendar.February=２月
-gui.Calendar.March=３月
-gui.Calendar.April=４月
-gui.Calendar.May=５月
-gui.Calendar.June=６月
-gui.Calendar.July=７月
-gui.Calendar.August=８月
-gui.Calendar.September=９月
-gui.Calendar.October=１０月
-gui.Calendar.November=１１月
-gui.Calendar.December=１２月
+gui.Calendar.January=睦月：1月
+gui.Calendar.February=如月：2月
+gui.Calendar.March=弥生：3月
+gui.Calendar.April=卯月：4月
+gui.Calendar.May=皐月：5月
+gui.Calendar.June=水無月：6月
+gui.Calendar.July=文月：7月
+gui.Calendar.August=葉月：8月
+gui.Calendar.September=長月：9月
+gui.Calendar.October=神無月：10月
+gui.Calendar.November=霜月：11月
+gui.Calendar.December=師走：12月
 
 gui.Calendar.1Hour=1時間
 gui.Calendar.1Day=1日
@@ -2111,12 +2225,14 @@ gui.Calendar.1Week=1週間
 gui.Calendar.1Month=1ヶ月
 gui.Calendar.1Year=1年
 
-#== Food Prep GUI ==
-gui.FoodPrep.CreateMeal=料理を作る
+#== Food GUI ==
+gui.FoodPrep.CreateMeal=調理
 gui.FoodPrep.Effect=効果
 gui.FoodPrep.Energy=腹持ち
 gui.FoodPrep.Filling=満腹度
 gui.FoodPrep.Power=活力
+gui.FoodPrep.Sandwich=サンドイッチ
+gui.FoodPrep.Salad=サラダ
 
 #== Metals ==
 gui.metal.Bismuth=蒼鉛
@@ -2163,7 +2279,7 @@ gui.plans.knife=ナイフ
 gui.plans.legsplate=レギンズ
 gui.plans.mace=メイス
 gui.plans.pickaxe=つるはし
-gui.plans.propick=探鉱槌
+gui.plans.propick=探鉱鎚
 gui.plans.refinebloom=精錬
 gui.plans.saw=のこぎり
 gui.plans.scythe=鎌
@@ -2172,34 +2288,55 @@ gui.plans.shovel=シャベル
 gui.plans.splitbloom=分割
 gui.plans.sword=剣
 gui.plans.tuyere=羽口
-gui.plans.grill=
-gui.plans.shears=
+gui.plans.grill=グリル
+gui.plans.shears=-Shears
+gui.plans.trapdoor=トラップドア
 
 #== Misc GUI ==
 gui.Blueprint=ブループリント
-gui.Nametag=
+gui.Nametag=名札
 gui.fertilized=施肥
 gui.Inventory=インベントリ
 gui.ClearSlot=搬出スロットを空にする
 gui.LogPile=丸太置き場
+gui.Output=精製済み
 gui.done=完了
+gui.cancel=キャンセル
 gui.Sluice.Soil=土砂
-gui.Sluice=流し樋
+gui.Sluice.Overworked=過稼働
 gui.Workbench.Crafting=クラフト
+gui.overburdened=過積載！
+
+gui.badnbt=不正なNBT
 
 #== Tooltips ==
-gui.ShowHelp=§8ヘルプ：（§fShiftキー§8を押す）
+gui.Advanced=発展型
+gui.Shift=変形
+gui.Hold=押す
+
+gui.slot=スロット
+gui.slot.back=背中
+
+gui.ShowHelp=§8ヘルプ：(§fShiftキー§8を押す)
 gui.Help=§8ヘルプ
 gui.Clay.Inst0=5つ持って§b右クリック§7で陶器を作製
-gui.Knife.Inst0=
-gui.Knife.Inst1=
+gui.Knife.Inst0=ブロックの上部を§b右クリック§7で
+gui.Knife.Inst1=調理台を作成
 gui.Leather.Inst0=ナイフを持って§b右クリック §7で皮細工
 gui.LooseRock.Inst0=2つ持って§b右クリック §7 で石器を作製
 gui.MeltedMetal.Inst0=§b右クリック §7で鋳型にそそぐ
 gui.PotteryBase.Inst0=スニークし§b右クリックで§7オブジェクトを設置
-gui.PotteryVesselSmall.Inst0=もしくは§b右クリック、で§7インベントリーを開く
-gui.RawHide.Inst0=
-gui.Barrel.MoreItems=
+gui.PotteryVesselSmall.Inst0=もしくは§b右クリックで§7インベントリーを開く
+gui.RawHide.Inst0=????
+gui.Chisel.Inst0=
+gui.Barrel.MoreItems=§8詳細... (押す §fShift§8)
+
+gui.Nutrient.A=
+gui.Nutrient.B=
+gui.Nutrient.C=
+
+gui.stage1=Stage 1
+gui.stage2=Stage 2
 
 gui.Size.Tiny=非常に小さい
 gui.Size.VerySmall=やや小さい
@@ -2217,6 +2354,11 @@ gui.Reach.Short=近
 gui.Reach.Medium=中
 gui.Reach.Far=遠
 
+gui.hoursRemaining=
+gui.daysRemaining=
+gui.infinite=
+
+#== Food ==
 gui.food.fruit=果物
 gui.food.vegetable=野菜
 gui.food.grain=穀物
@@ -2229,11 +2371,89 @@ gui.food.salted=塩添加
 gui.FoodHeat.Cold=冷たい
 gui.FoodHeat.Warm=暖かい
 
+gui.showtaste=§8味: (押す §fL-Ctrl§8)
+gui.taste=§8味:
+gui.taste.sweet=甘味
+gui.taste.sour=酸味
+gui.taste.salty=塩味
+gui.taste.bitter=苦味
+gui.taste.savory=旨味
+
+gui.taste.novice.sweet1=甘い
+gui.taste.novice.sweet0=甘くない
+gui.taste.novice.sour1=酸っぱい
+gui.taste.novice.sour0=酸っぱくない
+gui.taste.novice.salty1=塩辛い
+gui.taste.novice.salty0=塩辛く無い
+gui.taste.novice.bitter1=苦い
+gui.taste.novice.bitter0=苦くない
+gui.taste.novice.savory1=美味しい
+gui.taste.novice.savory0=美味しくない
+
+gui.taste.adept.sweet0=甘くない
+gui.taste.adept.sweet1=そこそこ甘い
+gui.taste.adept.sweet2=甘い
+gui.taste.adept.sweet3=結構甘い
+gui.taste.adept.sweet4=とても甘い
+gui.taste.adept.sweet5=最高に甘い
+gui.taste.adept.sour0=酸っぱくない
+gui.taste.adept.sour1=そこそこ酸い
+gui.taste.adept.sour2=酸っぱい
+gui.taste.adept.sour3=結構酸い
+gui.taste.adept.sour4=とても酸い
+gui.taste.adept.sour5=最高に酸い
+gui.taste.adept.salty0=塩辛く無い
+gui.taste.adept.salty1=そこそこ塩辛い
+gui.taste.adept.salty2=塩辛い
+gui.taste.adept.salty3=結構塩辛い
+gui.taste.adept.salty4=とても塩辛い
+gui.taste.adept.salty5=最高に塩辛い
+gui.taste.adept.bitter0=苦くない
+gui.taste.adept.bitter1=そこそこ苦い
+gui.taste.adept.bitter2=苦い
+gui.taste.adept.bitter3=結構苦い
+gui.taste.adept.bitter4=とても苦い
+gui.taste.adept.bitter5=最高に苦い
+gui.taste.adept.savory0=美味しくない
+gui.taste.adept.savory1=そこそこの味
+gui.taste.adept.savory2=美味しい
+gui.taste.adept.savory3=結構美味
+gui.taste.adept.savory4=とても美味
+gui.taste.adept.savory5=極上の旨さ
+
+gui.taste.0=-Not
+gui.taste.1=-Not Very
+gui.taste.2=-Somewhat
+gui.taste.3=-Moderately
+gui.taste.4=-Perfectly
+gui.taste.5=-Overly
+gui.taste.6=-Very
+gui.taste.7=-Extremely
+gui.taste.8=-Ridiculously
+
+word.pickled=酢漬けの
+word.brined=塩漬けの
+word.cooked=調理済みの
+word.salted=塩漬けされた
+word.smoked=燻された
+word.dried=乾いた
+
+food.cooked.rare=レア
+food.cooked.medrare=ミディアムレア
+food.cooked.med=ミディアム
+food.cooked.medwell=ミディアムウェル
+food.cooked.well=ウェルダン
+food.cooked.0=あぶり
+food.cooked.1=こがね色
+food.cooked.2=きつね色
+food.cooked.3=あめ色
+food.cooked.4=黒焦げ
+
 gui.Torch.CatchingFire=着火
 gui.Torch.Lit=点火
 
 gui.ItemHeat.Liquid=液化
-gui.ItemHeat.Solidified=
+gui.ItemHeat.Solidified=凝固
 gui.ItemHeat.Caution=注意
 gui.ItemHeat.Warming=暖
 gui.ItemHeat.Hot=高温
@@ -2257,29 +2477,54 @@ gui.milk.sour=酸っぱい
 
 gui.units=単位
 
+#== WAILA ==
+gui.useless=
+gui.growth=
+gui.mature=
+gui.metal.Iron=
+gui.tier=
+gui.fuel=
+gui.Green Apple=
+gui.Red Apple=
+gui.Banana=
+gui.Cherry=
+gui.Lemon=
+gui.Olive=
+gui.Orange=
+gui.Peach=
+gui.Plum=
+gui.pile=
+gui.weaving=
+gui.eggs=
+gui.fertEggs=
+gui.logs=
+gui.gems=
+
 #== Chat Messages ==
 gui.GoldPan.UseFull=流水の下で使用してください。
 gui.goldpan.overused=ここはやりつくしたようです。これ以上何も見つけられません。
+gui.seeds.failedTemp=
+gui.seeds.failedSun=
 
-gui.ProPick.Found=を発見した
-gui.ProPick.FoundTraces=の微量の形跡を発見した
-gui.ProPick.FoundSmall=の小規模な鉱石サンプルを発見した
-gui.ProPick.FoundMedium=の中規模な鉱石サンプルを発見した
-gui.ProPick.FoundLarge=の大規模な鉱石サンプルを発見した
-gui.ProPick.FoundVeryLarge=のとても大規模な鉱石サンプルを発見した。
-gui.ProPick.FoundNothing=鉱石の気配はない。
+gui.ProPick.Found=発見した
+gui.ProPick.FoundTraces=僅かな鉱脈を発見した：
+gui.ProPick.FoundSmall=小さな鉱脈を発見した：
+gui.ProPick.FoundMedium=鉱脈を発見した：
+gui.ProPick.FoundLarge=大きな鉱脈を発見した：
+gui.ProPick.FoundVeryLarge=巨大な鉱脈を発見した：
+gui.ProPick.FoundNothing=鉱脈は発見できなかった・・・
 
 #== Creative Tabs ==
 itemGroup.TFCArmor=(TFC) 防具
 itemGroup.TFCMaterials=(TFC) 素材
-itemGroup.TFCMisc=(TFC)その他
-itemGroup.TFCPottery=(TFC)陶芸
+itemGroup.TFCMisc=(TFC) その他
+itemGroup.TFCPottery=(TFC) 陶芸
 itemGroup.TFCTools=(TFC) ツール
-itemGroup.TFCWeapons=(TFC)武器
-itemGroup.TFCDevices=(TFC)デバイス
-itemGroup.TFCFoods=(TFC)食料
-itemGroup.TFCBuilding=(TFC)建築ブロック
-itemGroup.TFCDecoration=(TFC)装飾ブロック
+itemGroup.TFCWeapons=(TFC) 武器
+itemGroup.TFCDevices=(TFC) デバイス
+itemGroup.TFCFoods=(TFC) 食料
+itemGroup.TFCBuilding=(TFC) 建築ブロック
+itemGroup.TFCDecoration=(TFC) 装飾ブロック
 
 #== Skill GUI ==
 skill.armorsmith=防具鍛冶スキル
@@ -2288,129 +2533,32 @@ skill.toolsmith=ツール鍛冶スキル
 skill.weaponsmith=武器鍛冶スキル
 skill.agriculture=農業スキル
 skill.cooking=料理スキル
-skill.prospecting=
-skill.butchering=
+skill.prospecting=鉱石探索スキル
+skill.butchering=食肉解体加工スキル
+gui.skill.novice=初心者
+gui.skill.adept=熟練者
+gui.skill.expert=専門家
+gui.skill.master=達人
+gui.skillpage=技術
+
+#==================
+#= Error Messages =
+#==================
+error.error=エラー：
+error.NBT=：NBT情報無し
+error.OreCFG=
+error.Contact=公式サポートに報告してください
 
 #=====================================================
 #========Add New Stuff Here To Be Sorted Later========
 #=====================================================
-fluid.freshwater=真水
-fluid.saltwater=塩水
-fluid.lavatfc=マグマ
-fluid.hotwater=熱湯
-fluid.beer=ビール
-fluid.cider=リンゴ酒
-fluid.rum=ラム酒
-fluid.ryewhiskey=ライウイスキー
-fluid.sake=日本酒
-fluid.vodka=ウォッカ
-fluid.whiskey=ウイスキー
-fluid.cornwhiskey=
-fluid.milk=ミルク
-fluid.milkcurdled=カード
-fluid.limewater=石灰水
-fluid.tannin=タンニン
-fluid.vinegar=酢
-fluid.brine=
-
-gui.showtaste=
-gui.taste=
-gui.taste.sweet=甘味
-gui.taste.sour=酸味
-gui.taste.salty=塩味
-gui.taste.bitter=苦味
-gui.taste.savory=旨味
-
-gui.taste.novice.sweet1=
-gui.taste.novice.sweet0=
-gui.taste.novice.sour1=
-gui.taste.novice.sour0=
-gui.taste.novice.salty1=
-gui.taste.novice.salty0=
-gui.taste.novice.bitter1=
-gui.taste.novice.bitter0=
-gui.taste.novice.savory1=
-gui.taste.novice.savory0=
-
-gui.taste.adept.sweet0=
-gui.taste.adept.sweet1=
-gui.taste.adept.sweet2=
-gui.taste.adept.sweet3=
-gui.taste.adept.sweet4=
-gui.taste.adept.sweet5=
-gui.taste.adept.sour0=
-gui.taste.adept.sour1=
-gui.taste.adept.sour2=
-gui.taste.adept.sour3=
-gui.taste.adept.sour4=
-gui.taste.adept.sour5=
-gui.taste.adept.salty0=
-gui.taste.adept.salty1=
-gui.taste.adept.salty2=
-gui.taste.adept.salty3=
-gui.taste.adept.salty4=
-gui.taste.adept.salty5=
-gui.taste.adept.bitter0=
-gui.taste.adept.bitter1=
-gui.taste.adept.bitter2=
-gui.taste.adept.bitter3=
-gui.taste.adept.bitter4=
-gui.taste.adept.bitter5=
-gui.taste.adept.savory0=
-gui.taste.adept.savory1=
-gui.taste.adept.savory2=
-gui.taste.adept.savory3=
-gui.taste.adept.savory4=
-gui.taste.adept.savory5=
-
-gui.taste.0=
-gui.taste.1=
-gui.taste.2=
-gui.taste.3=
-gui.taste.4=
-gui.taste.5=
-gui.taste.6=
-gui.taste.7=
-gui.taste.8=
-
-gui.skill.novice=
-gui.skill.adept=
-gui.skill.expert=
-gui.skill.master=
-gui.skillpage=
-tile.MetalTrapDoor.name=
-item.Mud Brick.name=
-item.Wet Mud Brick.name=
-gui.overburdened=
-gui.slot=
-gui.slot.back=
-word.pickled=
-word.brined=
-word.cooked=
-word.salted=
-word.smoked=
-word.dried=
-gui.barrel.pickling=
-gui.barrel.brining=
-tile.Vessel.name=
-tile.Grill.name=
-food.cooked.rare=
-food.cooked.medrare=
-food.cooked.med=
-food.cooked.medwell=
-food.cooked.well=
-food.cooked.0=
-food.cooked.1=
-food.cooked.2=
-food.cooked.3=
-food.cooked.4=
-gui.FoodPrep.Sandwich=
-gui.FoodPrep.Salad=
-item.Sandwich.name=
-item.Salad.name=
-item.ClayBowl.Ceramic Bowl.name=
-item.ClayBowl.Clay Bowl.name=
-item.Sugar.name=
-item.Sea Weed.name=
-word.stage1=Stage 1
-word.stage2=Stage 2
+tile.Hopper.name=ホッパー
+fluid.oliveoil=オリーブオイル
+tile.OilLamp.Gold.name=金のランプ
+tile.OilLamp.Platinum.name=白金のランプ
+tile.OilLamp.RoseGold.name=
+tile.OilLamp.Silver.name=銀のランプ
+tile.OilLamp.SterlingSilver.name=
+tile.OilLamp.BlueSteel.name=青鋼のランプ
+gui.plans.hopper=ホッパー
+gui.plans.oillamp=オイルランプ

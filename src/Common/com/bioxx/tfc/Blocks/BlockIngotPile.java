@@ -18,12 +18,13 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TileEntities.TEIngotPile;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.TileEntities.TEIngotPile;
 
 public class BlockIngotPile extends BlockTerraContainer
 {
@@ -42,13 +43,6 @@ public class BlockIngotPile extends BlockTerraContainer
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int side, float hitX, float hitY, float hitZ)
 	{
-		ItemStack equippedItem = entityplayer.getCurrentEquippedItem();
-		Item item;
-		if(equippedItem != null)
-			item = entityplayer.getCurrentEquippedItem().getItem();
-		else
-			item = null;
-
 		if(world.isRemote)
 		{
 			world.getTileEntity(x, y, z).validate();
@@ -82,9 +76,6 @@ public class BlockIngotPile extends BlockTerraContainer
 					world.markBlockForUpdate(x, y, z);
 					//tileentityingotpile.broadcastPacketInRange(tileentityingotpile.createUpdatePacket());
 				}
-				//damage = tileentityingotpile.getStackInSlot(0).getItem().itemID - 16028 - 256;
-				//stack = tileentityingotpile.getStackInSlot(0).stackSize;
-				ItemStack is = entityplayer.getCurrentEquippedItem();
 			}
 			return true;
 		}
@@ -161,8 +152,8 @@ public class BlockIngotPile extends BlockTerraContainer
 	@Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
-		int direction = getDirectionFromMetadata(meta);
+		//int meta = world.getBlockMetadata(x, y, z);
+		//int direction = getDirectionFromMetadata(meta);
 		TEIngotPile te = (TEIngotPile)world.getTileEntity(x, y, z);
 
 		if (te != null && te.getStackInSlot(0) != null)
@@ -175,8 +166,8 @@ public class BlockIngotPile extends BlockTerraContainer
 	@Override
 	public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		int meta = world.getBlockMetadata(x, y, z);
-		int direction = getDirectionFromMetadata(meta);
+		//int meta = world.getBlockMetadata(x, y, z);
+		//int direction = getDirectionFromMetadata(meta);
 		TEIngotPile te = (TEIngotPile)world.getTileEntity(x, y, z);
 
 		if (te.getStackInSlot(0)!=null)
@@ -188,8 +179,8 @@ public class BlockIngotPile extends BlockTerraContainer
 	@Override
 	public void setBlockBoundsBasedOnState(IBlockAccess bAccess, int x, int y, int z)
 	{
-		int meta = bAccess.getBlockMetadata(x, y, z);
-		int direction = getDirectionFromMetadata(meta);
+		//int meta = bAccess.getBlockMetadata(x, y, z);
+		//int direction = getDirectionFromMetadata(meta);
 		TEIngotPile te = (TEIngotPile)bAccess.getTileEntity(x, y, z);
 
 		if (te.getStackInSlot(0)!=null)
@@ -242,9 +233,14 @@ public class BlockIngotPile extends BlockTerraContainer
 
 	public int getStack(World world,TEIngotPile tt)
 	{
-		TEIngotPile Te = ((TEIngotPile)world.getTileEntity(tt.xCoord, tt.yCoord, tt.zCoord));
+		if (world.getTileEntity(tt.xCoord, tt.yCoord, tt.zCoord) instanceof TEIngotPile)
+		{
+			TEIngotPile te = ((TEIngotPile) world.getTileEntity(tt.xCoord, tt.yCoord, tt.zCoord));
 
-		return Te != null ? Te.getStackInSlot(0) != null ? Te.getStackInSlot(0).stackSize : 0 : 0;
+			return te.getStackInSlot(0) != null ? te.getStackInSlot(0).stackSize : 0;
+		}
+
+		return 0;
 	}
 
 	@Override
@@ -347,8 +343,7 @@ public class BlockIngotPile extends BlockTerraContainer
 	public static int getAnvilTypeFromMeta(int j)
 	{
 		int l = 7;
-		int k = j & l;
-		return k;
+		return j & l;
 	}
 
 	public static int getDirectionFromMetadata(int i)
@@ -372,19 +367,30 @@ public class BlockIngotPile extends BlockTerraContainer
 	{
 		if(!world.isRemote)
 		{
-			if(!world.isSideSolid(x, y - 1, z, ForgeDirection.UP))
+			if ( !world.isSideSolid(x, y - 1, z, ForgeDirection.UP) && world.getTileEntity(x, y, z) instanceof TEIngotPile)
 			{
-				if(world.getBlock(x, y - 1, z) == this && ((TEIngotPile)world.getTileEntity(x, y, z)).storage[0].getItem() == ((TEIngotPile)world.getTileEntity(x, y - 1, z)).storage[0].getItem())
+				TEIngotPile ingotPile = (TEIngotPile) world.getTileEntity(x, y, z);
+				Item ingot = ingotPile.storage[0] != null ? ingotPile.storage[0].getItem() : null;
+
+				if (world.getBlock(x, y - 1, z) == this && world.getTileEntity(x, y - 1, z) instanceof TEIngotPile)
 				{
-					combineIngotsDown(world, x, y, z);
+					TEIngotPile lowerPile = (TEIngotPile) world.getTileEntity(x, y - 1, z);
+					Item lowerIngot = lowerPile.storage[0] != null ? lowerPile.storage[0].getItem() : null;
+
+					if (ingot == lowerIngot)
+						combineIngotsDown(world, x, y, z);
 				}
-				else if(world.getBlock(x, y + 1, z) == this && ((TEIngotPile)world.getTileEntity(x, y, z)).storage[0].getItem() == ((TEIngotPile)world.getTileEntity(x, y + 1, z)).storage[0].getItem())
+				else if (world.getBlock(x, y + 1, z) == this && world.getTileEntity(x, y + 1, z) instanceof TEIngotPile)
 				{
-					combineIngotsUp(world, x, y, z);
+					TEIngotPile upperPile = (TEIngotPile) world.getTileEntity(x, y + 1, z);
+					Item upperIngot = upperPile.storage[0] != null ? upperPile.storage[0].getItem() : null;
+
+					if (ingot == upperIngot)
+						combineIngotsUp(world, x, y, z);
 				}
 				else
 				{
-					((TEIngotPile)world.getTileEntity(x, y, z)).ejectContents();
+					ingotPile.ejectContents();
 					world.setBlockToAir(x, y, z);
 					return;
 				}

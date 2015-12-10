@@ -11,28 +11,29 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Core.TFC_Core;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
 
 public class BlockCustomCactus extends Block implements IPlantable
 {
 	@SideOnly(Side.CLIENT)
-	private IIcon field_94380_a;
+	private IIcon cactusTopIcon;
 	@SideOnly(Side.CLIENT)
-	private IIcon field_94379_b;
+	private IIcon cactusSideIcon;
 
 	public BlockCustomCactus()
 	{
 		super(Material.cactus);
 		this.setTickRandomly(true);
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 	}
 
 	/**
@@ -75,7 +76,7 @@ public class BlockCustomCactus extends Block implements IPlantable
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
 	{
 		float var5 = 0.0625F;
-		return AxisAlignedBB.getBoundingBox((double)((float)par2 + var5), (double)par3, (double)((float)par4 + var5), (double)((float)(par2 + 1) - var5), (double)((float)(par3 + 1) - var5), (double)((float)(par4 + 1) - var5));
+		return AxisAlignedBB.getBoundingBox(par2 + var5, par3, par4 + var5, par2 + 1 - var5, par3 + 1 - var5, par4 + 1 - var5);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -86,7 +87,7 @@ public class BlockCustomCactus extends Block implements IPlantable
 	public AxisAlignedBB getSelectedBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
 	{
 		float var5 = 0.0625F;
-		return AxisAlignedBB.getBoundingBox((double)((float)par2 + var5), (double)par3, (double)((float)par4 + var5), (double)((float)(par2 + 1) - var5), (double)(par3 + 1), (double)((float)(par4 + 1) - var5));
+		return AxisAlignedBB.getBoundingBox(par2 + var5, par3, par4 + var5, par2 + 1 - var5, par3 + 1, par4 + 1 - var5);
 	}
 
 	/**
@@ -95,7 +96,7 @@ public class BlockCustomCactus extends Block implements IPlantable
 	@Override
 	public IIcon getIcon(int par1, int par2)
 	{
-		return par1 == 1 ? this.field_94380_a : (par1 == 0 ? this.field_94379_b : this.blockIcon);
+		return par1 == 1 ? this.cactusTopIcon : par1 == 0 ? this.cactusSideIcon : this.blockIcon;
 	}
 
 	/**
@@ -188,8 +189,8 @@ public class BlockCustomCactus extends Block implements IPlantable
 	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon("cactus_side");
-		this.field_94380_a = par1IconRegister.registerIcon("cactus_top");
-		this.field_94379_b = par1IconRegister.registerIcon("cactus_bottom");
+		this.cactusTopIcon = par1IconRegister.registerIcon("cactus_top");
+		this.cactusSideIcon = par1IconRegister.registerIcon("cactus_bottom");
 	}
 
 	@Override

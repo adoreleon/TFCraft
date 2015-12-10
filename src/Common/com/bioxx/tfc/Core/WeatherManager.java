@@ -6,25 +6,26 @@ import net.minecraft.world.World;
 
 public class WeatherManager
 {
-	protected static final WeatherManager instance = new WeatherManager();
+	protected static final WeatherManager INSTANCE = new WeatherManager();
 	private Random rand = new Random();
 	private Random clientRand = new Random();
 	public static final WeatherManager getInstance()
 	{
-		return instance;
+		return INSTANCE;
 	}
-	public long seed = 0;
+
+	public long seed;
 
 	public WeatherManager()
 	{
 	}
 
-	private Random getRandom(World world)
+	/*private Random getRandom(World world)
 	{
 		if(world.isRemote)
 			return clientRand;
 		return rand;
-	}
+	}*/
 
 	public float getDailyTemp()
 	{
@@ -47,15 +48,12 @@ public class WeatherManager
 	public static int getDayOfWeek(long day)
 	{
 		long days = day / 6;
-		long days2 = day - (days * 6);
-		return (int)days2;
+		return (int) (day - (days * 6));
 	}
 
 	public static boolean canSnow(World world, int x, int y, int z)
 	{
-		if(TFC_Climate.getHeightAdjustedTemp(world, x, y, z) <= 0)
-			return true;
-		return false;
+		return TFC_Climate.getHeightAdjustedTemp(world, x, y, z) <= 0;
 	}
 
 	public float getLocalFog(World world, int x, int y, int z)

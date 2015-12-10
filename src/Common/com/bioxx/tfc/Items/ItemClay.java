@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
@@ -21,14 +20,14 @@ public class ItemClay extends ItemLooseRock
 	public ItemClay()
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCPottery);
+		this.setCreativeTab(TFCTabs.TFC_POTTERY);
 		this.icons = new IIcon[2];
 	}
 
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer entityplayer)
 	{
-		//System.out.println(itemstack.stackSize+", "+itemstack.getItem().getClass() +": "+Items.clay_ball.getClass());
+		//TerraFirmaCraft.log.info(itemstack.stackSize+", "+itemstack.getItem().getClass() +": "+Items.clay_ball.getClass());
 		if(itemstack.stackSize >= 5)
 		{
 			PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(entityplayer);
@@ -43,7 +42,6 @@ public class ItemClay extends ItemLooseRock
 				pi.specialCraftingTypeAlternate = new ItemStack(specialCraftingType, 1, 3);
 			}
 
-			itemstack.stackSize -= 5;
 			entityplayer.openGui(TerraFirmaCraft.instance, 28, entityplayer.worldObj, (int)entityplayer.posX, (int)entityplayer.posY, (int)entityplayer.posZ);
 		}
 		return itemstack;
@@ -51,16 +49,16 @@ public class ItemClay extends ItemLooseRock
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
 		if (TFC_Core.showShiftInformation())
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.Help"));
-			arraylist.add(StatCollector.translateToLocal("gui.Clay.Inst0"));
+			arraylist.add(TFC_Core.translate("gui.Help"));
+			arraylist.add(TFC_Core.translate("gui.Clay.Inst0"));
 		}
 		else
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.ShowHelp"));
+			arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 		}
 	}
 
@@ -73,7 +71,7 @@ public class ItemClay extends ItemLooseRock
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		icons[0] = registerer.registerIcon(Reference.ModID + ":" + "Clay");
-		icons[1] = registerer.registerIcon(Reference.ModID + ":" + "Fire Clay");
+		icons[0] = registerer.registerIcon(Reference.MOD_ID + ":" + "Clay");
+		icons[1] = registerer.registerIcon(Reference.MOD_ID + ":" + "Fire Clay");
 	}
 }

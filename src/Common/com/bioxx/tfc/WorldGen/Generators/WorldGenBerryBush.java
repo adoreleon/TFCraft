@@ -7,7 +7,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Blocks.Flora.BlockBerryBush;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
@@ -15,6 +14,7 @@ import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Food.FloraIndex;
 import com.bioxx.tfc.Food.FloraManager;
 import com.bioxx.tfc.TileEntities.TEBerryBush;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class WorldGenBerryBush extends WorldGenerator
 {
@@ -46,20 +46,20 @@ public class WorldGenBerryBush extends WorldGenerator
 		float rain = TFC_Climate.getRainfall(world, i, j, k);
 		float evt = TFC_Climate.getCacheManager(world).getEVTLayerAt(i, k).floatdata1;
 
-		FloraIndex _fi = FloraManager.getInstance().findMatchingIndex(((BlockBerryBush)TFCBlocks.BerryBush).getType(meta));
-		if(world.isAirBlock(i, j, k) && j < 250 && temp > _fi.minBioTemp && temp < _fi.maxBioTemp && 
-				rain >= _fi.minRain && rain <= _fi.maxRain && evt >= _fi.minEVT && evt <= _fi.maxEVT)
+		FloraIndex index = FloraManager.getInstance().findMatchingIndex(((BlockBerryBush)TFCBlocks.berryBush).getType(meta));
+		if(world.isAirBlock(i, j, k) && j < 250 && temp > index.minBioTemp && temp < index.maxBioTemp && 
+				rain >= index.minRain && rain <= index.maxRain && evt >= index.minEVT && evt <= index.maxEVT)
 		{
-			int _cluster = clusterSize + random.nextInt(clusterSize)-(clusterSize/2);
+			int cluster = clusterSize + random.nextInt(clusterSize)-(clusterSize/2);
 			short count = 0;
-			for(short realCount = 0; count < _cluster && realCount < (spawnRadius*spawnRadius); realCount++)
+			for(short realCount = 0; count < cluster && realCount < (spawnRadius*spawnRadius); realCount++)
 			{
 				int x = random.nextInt(spawnRadius*2);
 				int z = random.nextInt(spawnRadius*2);
-				if(createBush(world, random, i - spawnRadius+x, world.getHeightValue(i - spawnRadius+x, k - spawnRadius+z), k - spawnRadius+z, _fi))
+				if(createBush(world, random, i - spawnRadius+x, world.getHeightValue(i - spawnRadius+x, k - spawnRadius+z), k - spawnRadius+z, index))
 					count++;
 			}
-			//System.out.println(_fi.type + ": " + count + " bushes spawned of " + _cluster + " expected. [" + i +"]" + "[" + j +"]" + "[" + k +"]");
+			//TerraFirmaCraft.log.info(_fi.type + ": " + count + " bushes spawned of " + _cluster + " expected. [" + i +"]" + "[" + j +"]" + "[" + k +"]");
 		}
 		return true;
 	}
@@ -67,11 +67,14 @@ public class WorldGenBerryBush extends WorldGenerator
 	public boolean createBush(World world, Random random, int i, int j, int k, FloraIndex fi)
 	{
 		Block id = world.getBlock(i, j-1, k);
-		if((world.canBlockSeeTheSky(i, j, k) || world.getBlockLightValue(i, j, k) > 8) && ((TFC_Core.isSoil(id) && underBlock == Blocks.air) || id == underBlock))
+		if ((world.canBlockSeeTheSky(i, j, k) || world.getBlockLightValue(i, j, k) > 8) &&
+			(TFC_Core.isSoil(id) && underBlock == Blocks.air ||
+				id == underBlock ||
+				TFC_Core.isGrass(underBlock) && id == TFC_Core.getTypeForSoil(underBlock)))
 		{
 			for(short h = 0; h < bushHeight && random.nextBoolean(); h++) 
 			{
-				world.setBlock(i, j+h, k, TFCBlocks.BerryBush, meta, 2);
+				world.setBlock(i, j+h, k, TFCBlocks.berryBush, meta, 2);
 				if(TFC_Time.getSeasonAdjustedMonth(k) > fi.harvestStart && TFC_Time.getSeasonAdjustedMonth(k) < fi.harvestFinish+fi.fruitHangTime)
 				{
 					TEBerryBush te = (TEBerryBush) world.getTileEntity(i, j+h, k);

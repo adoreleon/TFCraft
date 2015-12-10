@@ -2,13 +2,8 @@ package com.bioxx.tfc.Core.Player;
 
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.event.entity.item.ItemTossEvent;
 
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Handlers.Network.AbstractPacket;
-import com.bioxx.tfc.Handlers.Network.InitClientWorldPacket;
-import com.bioxx.tfc.Handlers.Network.PlayerUpdatePacket;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
@@ -17,21 +12,29 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ServerDisconnectionFromClientEvent;
 
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Handlers.Network.AbstractPacket;
+import com.bioxx.tfc.Handlers.Network.ConfigSyncPacket;
+import com.bioxx.tfc.Handlers.Network.InitClientWorldPacket;
+import com.bioxx.tfc.Handlers.Network.PlayerUpdatePacket;
+
 public class PlayerTracker
 {
 	@SubscribeEvent
 	public void onPlayerLoggedIn(PlayerLoggedInEvent event)
 	{
-		//		System.out.println("-----------------------------PLAYER LOGGIN EVENT-------------------");
-		//		System.out.println("------"+event.player.getDisplayName()+" : "+ event.player.getUniqueID().toString()+"--------");
+		//		TerraFirmaCraft.log.info("-----------------------------PLAYER LOGGIN EVENT-------------------");
+		//		TerraFirmaCraft.log.info("------"+event.player.getDisplayName()+" : "+ event.player.getUniqueID().toString()+"--------");
 
-		PlayerManagerTFC.getInstance().Players.add(new PlayerInfo(
-				event.player.getDisplayName(),
+		PlayerManagerTFC.getInstance().players.add(new PlayerInfo(
+				event.player.getCommandSenderName(),
 				event.player.getUniqueID()));
 		AbstractPacket pkt = new InitClientWorldPacket(event.player);
-		TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) event.player);
+		TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) event.player);
+		TerraFirmaCraft.PACKET_PIPELINE.sendTo(new ConfigSyncPacket(), (EntityPlayerMP) event.player);
 
-		//		System.out.println("-----------------------------Sending TestPacket");
+		//		TerraFirmaCraft.log.info("-----------------------------Sending TestPacket");
 		//AbstractPacket pkt2 = new TestPacket("Sent to Player: "+event.player.getDisplayName());
 		//TerraFirmaCraft.packetPipeline.sendTo(pkt2, (EntityPlayerMP) event.player);
 	}
@@ -40,7 +43,7 @@ public class PlayerTracker
 	public void onClientConnect(ClientConnectedToServerEvent event)
 	{
 
-		//		System.out.println("-----"+FMLClientHandler.instance().getClientPlayerEntity().getDisplayName()+" : "+
+		//		TerraFirmaCraft.log.info("-----"+FMLClientHandler.instance().getClientPlayerEntity().getDisplayName()+" : "+
 		//				FMLClientHandler.instance().getClientPlayerEntity().getUniqueID().toString()+"-------");
 		//
 		TerraFirmaCraft.proxy.onClientLogin();
@@ -54,7 +57,7 @@ public class PlayerTracker
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		float foodLevel = (event.player.worldObj.rand.nextFloat() * 12) + 12;
+		float foodLevel = event.player.worldObj.rand.nextFloat() * 12 + 12;
 		FoodStatsTFC foodstats = TFC_Core.getPlayerFoodStats(event.player);
 		foodstats.setFoodLevel(foodLevel);
 		TFC_Core.setPlayerFoodStats(event.player, foodstats);
@@ -65,9 +68,17 @@ public class PlayerTracker
 		if( pi.tempSkills != null)
 			TFC_Core.setSkillStats(event.player, pi.tempSkills);
 
+		// Load the item in the back slot if keepInventory was set to true.
+		if (pi.tempEquipment != null && event.player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory"))
+		{
+			InventoryPlayerTFC invPlayer = (InventoryPlayerTFC) event.player.inventory;
+			invPlayer.extraEquipInventory = pi.tempEquipment.clone();
+			pi.tempEquipment = null;
+		}
+
 		//Send a request to the server for the skills data.
 		AbstractPacket pkt = new PlayerUpdatePacket(event.player, 3);
-		TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) event.player);
+		TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) event.player);
 	}
 
 	@SubscribeEvent

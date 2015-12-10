@@ -5,18 +5,18 @@ import java.util.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
-
 import cpw.mods.fml.common.IWorldGenerator;
+
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class WorldGenFissureCluster implements IWorldGenerator
 {
-	Random rand;
-	int waterRarity = 225;
+	private Random rand;
+	private int waterRarity = 225;
 
-	WorldGenFissure fissureGenWater = new WorldGenFissure(TFCBlocks.FreshWater);
-	WorldGenFissure fissureGenLava = new WorldGenFissure(TFCBlocks.Lava);
-	WorldGenFissure fissureGenAir = new WorldGenFissure(null);
+	private WorldGenFissure fissureGenWater = new WorldGenFissure(TFCBlocks.freshWater);
+	private WorldGenFissure fissureGenLava = new WorldGenFissure(TFCBlocks.lava);
+	private WorldGenFissure fissureGenAir = new WorldGenFissure(null);
 
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world,

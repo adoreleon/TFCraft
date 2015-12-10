@@ -29,14 +29,14 @@ public class GenLayerShoreTFC extends GenLayerTFC
 		{
 			for (int var8 = 0; var8 < par3; ++var8)
 			{
-				this.initChunkSeed((long)(var7 + par1), (long)(var8 + par2));
+				this.initChunkSeed(var7 + par1, var8 + par2);
 				int var9 = var5[var8 + 1 + (var7 + 1) * (par3 + 2)];
 				int var10;
 				int var11;
 				int var12;
 				int var13;
 
-				if ( !TFC_Core.isOceanicBiome(var9) && var9 != TFCBiome.river.biomeID && var9 != TFCBiome.swampland.biomeID && var9 != TFCBiome.HighHills.biomeID)
+				if ( !TFC_Core.isOceanicBiome(var9) && var9 != TFCBiome.RIVER.biomeID && var9 != TFCBiome.SWAMPLAND.biomeID && var9 != TFCBiome.HIGH_HILLS.biomeID)
 				{
 					var10 = var5[var8 + 1 + (var7 + 1 - 1) * (par3 + 2)];
 					var11 = var5[var8 + 1 + 1 + (var7 + 1) * (par3 + 2)];
@@ -47,9 +47,9 @@ public class GenLayerShoreTFC extends GenLayerTFC
 						var6[var8 + var7 * par3] = var9;
 					else
 					{
-						int beachid = TFCBiome.beach.biomeID;
+						int beachid = TFCBiome.BEACH.biomeID;
 						if(TFC_Core.isMountainBiome(var9))
-							beachid = TFCBiome.gravelbeach.biomeID;
+							beachid = TFCBiome.GRAVEL_BEACH.biomeID;
 						var6[var8 + var7 * par3] = beachid;
 					}
 				}

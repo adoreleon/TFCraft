@@ -5,41 +5,41 @@ import java.util.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.common.IWorldGenerator;
+
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.Generators.Trees.WorldGenCustomFruitTree;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Constant.Global;
-
-import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenPlants implements IWorldGenerator
 {
-	static WorldGenFungi plantFungiGen = new WorldGenFungi();
+	private static WorldGenFungi plantFungiGen = new WorldGenFungi();
 
-	static WorldGenCustomFruitTree appleTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 0);
-	static WorldGenCustomFruitTree bananaTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 1);
-	static WorldGenCustomFruitTree orangeTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 2);
-	static WorldGenCustomFruitTree grappleTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 3);
-	static WorldGenCustomFruitTree lemonTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 4);
-	static WorldGenCustomFruitTree oliveTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 5);
-	static WorldGenCustomFruitTree cherryTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 6);
-	static WorldGenCustomFruitTree peachTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 7);
+	private static WorldGenCustomFruitTree appleTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 0);
+	private static WorldGenCustomFruitTree bananaTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 1);
+	private static WorldGenCustomFruitTree orangeTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 2);
+	private static WorldGenCustomFruitTree grappleTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 3);
+	private static WorldGenCustomFruitTree lemonTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 4);
+	private static WorldGenCustomFruitTree oliveTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 5);
+	private static WorldGenCustomFruitTree cherryTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 6);
+	private static WorldGenCustomFruitTree peachTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 7);
 
-	static WorldGenCustomFruitTree plumTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves2, 8);
-	static WorldGenCustomFruitTree cacaoTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves2, 9);
+	private static WorldGenCustomFruitTree plumTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves2, 8);
+	//private static WorldGenCustomFruitTree cacaoTree = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves2, 9);
 
-	static WorldGenBerryBush wintergreenGen = new WorldGenBerryBush(false, 0, 12, 1, 5);
-	static WorldGenBerryBush blueberryGen = new WorldGenBerryBush(false, 1, 6, 1, 4);
-	static WorldGenBerryBush raspberryGen = new WorldGenBerryBush(false, 2, 5, 2, 4);
-	static WorldGenBerryBush strawberryGen = new WorldGenBerryBush(false, 3, 8, 1, 4);
-	static WorldGenBerryBush blackberryGen = new WorldGenBerryBush(false, 4, 5, 2, 4);
-	static WorldGenBerryBush bunchberryGen = new WorldGenBerryBush(false, 5, 8, 1, 4);
-	static WorldGenBerryBush cranberryGen = new WorldGenBerryBush(false, 6, 15, 1, 6);
-	static WorldGenBerryBush snowberryGen = new WorldGenBerryBush(false, 7, 6, 1, 4);
-	static WorldGenBerryBush elderberryGen = new WorldGenBerryBush(false, 8, 5, 2, 4);
-	static WorldGenBerryBush gooseberryGen = new WorldGenBerryBush(false, 9, 8, 1, 4);
-	static WorldGenBerryBush cloudberryGen = new WorldGenBerryBush(false, 10, 12, 1, 6, TFCBlocks.Peat);
+	private static WorldGenBerryBush wintergreenGen = new WorldGenBerryBush(false, 0, 12, 1, 5);
+	private static WorldGenBerryBush blueberryGen = new WorldGenBerryBush(false, 1, 6, 1, 4);
+	private static WorldGenBerryBush raspberryGen = new WorldGenBerryBush(false, 2, 5, 2, 4);
+	private static WorldGenBerryBush strawberryGen = new WorldGenBerryBush(false, 3, 8, 1, 4);
+	private static WorldGenBerryBush blackberryGen = new WorldGenBerryBush(false, 4, 5, 2, 4);
+	private static WorldGenBerryBush bunchberryGen = new WorldGenBerryBush(false, 5, 8, 1, 4);
+	private static WorldGenBerryBush cranberryGen = new WorldGenBerryBush(false, 6, 15, 1, 6);
+	private static WorldGenBerryBush snowberryGen = new WorldGenBerryBush(false, 7, 6, 1, 4);
+	private static WorldGenBerryBush elderberryGen = new WorldGenBerryBush(false, 8, 5, 2, 4);
+	private static WorldGenBerryBush gooseberryGen = new WorldGenBerryBush(false, 9, 8, 1, 4);
+	private static WorldGenBerryBush cloudberryGen = new WorldGenBerryBush(false, 10, 12, 1, 6, TFCBlocks.peatGrass);
 
 	public WorldGenPlants()
 	{
@@ -60,13 +60,13 @@ public class WorldGenPlants implements IWorldGenerator
 		int flowerChunkRarity = 30;
 		int mushroomsPerChunk = 0;
 
-		float evt = TFC_Climate.getCacheManager(world).getEVTLayerAt(chunkX, chunkZ).floatdata1;
+		//float evt = TFC_Climate.getCacheManager(world).getEVTLayerAt(chunkX, chunkZ).floatdata1;
 		float rain = TFC_Climate.getRainfall(world, chunkX, 144, chunkZ);
 		float bioTemperature;
 
-		if(rain >= 62.5f)
+		/*if(rain >= 62.5f)
 		{
-		}
+		}*/
 		if(rain >= 125)
 		{
 			grassPerChunk+=12;
@@ -118,19 +118,19 @@ public class WorldGenPlants implements IWorldGenerator
 			yCoord = world.getTopSolidOrLiquidBlock(xCoord, zCoord);
 			bioTemperature = TFC_Climate.getBioTemperatureHeight(world, xCoord, yCoord, zCoord);
 			if (world.isAirBlock(xCoord, yCoord, zCoord) && 
-					TFCBlocks.TallGrass.canBlockStay(world, xCoord, yCoord, zCoord) &&
+					TFCBlocks.tallGrass.canBlockStay(world, xCoord, yCoord, zCoord) &&
 					!TFC_Core.isDryGrass(world.getBlock(xCoord, yCoord - 1, zCoord)))
 			{
-				world.setBlock(xCoord, yCoord, zCoord, TFCBlocks.TallGrass, (world.rand.nextInt(20) == 0 ? 1 : 0), 0x2); // tallgrass with 1/20 chance to spawn a fern
+				world.setBlock(xCoord, yCoord, zCoord, TFCBlocks.tallGrass, (world.rand.nextInt(20) == 0 ? 1 : 0), 0x2); // tallgrass with 1/20 chance to spawn a fern
 			}
 
 			if(bioTemperature >= 0)
 			{
 				if (world.isAirBlock(xCoord, yCoord, zCoord) && 
-						TFCBlocks.TallGrass.canBlockStay(world, xCoord, yCoord, zCoord) &&
+						TFCBlocks.tallGrass.canBlockStay(world, xCoord, yCoord, zCoord) &&
 						TFC_Core.isDryGrass(world.getBlock(xCoord, yCoord - 1, zCoord)))
 				{
-					world.setBlock(xCoord, yCoord, zCoord, TFCBlocks.TallGrass, (world.rand.nextInt(60) == 0 ? 1 : 2), 0x2); // shortgrass with 1/60 chance to spawn a fern
+					world.setBlock(xCoord, yCoord, zCoord, TFCBlocks.tallGrass, (world.rand.nextInt(60) == 0 ? 1 : 2), 0x2); // shortgrass with 1/60 chance to spawn a fern
 				}
 			}
 		}
@@ -154,7 +154,7 @@ public class WorldGenPlants implements IWorldGenerator
 			}
 		}
 
-		if (random.nextInt(70) == 0 && rain > 500)
+		if (random.nextInt(70) == 0 && rain >= 500)
 		{
 			xCoord = chunkX + random.nextInt(16) + 8;
 			zCoord = chunkZ + random.nextInt(16) + 8;

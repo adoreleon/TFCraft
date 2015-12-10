@@ -1,6 +1,7 @@
 package com.bioxx.tfc.Containers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -9,13 +10,14 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
 import net.minecraftforge.fluids.FluidStack;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Containers.Slots.SlotChest;
 import com.bioxx.tfc.Containers.Slots.SlotForShowOnly;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.TileEntities.TEBarrel;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Enums.EnumSize;
 
 public class ContainerBarrel extends ContainerTFC
@@ -24,7 +26,7 @@ public class ContainerBarrel extends ContainerTFC
 	public float liquidLevel;
 	public int liquidID;
 	public int sealedTime = -1;
-	public int guiTab = 0;
+	public int guiTab;
 
 	public ContainerBarrel(InventoryPlayer inventoryplayer, TEBarrel tileentitybarrel, World world, int x, int y, int z, int tab)
 	{
@@ -39,10 +41,11 @@ public class ContainerBarrel extends ContainerTFC
 
 	}
 
-	public static ArrayList<Item> getExceptions(){
-		ArrayList exceptions = new ArrayList<Item>();
-		exceptions.add(Item.getItemFromBlock(TFCBlocks.Barrel));
-		exceptions.add(Item.getItemFromBlock(TFCBlocks.Vessel));
+	public static List<Item> getExceptions()
+	{
+		List<Item> exceptions = new ArrayList<Item>();
+		exceptions.add(Item.getItemFromBlock(TFCBlocks.barrel));
+		exceptions.add(Item.getItemFromBlock(TFCBlocks.vessel));
 		return exceptions;
 	}
 
@@ -78,43 +81,59 @@ public class ContainerBarrel extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer entityplayer, int i)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		Slot slot = (Slot)inventorySlots.get(i);
-		if(slot != null && slot.getHasStack())
+		ItemStack origStack = null;
+		Slot slot = (Slot) inventorySlots.get(slotNum);
+
+		if (!barrel.getSealed() && slot != null && slot.getHasStack())
 		{
-			ItemStack itemstack1 = slot.getStack();
-			if(i == 0 && guiTab == 0 && !barrel.getSealed())
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
+
+			// From liquid input slot to inventory
+			if (slotNum < 1 && guiTab == 0)
 			{
-				if(!this.mergeItemStack(itemstack1, 1, this.inventorySlots.size(), true))
+				if(!this.mergeItemStack(slotStack, 1, this.inventorySlots.size(), true))
 					return null;
 			}
-			else if(i < 12 && guiTab == 1)
+			// From solid storage slots to inventory
+			else if (slotNum < 12 && guiTab == 1)
 			{
-				if(!this.mergeItemStack(itemstack1, 12, this.inventorySlots.size(), true))
+				if(!this.mergeItemStack(slotStack, 12, this.inventorySlots.size(), true))
 					return null;
 			}
 			else
 			{
-				if (!barrel.getSealed() && guiTab == 1)
+				// To solid storage
+				if (guiTab == 1)
 				{
-					if(!this.mergeItemStack(itemstack1, 0, 12, false)){return null;}
+					if (!this.mergeItemStack(slotStack, 0, 12, false))
+						return null;
 				}
-				else if (!barrel.getSealed() && guiTab == 0)
+				// To liquid input slot
+				else if (guiTab == 0)
 				{
-					if(!this.mergeItemStack(itemstack1, 0, 1, false)){return null;}
+					if (!this.mergeItemStack(slotStack, 0, 1, false))
+						return null;
 				}
 			}
 
-			if(itemstack1.stackSize == 0)
+			if (slotStack.stackSize <= 0)
 				slot.putStack(null);
 			else
 				slot.onSlotChanged();
+
+			if (slotStack.stackSize == origStack.stackSize)
+				return null;
+
+			slot.onPickupFromSlot(player, slotStack);
 		}
-		return null;
+
+		return origStack;
 	}
 
-	private int updatecounter = 0;
+	//private int updatecounter = 0;
 	@Override
 	public void detectAndSendChanges()
 	{
@@ -124,20 +143,15 @@ public class ContainerBarrel extends ContainerTFC
 		{
 			ICrafting var2 = (ICrafting)this.crafters.get(var1);
 
-			if (this.barrel.getFluidStack() != null && this.liquidID != this.barrel.getFluidStack().fluidID)
+			if (this.barrel.getFluidStack() != null && this.liquidID != this.barrel.getFluidStack().getFluidID())
 			{
-				liquidID = barrel.getFluidStack().fluidID;
-				var2.sendProgressBarUpdate(this, 0, this.barrel.getFluidStack().fluidID);
+				liquidID = barrel.getFluidStack().getFluidID();
+				var2.sendProgressBarUpdate(this, 0, this.barrel.getFluidStack().getFluidID());
 			}
 			if (this.liquidLevel != this.barrel.getFluidLevel())
 			{
 				liquidLevel = barrel.getFluidLevel();
 				var2.sendProgressBarUpdate(this, 1, this.barrel.getFluidLevel());
-			}
-			if(this.barrel.sealtime != this.sealedTime)
-			{
-				sealedTime = barrel.sealtime;
-				var2.sendProgressBarUpdate(this, 2, sealedTime);
 			}
 		}
 	}
@@ -155,17 +169,12 @@ public class ContainerBarrel extends ContainerTFC
 			{
 				this.barrel.fluid = new FluidStack(val, 1000);
 			}
-			barrel.ProcessItems();
+			barrel.processItems();
 		}
 		else if (id == 1)
 		{
 			if(barrel.fluid != null)
 				this.barrel.fluid.amount = val;
-		}
-		else if (id == 2)
-		{
-			this.barrel.sealtime = val;
-			barrel.ProcessItems();
 		}
 	}
 }

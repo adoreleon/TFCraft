@@ -1,12 +1,12 @@
 package com.bioxx.tfc.Blocks.Devices;
 
-import static net.minecraftforge.common.util.ForgeDirection.DOWN;
-
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,24 +18,31 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.TileEntities.TEChest;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Blocks.BlockTerraContainer;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.TileEntities.TEChest;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
+
+import static net.minecraftforge.common.util.ForgeDirection.DOWN;
+
 public class BlockChestTFC extends BlockTerraContainer
 {
+	private String[] woodNames;
+	
 	public BlockChestTFC()
 	{
 		super(Material.wood);
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 		this.setBlockBounds(0.0625F, 0.0F, 0.0625F, 0.9375F, 0.875F, 0.9375F);
+		woodNames = Global.WOOD_ALL;
 	}
 
 	@Override
@@ -47,16 +54,10 @@ public class BlockChestTFC extends BlockTerraContainer
 	@Override
 	public int getDamageValue(World world, int x, int y, int z)
 	{
-		try
-		{
-			TEChest chest = (TEChest) world.getTileEntity(x, y, z);
-			return chest.type;
-		}
-		catch( Exception E)
-		{
-			return 0;
-
-		}
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof TEChest)
+			return ((TEChest)te).type;
+		return 0;
 	}
 
 	/*@Override
@@ -70,8 +71,7 @@ public class BlockChestTFC extends BlockTerraContainer
 	@Override
 	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
 	{
-		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		return ret;
+		return new ArrayList<ItemStack>();
 	}
 
 	@Override
@@ -80,13 +80,22 @@ public class BlockChestTFC extends BlockTerraContainer
 		return null;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List) 
+	{
+		for(int i = 0; i < woodNames.length; i++)
+			par3List.add(new ItemStack(this, 1, i));
+	}
+	
 	@Override
 	public void onBlockPreDestroy(World world, int i, int j, int k, int meta) 
 	{
-		if(!world.isRemote)
+		if(!world.isRemote && world.getGameRules().getGameRuleBooleanValue("doTileDrops"))
 		{
-			TEChest te = (TEChest)world.getTileEntity(i, j, k);
-			EntityItem ei = new EntityItem(world, i, j, k, new ItemStack(TFCBlocks.Chest, 1, te.type));
+			int damageValue = getDamageValue(world, i, j, k);
+			EntityItem ei = new EntityItem(world, i, j, k, new ItemStack(TFCBlocks.chest, 1, damageValue));
 			world.spawnEntityInWorld(ei);
 		}
 	}
@@ -118,7 +127,7 @@ public class BlockChestTFC extends BlockTerraContainer
 		byte chestSide = 0;
 		int facingDir    = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5) & 3;
 		int secFacingDir = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F ) & 3;
-		//System.out.println( facingDir );
+		//TerraFirmaCraft.log.info( facingDir );
 		final int facingN  = 0;
 		final int facingE  = 1;
 		final int facingS  = 2;
@@ -149,7 +158,7 @@ public class BlockChestTFC extends BlockTerraContainer
 				{
 					if( secFacingDir == facingE || secFacingDir == facingN ) chestSide = sideE;
 					if( secFacingDir == facingW || secFacingDir == facingS ) chestSide = sideW;
-					//System.out.println( secFacingDir );
+					//TerraFirmaCraft.log.info( secFacingDir );
 				}
 				break;
 			default:
@@ -160,7 +169,7 @@ public class BlockChestTFC extends BlockTerraContainer
 					chestSide = sideN;
 					if( secFacingDir == facingN || secFacingDir == facingW ) chestSide = sideN;
 					if( secFacingDir == facingS || secFacingDir == facingE ) chestSide = sideS;
-					//System.out.println( secFacingDir );
+					//TerraFirmaCraft.log.info( secFacingDir );
 				}
 				break;
 			}
@@ -212,6 +221,7 @@ public class BlockChestTFC extends BlockTerraContainer
 				break;
 			case WEST:
 				this.setBlockBounds(0.0F, 0.0F, 0.0625F, 0.9375F, 0.875F, 0.9375F);
+				break;
 			default:
 			case UNKNOWN:
 				this.setBlockBounds(0.0625F, 0.0F, 0.0625F, 0.9375F, 0.875F, 0.9375F);
@@ -337,8 +347,8 @@ public class BlockChestTFC extends BlockTerraContainer
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister p_149651_1_)
+	public void registerBlockIcons(IIconRegister register)
 	{
-		this.blockIcon = p_149651_1_.registerIcon("planks_oak");
+		this.blockIcon = register.registerIcon("planks_oak");
 	}
 }

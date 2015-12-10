@@ -5,9 +5,9 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
-import com.bioxx.tfc.TileEntities.TileEntityToolRack;
-
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
+import com.bioxx.tfc.TileEntities.TEToolRack;
 
 public class RenderToolRack implements ISimpleBlockRenderingHandler
 {
@@ -30,15 +30,18 @@ public class RenderToolRack implements ISimpleBlockRenderingHandler
 	public boolean renderWorldBlock(IBlockAccess world, int i, int j, int k, Block block, int modelId, RenderBlocks renderblocks)
 	{
 		IBlockAccess blockAccess = renderblocks.blockAccess;
-		TileEntityToolRack te = (TileEntityToolRack)blockAccess.getTileEntity(i, j, k);
+		TEToolRack te = (TEToolRack)blockAccess.getTileEntity(i, j, k);
 		int dir = blockAccess.getBlockMetadata(i, j, k);
+		boolean breaking = renderblocks.overrideBlockTexture != null;
 		if(te != null)
 		{
-			renderblocks.overrideBlockTexture = block.getIcon(0, te.woodType);
-			double minX = 0;
-			double maxX = 0.5;
-			double minZ = 0;
-			double maxZ = 0.5;
+			if ( ! breaking )
+				renderblocks.overrideBlockTexture = block.getIcon(0, te.woodType);
+			
+			//double minX = 0;
+			//double maxX = 0.5;
+			//double minZ = 0;
+			//double maxZ = 0.5;
 			//First we render the rack itself.
 			if(dir == 0)
 			{
@@ -61,7 +64,10 @@ public class RenderToolRack implements ISimpleBlockRenderingHandler
 				renderRackDir3(block, i, j, k, renderblocks, 0.3f);
 			}
 		}
-		renderblocks.clearOverrideBlockTexture();
+		
+		if ( ! breaking )
+			renderblocks.clearOverrideBlockTexture();
+		
 		return true;
 	}
 

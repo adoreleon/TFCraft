@@ -1,6 +1,7 @@
 package com.bioxx.tfc.WorldGen.Generators;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -10,31 +11,31 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.common.IWorldGenerator;
+
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.Util.BlockMeta;
 import com.bioxx.tfc.WorldGen.DataLayer;
 import com.bioxx.tfc.WorldGen.TFCBiome;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Enums.TFCDirection;
 import com.bioxx.tfc.api.Util.ByteCoord;
 import com.bioxx.tfc.api.Util.CollapseData;
 import com.bioxx.tfc.api.Util.CollapseList;
 
-import cpw.mods.fml.common.IWorldGenerator;
-
 public class WorldGenFissure implements IWorldGenerator
 {
-	Random rand;
-	int poolDepth;
-	int creviceDepth = 1;
-	Block fillBlock;
-	int depth = 20;
-	int minTunnel = 1;
+	private Random rand;
+	private int poolDepth;
+	private int creviceDepth = 1;
+	private Block fillBlock;
+	private int depth = 20;
+	private int minTunnel = 1;
 	public boolean checkStability = true;
-	boolean underground = false;
-	int seed = 0;
-	int rarity = 30;
+	private boolean underground;
+	//private int seed;
+	private int rarity = 30;
 
 	//Basic constructor
 	public WorldGenFissure(Block b)
@@ -52,7 +53,7 @@ public class WorldGenFissure implements IWorldGenerator
 
 	public WorldGenFissure setSeed(int i)
 	{
-		seed = i;
+		//seed = i;
 		return this;
 	}
 
@@ -73,13 +74,13 @@ public class WorldGenFissure implements IWorldGenerator
 
 		int startX = chunkX + random.nextInt(16) + 8;
 		int startZ = chunkZ + random.nextInt(16) + 8;
-		int startY = world.getTopSolidOrLiquidBlock(startX, startZ)-1;
 		BiomeGenBase biome = world.getBiomeGenForCoords(startX, startZ);
 
-		if(rand.nextInt(rarity) != 0 || biome == TFCBiome.beach || biome == TFCBiome.ocean || 
-				biome == TFCBiome.gravelbeach || biome == TFCBiome.lake || biome == TFCBiome.river)
+		if(rarity <= 0 || rand.nextInt(rarity) != 0 || biome == TFCBiome.BEACH || biome == TFCBiome.OCEAN || 
+				biome == TFCBiome.GRAVEL_BEACH || biome == TFCBiome.LAKE || biome == TFCBiome.RIVER || biome == TFCBiome.DEEP_OCEAN)
 			return;
 
+		int startY = world.getTopSolidOrLiquidBlock(startX, startZ) - 1;
 		if(underground)
 			startY = depth + rand.nextInt(60);
 
@@ -99,26 +100,26 @@ public class WorldGenFissure implements IWorldGenerator
 				return;
 		}
 
-		int stability = TFC_Climate.getStability(world, x, z);
 		Block block = world.getBlock(x,y,z);
 
 		if(block != null && block.getMaterial() == Material.water)
 			return;
 		if(underground)
 			y-= 20+rand.nextInt(depth);
+
+		int stability = TFC_Climate.getStability(world, x, z);
 		if(checkStability && stability == 0)
 			return;
 		if(stability == 1 && fillBlock != null && fillBlock.getMaterial() == Material.water)
-			fillBlock = TFCBlocks.HotWater;
+			fillBlock = TFCBlocks.hotWater;
 		if(!TFC_Core.isGround(block))
 			return;
 
-		ArrayList<ByteCoord> map = getCollapseMap(world, x,y-creviceDepth,z);
 		DataLayer dl = TFC_Climate.getRockLayer(world, x, y, z, 2);
 		BlockMeta rockLayer = fillBlock != null ? new BlockMeta(dl.block, dl.data2) : new BlockMeta(Blocks.air, -1);
-		boolean makeTunnel = map.size() > 10;
 		if(rockLayer.block == null)
 			return;
+		List<ByteCoord> map = getCollapseMap(world, x, y - creviceDepth, z);
 		for(ByteCoord b : map)
 		{
 			world.setBlockToAir(x + b.x, y + b.y, z + b.z);
@@ -141,6 +142,7 @@ public class WorldGenFissure implements IWorldGenerator
 				world.setBlock(x + b.x, y + b.y-poolDepth-1, z + b.z, rockLayer.block, rockLayer.meta, 2);
 		}
 
+		boolean makeTunnel = map.size() > 10;
 		if(makeTunnel)
 			makeTunnel(rand, world, x, z, y, rockLayer);
 	}
@@ -211,9 +213,9 @@ public class WorldGenFissure implements IWorldGenerator
 		}
 	}
 
-	public ArrayList<ByteCoord> getCollapseMap(World world, int i, int j, int k)
+	public List<ByteCoord> getCollapseMap(World world, int i, int j, int k)
 	{
-		int checks = 0;
+		//int checks = 0;
 		ArrayList<ByteCoord> map = new ArrayList<ByteCoord>();
 		ArrayList<ByteCoord> checkedmap = new ArrayList<ByteCoord>();
 		CollapseList<CollapseData> checkQueue = new CollapseList<CollapseData>();
@@ -223,7 +225,7 @@ public class WorldGenFissure implements IWorldGenerator
 
 		DataLayer dl = TFC_Climate.getRockLayer(world, i, j, k, TFC_Core.getRockLayerFromHeight(world, i, j, k));
 		DataLayer dl2 = TFC_Climate.getRockLayer(world, i, j, k, 2);
-		BlockMeta rockLayer = (fillBlock != null && fillBlock.getMaterial() == Material.lava) ? 
+		BlockMeta rockLayer = fillBlock != null && fillBlock.getMaterial() == Material.lava ? 
 				new BlockMeta(dl2.block, dl2.data2) : new BlockMeta(dl.block, dl.data2);
 
 				int worldX;
@@ -250,8 +252,8 @@ public class WorldGenFissure implements IWorldGenerator
 					if(!checkedmap.contains(block) && TFC_Core.isGround(id) && 
 							world.rand.nextFloat() < block.collapseChance/100f)
 					{
-						checks++;
-						//System.out.println("Number of block checks: " + checks + " | Queue Length: " + checkQueue.size());
+				//checks++;
+						//TerraFirmaCraft.log.info("Number of block checks: " + checks + " | Queue Length: " + checkQueue.size());
 
 						map.add(block.coords);
 
@@ -324,6 +326,7 @@ public class WorldGenFissure implements IWorldGenerator
 								checkQueue.add(checkedmap, new CollapseData(new ByteCoord(localX - 1, localY + 0, localZ - 1), baseCollapse - incrementChanceDiag, TFCDirection.SOUTHWEST));
 								checkQueue.add(checkedmap, new CollapseData(new ByteCoord(localX + 0, localY + 0, localZ + 1), baseCollapse - incrementChance, TFCDirection.SOUTH));
 								checkQueue.add(checkedmap, new CollapseData(new ByteCoord(localX + 0, localY + 0, localZ - 1), baseCollapse - incrementChance, TFCDirection.NORTH));
+								break;
 							}
 							}
 					}

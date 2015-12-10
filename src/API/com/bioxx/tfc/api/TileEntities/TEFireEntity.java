@@ -4,16 +4,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.bioxx.tfc.TileEntities.NetworkTileEntity;
+import com.bioxx.tfc.api.HeatIndex;
+import com.bioxx.tfc.api.HeatRegistry;
 import com.bioxx.tfc.api.TFC_ItemHeat;
 
 public class TEFireEntity extends NetworkTileEntity
 {
-	public int airFromBellows = 0;
-	public float fireTemp = 0;
-	public int maxFireTempScale;
-	public int fuelTimeLeft = 0;
-	public int fuelBurnTemp = 0;
-	public int fuelTasteProfile = 0;
+	public int airFromBellows;
+	public float fireTemp;
+	public int maxFireTempScale = 2000; // Fixes NPE
+	public int fuelTimeLeft;
+	public int fuelBurnTemp;
+	public int fuelTasteProfile;
 
 	public static final int AIRTOADD = 200;
 
@@ -25,14 +27,20 @@ public class TEFireEntity extends NetworkTileEntity
 	{
 		if(is != null)
 		{
-			float temp = TFC_ItemHeat.GetTemp(is);
-			if(fireTemp > temp)
+			HeatRegistry manager = HeatRegistry.getInstance();
+			HeatIndex index = manager.findMatchingIndex(is);
+
+			if (index != null && index.hasOutput())
 			{
-				temp += TFC_ItemHeat.getTempIncrease(is);
+				float temp = TFC_ItemHeat.getTemp(is);
+				if (fireTemp > temp)
+				{
+					temp += TFC_ItemHeat.getTempIncrease(is);
+				}
+				else
+					temp -= TFC_ItemHeat.getTempDecrease(is);
+				TFC_ItemHeat.setTemp(is, temp);
 			}
-			else
-				temp -= TFC_ItemHeat.getTempDecrease(is);
-			TFC_ItemHeat.SetTemp(is, temp);
 		}
 	}
 

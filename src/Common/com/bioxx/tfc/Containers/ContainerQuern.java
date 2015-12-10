@@ -7,31 +7,29 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Containers.Slots.SlotBlocked;
 import com.bioxx.tfc.Containers.Slots.SlotQuern;
 import com.bioxx.tfc.Containers.Slots.SlotQuernGrain;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
-import com.bioxx.tfc.TileEntities.TileEntityQuern;
-import com.bioxx.tfc.api.Crafting.QuernManager;
+import com.bioxx.tfc.TileEntities.TEQuern;
 
 public class ContainerQuern extends ContainerTFC
 {
 	private World world;
-	private int posX;
+	/*private int posX;
 	private int posY;
-	private int posZ;
-	private TileEntityQuern te;
+	private int posZ;*/
+	private TEQuern te;
 	private EntityPlayer player;
 
-	public ContainerQuern(InventoryPlayer playerinv, TileEntityQuern pile, World world, int x, int y, int z)
+	public ContainerQuern(InventoryPlayer playerinv, TEQuern pile, World world, int x, int y, int z)
 	{
 		this.player = playerinv.player;
 		this.te = pile;
 		this.world = world;
-		this.posX = x;
+		/*this.posX = x;
 		this.posY = y;
-		this.posZ = z;
+		this.posZ = z;*/
 		pile.openInventory();
 		layoutContainer(playerinv, pile, 0, 0);
 		PlayerInventory.buildInventoryLayout(this, playerinv, 8, 90, false, true);
@@ -69,50 +67,38 @@ public class ContainerQuern extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer player, int clickedIndex)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		ItemStack returnedStack = null;
-		Slot clickedSlot = (Slot)this.inventorySlots.get(clickedIndex);
+		ItemStack origStack = null;
+		Slot slot = (Slot)this.inventorySlots.get(slotNum);
 
-		if (clickedSlot != null && clickedSlot.getHasStack())
+		if (slot != null && slot.getHasStack())
 		{
-			ItemStack clickedStack = clickedSlot.getStack();
-			returnedStack = clickedStack.copy();
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
 
-			if (clickedIndex < 3)
+			if (slotNum < 3)
 			{
-				if (!this.mergeItemStack(clickedStack, 3, inventorySlots.size(), true))
+				if (!this.mergeItemStack(slotStack, 3, inventorySlots.size(), true))
 					return null;
 			}
-			else if (clickedIndex >= 3
-					&& clickedIndex < inventorySlots.size()
-					&& QuernManager.getInstance().isValidItem(clickedStack))
-			{
-				if (!this.mergeItemStack(clickedStack, 0, 1, false))
-					return null;
-			}
-			else if (clickedIndex >= 3
-					&& clickedIndex < inventorySlots.size()
-					&& clickedStack.getItem() == TFCItems.Quern)
-			{
-				if (!this.mergeItemStack(clickedStack, 2, 3, false))
-					return null;
-			}
-			else if (clickedIndex >= 3 && clickedIndex < inventorySlots.size())
-			{
-				return null;
-			}
-
-			if (clickedStack.stackSize == 0)
-				clickedSlot.putStack((ItemStack)null);
 			else
-				clickedSlot.onSlotChanged();
+			{
+				if (!this.mergeItemStack(slotStack, 0, 3, false))
+					return null;
+			}
 
-			if (clickedStack.stackSize == returnedStack.stackSize)
+			if (slotStack.stackSize <= 0)
+				slot.putStack(null);
+			else
+				slot.onSlotChanged();
+
+			if (slotStack.stackSize == origStack.stackSize)
 				return null;
 
-			clickedSlot.onPickupFromSlot(player, clickedStack);
+			slot.onPickupFromSlot(player, slotStack);
 		}
-		return returnedStack;
+
+		return origStack;
 	}
 }

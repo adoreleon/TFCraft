@@ -99,7 +99,7 @@ public class CommandTime extends CommandBase
 	@Override
 	public List addTabCompletionOptions(ICommandSender par1ICommandSender, String[] par2ArrayOfStr)
 	{
-		return par2ArrayOfStr.length == 1 ? getListOfStringsMatchingLastWord(par2ArrayOfStr, new String[] {"set", "add"}): (par2ArrayOfStr.length == 2 && par2ArrayOfStr[0].equals("set") ? getListOfStringsMatchingLastWord(par2ArrayOfStr, new String[] {"day", "night"}): null);
+		return par2ArrayOfStr.length == 1 ? getListOfStringsMatchingLastWord(par2ArrayOfStr, new String[] {"set", "add"}): par2ArrayOfStr.length == 2 && par2ArrayOfStr[0].equals("set") ? getListOfStringsMatchingLastWord(par2ArrayOfStr, new String[] {"day", "night"}): null;
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class CommandTime extends CommandBase
 	{
 		for (int j = 0; j < MinecraftServer.getServer().worldServers.length; ++j)
 		{
-			MinecraftServer.getServer().worldServers[j].setWorldTime((long)par2);
+			MinecraftServer.getServer().worldServers[j].setWorldTime(par2);
 		}
 	}
 
@@ -121,7 +121,7 @@ public class CommandTime extends CommandBase
 		for (int j = 0; j < MinecraftServer.getServer().worldServers.length; ++j)
 		{
 			WorldServer worldserver = MinecraftServer.getServer().worldServers[j];
-			worldserver.setWorldTime(worldserver.getWorldTime() + (long)par2);
+			worldserver.setWorldTime(worldserver.getWorldTime() + par2);
 		}
 	}
 }

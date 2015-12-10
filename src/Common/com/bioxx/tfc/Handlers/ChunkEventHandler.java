@@ -8,10 +8,14 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.storage.WorldInfo;
+
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Core.TFC_Climate;
@@ -21,43 +25,40 @@ import com.bioxx.tfc.Food.CropIndex;
 import com.bioxx.tfc.Food.CropManager;
 import com.bioxx.tfc.WorldGen.WorldCacheManager;
 import com.bioxx.tfc.WorldGen.Generators.WorldGenGrowCrops;
-import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class ChunkEventHandler
 {
 	@SubscribeEvent
 	public void onLoad(ChunkEvent.Load event)
 	{
-		if (!event.world.isRemote)
+		if (!event.world.isRemote && TFC_Core.getCDM(event.world) != null && event.getChunk() != null)
 		{
 			ChunkData cd = TFC_Core.getCDM(event.world).getData(event.getChunk().xPosition, event.getChunk().zPosition);
-			if(cd== null)
+			if (cd == null)
 				return;
 			BiomeGenBase biome = event.world.getBiomeGenForCoords(event.getChunk().xPosition, event.getChunk().zPosition);
 			int month = TFC_Time.getSeasonAdjustedMonth(event.getChunk().zPosition << 4);
 			if (TFC_Time.getYear() > cd.lastSpringGen && month > 1 && month < 6)
 			{
-				int chunk_X = event.getChunk().xPosition;
-				int chunk_Z = event.getChunk().zPosition;
+				int chunkX = event.getChunk().xPosition;
+				int chunkZ = event.getChunk().zPosition;
 				if(TFC_Core.isWaterBiome(biome))
 				{
 					cd.fishPop *= Math.pow(1.2,cd.lastSpringGen - TFC_Time.getYear());
-					cd.fishPop = Math.min(cd.fishPop, ChunkData.fishPopMax);
+					cd.fishPop = Math.min(cd.fishPop, ChunkData.FISH_POP_MAX);
 				}
 				cd.lastSpringGen = TFC_Time.getYear();
 
-				Random rand = new Random(event.world.getSeed() + ((chunk_X >> 3) - (chunk_Z >> 3)) * (chunk_Z >> 3));
+				Random rand = new Random(event.world.getSeed() + ((chunkX >> 3) - (chunkZ >> 3)) * (chunkZ >> 3));
 				int cropid = rand.nextInt(CropManager.getInstance().getTotalCrops());
 				CropIndex crop = CropManager.getInstance().getCropFromId(cropid);
 				if (event.world.rand.nextInt(25) == 0 && crop != null)
 				{
 					int num = 1 + event.world.rand.nextInt(5);
 					WorldGenGrowCrops cropGen = new WorldGenGrowCrops(cropid);
-					int x = (chunk_X << 4) + event.world.rand.nextInt(16) + 8;
-					int z = (chunk_Z << 4) + event.world.rand.nextInt(16) + 8;
+					int x = (chunkX << 4) + event.world.rand.nextInt(16) + 8;
+					int z = (chunkZ << 4) + event.world.rand.nextInt(16) + 8;
 					cropGen.generate(event.world, event.world.rand, x, z, num);
 				}
 			}
@@ -67,7 +68,7 @@ public class ChunkEventHandler
 				if(TFC_Core.isWaterBiome(biome))
 				{
 					cd.fishPop *= Math.pow(1.2,cd.lastSpringGen - TFC_Time.getYear());
-					cd.fishPop = Math.min(cd.fishPop, ChunkData.fishPopMax);
+					cd.fishPop = Math.min(cd.fishPop, ChunkData.FISH_POP_MAX);
 				}
 				cd.lastSpringGen = TFC_Time.getYear();
 			}
@@ -76,16 +77,17 @@ public class ChunkEventHandler
 				if(TFC_Core.isWaterBiome(biome))
 				{
 					cd.fishPop *= Math.pow(1.2,cd.lastSpringGen - TFC_Time.getYear());
-					cd.fishPop = Math.min(cd.fishPop, ChunkData.fishPopMax);
+					cd.fishPop = Math.min(cd.fishPop, ChunkData.FISH_POP_MAX);
 				}
 				cd.lastSpringGen = TFC_Time.getYear();
 			}
 		}
-		else
+		else if (TFC_Core.getCDM(event.world) != null && TFC_Climate.getCacheManager(event.world) != null)
 		{
-			ChunkData data = new ChunkData().CreateNew(event.world, event.getChunk().xPosition, event.getChunk().zPosition);
+			Chunk chunk = event.getChunk();
+			ChunkData data = new ChunkData(chunk).createNew(event.world, chunk.xPosition, chunk.zPosition);
 			data.rainfallMap = TFC_Climate.getCacheManager(event.world).loadRainfallLayerGeneratorData(data.rainfallMap, event.getChunk().xPosition * 16, event.getChunk().zPosition * 16, 16, 16);
-			TFC_Core.getCDM(event.world).addData(event.getChunk(), data);
+			TFC_Core.getCDM(event.world).addData(chunk, data);
 		}
 	}
 
@@ -113,7 +115,7 @@ public class ChunkEventHandler
 			createSpawn(event.world);
 		if(!event.world.isRemote && event.world.provider.dimensionId == 0 && AnvilManager.getInstance().getRecipeList().size() == 0)
 		{
-			TFC_Core.SetupWorld(event.world);
+			TFC_Core.setupWorld(event.world);
 		}
 		TFC_Climate.worldPair.put(event.world, new WorldCacheManager(event.world));
 		TFC_Core.addCDM(event.world);
@@ -126,19 +128,22 @@ public class ChunkEventHandler
 		{
 			NBTTagCompound eventTag = event.getData();
 
+			Chunk chunk = event.getChunk();
 			if(eventTag.hasKey("ChunkData"))
 			{
 				NBTTagCompound spawnProtectionTag = eventTag.getCompoundTag("ChunkData");
-				ChunkData data = new ChunkData(spawnProtectionTag);
-				TFC_Core.getCDM(event.world).addData(event.getChunk(), data);
+				ChunkData data = new ChunkData(chunk, spawnProtectionTag);
+				if (TFC_Core.getCDM(event.world) != null)
+					TFC_Core.getCDM(event.world).addData(chunk, data);
 			}
 			else
 			{
 				/*if(TFC_Core.getCDM(event.world).hasData(event.getChunk()))
 					return;*/
 				NBTTagCompound levelTag = eventTag.getCompoundTag("Level");
-				ChunkData data = new ChunkData().CreateNew(event.world, levelTag.getInteger("xPos"), levelTag.getInteger("zPos"));
-				TFC_Core.getCDM(event.world).addData(event.getChunk(), data);
+				ChunkData data = new ChunkData(chunk).createNew(event.world, levelTag.getInteger("xPos"), levelTag.getInteger("zPos"));
+				if (TFC_Core.getCDM(event.world) != null)
+					TFC_Core.getCDM(event.world).addData(chunk, data);
 			}
 		}
 	}
@@ -146,7 +151,7 @@ public class ChunkEventHandler
 	@SubscribeEvent
 	public void onDataSave(ChunkDataEvent.Save event)
 	{
-		if(!event.world.isRemote)
+		if ( !event.world.isRemote && TFC_Core.getCDM(event.world) != null)
 		{
 			NBTTagCompound levelTag = event.getData().getCompoundTag("Level");
 			int x = levelTag.getInteger("xPos");
@@ -174,7 +179,7 @@ public class ChunkEventHandler
 		ChunkPosition chunkCoord = null;
 		int xOffset = 0;
 		int xCoord = 0;
-		int yCoord = Global.SEALEVEL+1;
+		//int yCoord = Global.SEALEVEL+1;
 		int zCoord = 10000;
 		int startingZ = 5000 + rand.nextInt(10000);
 
@@ -189,7 +194,7 @@ public class ChunkEventHandler
 			else
 			{
 				xOffset += 64;
-				//System.out.println("Unable to find spawn biome");
+				//TerraFirmaCraft.log.warn("Unable to find spawn biome");
 			}
 		}
 
@@ -205,6 +210,8 @@ public class ChunkEventHandler
 
 		WorldInfo info = world.getWorldInfo();
 		info.setSpawnPosition(xCoord, world.getTopSolidOrLiquidBlock(xCoord, zCoord), zCoord);
+		if(!info.getNBTTagCompound().hasKey("superseed"))
+			info.getNBTTagCompound().setLong("superseed", System.currentTimeMillis());
 		return new ChunkCoordinates(xCoord, world.getTopSolidOrLiquidBlock(xCoord, zCoord), zCoord);
 	}
 }

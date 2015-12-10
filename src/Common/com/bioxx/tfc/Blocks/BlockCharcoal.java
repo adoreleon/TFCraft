@@ -10,13 +10,14 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Items.Tools.ItemCustomShovel;
+import com.bioxx.tfc.api.TFCItems;
 
 public class BlockCharcoal extends BlockTerra
 {
@@ -34,7 +35,7 @@ public class BlockCharcoal extends BlockTerra
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		this.blockIcon = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Charcoal");
+		this.blockIcon = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Charcoal");
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class BlockCharcoal extends BlockTerra
 					while (world.getBlock(x, y + top + 1, z) == this)
 						++top;
 
-					dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.Coal, 1, 1));
+					dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.coal, 1, 1));
 					if (side - 1 > 0)
 					{
 						if (world.getBlock(x, y + 1, z) == this)
@@ -121,7 +122,7 @@ public class BlockCharcoal extends BlockTerra
 	{
 		if(world.getBlockMetadata(x, y, z) > 0)
 			return false;
-		return super.removedByPlayer(world, player, x, y, z);
+		return world.setBlockToAir(x, y, z); // super.removedByPlayer is deprecated, and causes a loop.
 	}
 
 	public void combineCharcoalDown(World world, int x, int y, int z)
@@ -219,7 +220,7 @@ public class BlockCharcoal extends BlockTerra
 	public void setBlockBoundsBasedOnState(IBlockAccess bAccess, int x, int y, int z)
 	{
 		int meta = bAccess.getBlockMetadata(x, y, z);
-		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, (0.125f * meta), 1.0F);
+		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.125f * meta, 1.0F);
 	}
 
 	@Override
@@ -239,7 +240,7 @@ public class BlockCharcoal extends BlockTerra
 				Random rand = new Random();
 				// Between 50% and 100% of the amount
 				amount = rand.nextInt(amount + 1) + (amount / 2);
-				dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.Coal, amount, 1));
+				dropBlockAsItem(world, x, y, z, new ItemStack(TFCItems.coal, amount, 1));
 			}
 		}
 
@@ -249,5 +250,11 @@ public class BlockCharcoal extends BlockTerra
 	@Override
 	public void onBlockDestroyedByExplosion(World world, int x, int y, int z, Explosion ex)
 	{
+	}
+
+	@Override
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	{
+		return null;
 	}
 }

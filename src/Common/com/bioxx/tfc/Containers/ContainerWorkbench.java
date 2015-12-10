@@ -1,18 +1,14 @@
 package com.bioxx.tfc.Containers;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TileEntities.TileEntityWorkbench;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.World;
+
+import com.bioxx.tfc.TileEntities.TEWorkbench;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class ContainerWorkbench extends ContainerTFC
 {
@@ -25,9 +21,9 @@ public class ContainerWorkbench extends ContainerTFC
 	private int posX;
 	private int posY;
 	private int posZ;
-	private TileEntityWorkbench workbench;
+	//private TEWorkbench workbench;
 
-	public ContainerWorkbench(InventoryPlayer par1InventoryPlayer, TileEntityWorkbench wb, World par2World, int par3, int par4, int par5)
+	public ContainerWorkbench(InventoryPlayer par1InventoryPlayer, TEWorkbench wb, World par2World, int par3, int par4, int par5)
 	{
 		this.worldObj = par2World;
 		this.posX = par3;
@@ -86,7 +82,7 @@ public class ContainerWorkbench extends ContainerTFC
 	@Override
 	public boolean canInteractWith(EntityPlayer par1EntityPlayer)
 	{
-		return this.worldObj.getBlock(this.posX, this.posY, this.posZ) != TFCBlocks.Workbench ? false : par1EntityPlayer.getDistanceSq(this.posX + 0.5D, this.posY + 0.5D, this.posZ + 0.5D) <= 64.0D;
+		return this.worldObj.getBlock(this.posX, this.posY, this.posZ) != TFCBlocks.workbench ? false : par1EntityPlayer.getDistanceSq(this.posX + 0.5D, this.posY + 0.5D, this.posZ + 0.5D) <= 64.0D;
 	}
 
 	@Override

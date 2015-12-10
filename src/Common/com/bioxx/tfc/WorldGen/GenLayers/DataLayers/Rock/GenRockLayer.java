@@ -7,12 +7,9 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.WorldGen.DataLayer;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerFuzzyZoomTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerSmoothTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerVoronoiZoomTFC;
-import com.bioxx.tfc.WorldGen.GenLayers.GenLayerZoomTFC;
+import com.bioxx.tfc.WorldGen.GenLayers.*;
 
 public abstract class GenRockLayer extends GenLayerTFC
 {
@@ -50,7 +47,7 @@ public abstract class GenRockLayer extends GenLayerTFC
 		return voronoiLayer;
 	}
 
-	static boolean shouldDraw = false;
+	private static boolean shouldDraw;
 	public static void drawImage(int size, GenLayerTFC genlayer, String name)
 	{
 		if(!shouldDraw)
@@ -64,23 +61,23 @@ public abstract class GenRockLayer extends GenLayerTFC
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = (Graphics2D) outBitmap.getGraphics();
 			graphics.clearRect(0, 0, size, size);
-			System.out.println(name+".bmp");
+			TerraFirmaCraft.LOG.info(name + ".bmp");
 			for(int x = 0; x < size; x++)
 			{
 				for(int z = 0; z < size; z++)
 				{
 					int id = ints[x*size+z];
-					int color = ((id*8)<<16)+((id*8)<<8)+((id*8));
+					int color = ((id * 8) << 16) + ((id * 8) << 8) + (id * 8);
 					graphics.setColor(Color.getColor("", color));	
 					graphics.drawRect(x, z, 1, 1);
 				}
 			}
-			System.out.println(name+".bmp");
+			TerraFirmaCraft.LOG.info(name + ".bmp");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 

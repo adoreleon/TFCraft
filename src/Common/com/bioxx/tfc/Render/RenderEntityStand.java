@@ -10,35 +10,36 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.client.ForgeHooksClient;
-
-import org.lwjgl.opengl.GL11;
-
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Entities.EntityStand;
-import com.bioxx.tfc.Render.Models.ModelStand;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import org.lwjgl.opengl.GL11;
+
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Entities.EntityStand;
+import com.bioxx.tfc.Render.Models.ModelStand;
+import com.bioxx.tfc.api.TFCBlocks;
+
 @SideOnly(Side.CLIENT)
 public class RenderEntityStand extends RenderBiped
 {
-	private ModelBiped modelBipedMain;
+	//private ModelBiped modelBipedMain;
 	private ModelBiped modelArmorChestplate;
 	private ModelBiped modelArmor;
 	//private static final ResourceLocation Texture = new ResourceLocation("textures/entity/zombie/zombie.png");
-	private static final ResourceLocation Texture = new ResourceLocation(Reference.ModID, "textures/mob/stand.png");
+	private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/mob/stand.png");
 
-	ModelRenderer plume;
-	ModelRenderer plume2;
-	ModelRenderer HornR1;
-	ModelRenderer HornL1;
-	ModelRenderer HornR2;
-	ModelRenderer HornL2;
+	private ModelRenderer plume;
+	private ModelRenderer plume2;
+	private ModelRenderer hornR1;
+	private ModelRenderer hornL1;
+	private ModelRenderer hornR2;
+	private ModelRenderer hornL2;
 
-	RenderLargeItem standBlockRenderer = new RenderLargeItem();
+	private RenderLargeItem standBlockRenderer = new RenderLargeItem();
 
 	public RenderEntityStand()
 	{
@@ -55,35 +56,35 @@ public class RenderEntityStand extends RenderBiped
 		plume2.setRotationPoint(0,-2,4);
 		plume2.rotateAngleX = (float)(Math.PI/-3f);
 		//Iron
-		HornR1 = new ModelRenderer(modelArmorChestplate,40,0);
-		HornR1.addBox(-6,-1.5f,-1.5f,3,3,6);
-		HornL1 = new ModelRenderer(modelArmorChestplate,40,0);
-		HornL1.addBox(6,-1.5f,-1.5f,3,3,6);       
-		HornR1.setRotationPoint(-6, -6, 5);
-		HornL1.setRotationPoint(6, -6, 8);
-		HornR1.rotateAngleY=(float)(Math.PI/-2);
-		HornR1.rotateAngleX = (float)Math.PI*(-1f/12f);
-		HornL1.rotateAngleY=(float)(Math.PI/2);
-		HornL1.rotateAngleX = (float)Math.PI*(-1f/12f);
-		HornR2 = new ModelRenderer(modelArmorChestplate,40,9);
-		HornR2.addBox(0, 0, -5f, 2, 2, 5);
-		HornR2.setRotationPoint(-6, 0f, 2f);
-		HornR2.rotateAngleX = (float)Math.PI*(6f/12f);
-		HornR2.rotateAngleZ = (float)Math.PI*(1f/6f);
-		HornL2 = new ModelRenderer(modelArmorChestplate,40,9);
-		HornL2.addBox(0, 0, -5f, 2, 2, 5);
-		HornL2.setRotationPoint(7, 0f, 2f);
-		HornL2.rotateAngleX = (float)Math.PI*(6f/12f);
-		HornL2.rotateAngleZ = (float)Math.PI*(-1f/6f);
+		hornR1 = new ModelRenderer(modelArmorChestplate,40,0);
+		hornR1.addBox(-6,-1.5f,-1.5f,3,3,6);
+		hornL1 = new ModelRenderer(modelArmorChestplate,40,0);
+		hornL1.addBox(6,-1.5f,-1.5f,3,3,6);       
+		hornR1.setRotationPoint(-6, -6, 5);
+		hornL1.setRotationPoint(6, -6, 8);
+		hornR1.rotateAngleY=(float)(Math.PI/-2);
+		hornR1.rotateAngleX = (float)Math.PI*(-1f/12f);
+		hornL1.rotateAngleY=(float)(Math.PI/2);
+		hornL1.rotateAngleX = (float)Math.PI*(-1f/12f);
+		hornR2 = new ModelRenderer(modelArmorChestplate,40,9);
+		hornR2.addBox(0, 0, -5f, 2, 2, 5);
+		hornR2.setRotationPoint(-6, 0f, 2f);
+		hornR2.rotateAngleX = (float)Math.PI*(6f/12f);
+		hornR2.rotateAngleZ = (float)Math.PI*(1f/6f);
+		hornL2 = new ModelRenderer(modelArmorChestplate,40,9);
+		hornL2.addBox(0, 0, -5f, 2, 2, 5);
+		hornL2.setRotationPoint(7, 0f, 2f);
+		hornL2.rotateAngleX = (float)Math.PI*(6f/12f);
+		hornL2.rotateAngleZ = (float)Math.PI*(-1f/6f);
 
 		modelArmorChestplate.bipedHead.addChild(plume);
 		modelArmorChestplate.bipedHead.addChild(plume2);
-		modelArmorChestplate.bipedHead.addChild(HornR1);
-		modelArmorChestplate.bipedHead.addChild(HornL1);
-		HornR1.addChild(HornR2);
-		HornL1.addChild(HornL2);
-		HornR1.showModel = false;
-		HornL1.showModel = false;
+		modelArmorChestplate.bipedHead.addChild(hornR1);
+		modelArmorChestplate.bipedHead.addChild(hornL1);
+		hornR1.addChild(hornR2);
+		hornL1.addChild(hornL2);
+		hornR1.showModel = false;
+		hornL1.showModel = false;
 		plume.showModel = false;
 		plume2.showModel = false;
 	}
@@ -97,15 +98,15 @@ public class RenderEntityStand extends RenderBiped
 	@Override
 	protected ResourceLocation getEntityTexture(EntityLiving entity)
 	{
-		return Texture;
+		return TEXTURE;
 	}
 
 	@Override
-	public void doRender(Entity e, double p_76986_2_, double p_76986_4_, double p_76986_6_, float p_76986_8_, float p_76986_9_){
+	public void doRender(Entity e, double par2, double par3, double par4, float par5, float par6){
 		float rotation = e instanceof EntityStand? ((EntityStand)e).getRotation() : 0;
 		GL11.glPushMatrix();
 
-		super.doRender(e, p_76986_2_, p_76986_4_, p_76986_6_, rotation, 0);
+		super.doRender(e, par2, par3, par4, rotation, 0);
 		GL11.glPopMatrix();
 	}
 
@@ -124,7 +125,7 @@ public class RenderEntityStand extends RenderBiped
 		if(entity instanceof EntityStand){
 			l=((EntityStand)entity).woodType;
 		}
-		standBlockRenderer.render(entity, new ItemStack(TFCBlocks.ArmourStand,1,l));
+		standBlockRenderer.render(entity, new ItemStack(TFCBlocks.armorStand,1,l));
 	}
 
 	protected int setArmorModelTFC(EntityStand stand, int par2, float par3)
@@ -158,9 +159,9 @@ public class RenderEntityStand extends RenderBiped
 				int j = itemarmor.getColor(itemstack);
 				if (j != -1)
 				{
-					float f2 = (float)(j >> 16 & 255) / 255.0F;
-					float f3 = (float)(j >> 8 & 255) / 255.0F;
-					float f4 = (float)(j & 255) / 255.0F;
+					float f2 = (j >> 16 & 255) / 255.0F;
+					float f3 = (j >> 8 & 255) / 255.0F;
+					float f4 = (j & 255) / 255.0F;
 					GL11.glColor3f(f1 * f2, f1 * f3, f1 * f4);
 
 					if (itemstack.isItemEnchanted())

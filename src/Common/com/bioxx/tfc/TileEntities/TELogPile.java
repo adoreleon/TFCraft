@@ -16,10 +16,10 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Core.Vector3f;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.TFCOptions;
 
 public class TELogPile extends TileEntity implements IInventory
@@ -28,7 +28,7 @@ public class TELogPile extends TileEntity implements IInventory
 	private int logPileOpeners;
 	public boolean isOnFire;
 	public int fireTimer;
-	Queue<Vector3f> blocksToBeSetOnFire;
+	private Queue<Vector3f> blocksToBeSetOnFire;
 
 	public TELogPile()
 	{
@@ -83,14 +83,11 @@ public class TELogPile extends TileEntity implements IInventory
 
 	public boolean contentsMatch(int index, ItemStack is)
 	{
-		if(storage[index] != null &&
+		return storage[index] != null &&
 				storage[index].getItem() == is.getItem() &&
 				storage[index].getItemDamage() == is.getItemDamage() &&
 				storage[index].stackSize < storage[index].getMaxStackSize() &&
-				storage[index].stackSize + 1 <= this.getInventoryStackLimit())
-			return true;
-		else
-			return false;
+				storage[index].stackSize + 1 <= this.getInventoryStackLimit();
 	}
 
 	public int getNumberOfLogs()
@@ -266,7 +263,7 @@ public class TELogPile extends TileEntity implements IInventory
 		return false;
 	}
 
-	public void neighborChanged()
+	public void lightNeighbors()
 	{
 		if(!isOnFire)
 			return;
@@ -304,9 +301,12 @@ public class TELogPile extends TileEntity implements IInventory
 	{
 		while(blocksOnFire.size() > 0)
 		{
-			Vector3f blockOnFire = blocksOnFire.poll(); 
-			worldObj.setBlock((int)blockOnFire.X, (int)blockOnFire.Y, (int)blockOnFire.Z, Blocks.fire);
-			worldObj.markBlockForUpdate((int)blockOnFire.X, (int)blockOnFire.Y, (int)blockOnFire.Z);
+			Vector3f blockOnFire = blocksOnFire.poll();
+			if (worldObj.getBlock((int) blockOnFire.x, (int) blockOnFire.y, (int) blockOnFire.z) != Blocks.fire)
+			{
+				worldObj.setBlock((int) blockOnFire.x, (int) blockOnFire.y, (int) blockOnFire.z, Blocks.fire);
+				worldObj.markBlockForUpdate((int) blockOnFire.x, (int) blockOnFire.y, (int) blockOnFire.z);
+			}
 		}
 	}
 
@@ -352,16 +352,21 @@ public class TELogPile extends TileEntity implements IInventory
 	{
 		this.fireTimer = (int) TFC_Time.getTotalHours();
 		this.isOnFire = true;
-		//Activate the surrounding log piles
-		spreadFire(xCoord+1, yCoord, zCoord); spreadFire(xCoord-1, yCoord, zCoord);
-		spreadFire(xCoord, yCoord+1, zCoord); spreadFire(xCoord, yCoord-1, zCoord);
-		spreadFire(xCoord, yCoord, zCoord+1); spreadFire(xCoord, yCoord, zCoord-1);
 
+		//Activate the adjacent log piles
+		spreadFire(xCoord + 1, yCoord, zCoord); // East
+		spreadFire(xCoord - 1, yCoord, zCoord); // West
+		spreadFire(xCoord, yCoord + 1, zCoord); // Up
+		spreadFire(xCoord, yCoord - 1, zCoord); // Down
+		spreadFire(xCoord, yCoord, zCoord + 1); // South
+		spreadFire(xCoord, yCoord, zCoord - 1); // North
+
+		lightNeighbors();
 	}	
 
 	private void spreadFire(int x, int y, int z)
 	{
-		if(worldObj.getBlock(x, y, z) == TFCBlocks.LogPile)
+		if (worldObj.getBlock(x, y, z) == TFCBlocks.logPile && worldObj.getTileEntity(x, y, z) instanceof TELogPile)
 		{
 			TELogPile te = (TELogPile) worldObj.getTileEntity(x, y, z);
 			if(!te.isOnFire)
@@ -371,23 +376,25 @@ public class TELogPile extends TileEntity implements IInventory
 		}
 	}
 
-	public void createCharcoal(int x, int y, int z)
+	public void createCharcoal(int x, int y, int z, boolean forceComplete)
 	{
-		if(worldObj.getBlock(x, y, z) == TFCBlocks.LogPile)
+		if(worldObj.getBlock(x, y, z) == TFCBlocks.logPile)
 		{
 			TELogPile te = (TELogPile) worldObj.getTileEntity(x, y, z);
-			if(te.isOnFire && te.fireTimer+TFCOptions.charcoalPitBurnTime < TFC_Time.getTotalHours())
+			if(te.isOnFire && (te.fireTimer+TFCOptions.charcoalPitBurnTime < TFC_Time.getTotalHours() || forceComplete))
 			{
 				int count = te.getNumberOfLogs();
 				te.clearContents();
-				float percent = 25 + worldObj.rand.nextInt(25);
+				float percent = 25 + worldObj.rand.nextInt(26);
 				count = (int) (count * (percent / 100));
-				worldObj.setBlock(x, y, z, TFCBlocks.Charcoal, count, 0x2);
-				worldObj.notifyBlockOfNeighborChange(x, y, z, TFCBlocks.Charcoal);
+				worldObj.setBlock(x, y, z, TFCBlocks.charcoal, count, 0x2);
+
 				//Activate the surrounding log piles
-				createCharcoal(x+1, y, z); createCharcoal(x-1, y, z);
-				createCharcoal(x, y+1, z); createCharcoal(x, y-1, z);
-				createCharcoal(x, y, z+1); createCharcoal(x, y, z-1);
+				createCharcoal(x+1, y, z, forceComplete); createCharcoal(x-1, y, z, forceComplete);
+				createCharcoal(x, y+1, z, forceComplete); createCharcoal(x, y-1, z, forceComplete);
+				createCharcoal(x, y, z+1, forceComplete); createCharcoal(x, y, z-1, forceComplete);
+
+				worldObj.notifyBlockOfNeighborChange(x, y, z, TFCBlocks.charcoal);
 			}
 		}
 	}

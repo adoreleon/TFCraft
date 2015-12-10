@@ -2,6 +2,15 @@ package com.bioxx.tfc.Items;
 
 import java.util.List;
 
+import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.World;
+
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFCTabs;
@@ -10,23 +19,13 @@ import com.bioxx.tfc.Core.Player.PlayerInfo;
 import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
 import com.bioxx.tfc.Items.Tools.ItemKnife;
 
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
-
 public class ItemLeather extends ItemLooseRock
 {
 	public ItemLeather() 
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCMaterials);
-		this.MetaNames = null;
+		this.setCreativeTab(TFCTabs.TFC_MATERIALS);
+		this.metaNames = null;
 	}
 
 
@@ -45,7 +44,6 @@ public class ItemLeather extends ItemLooseRock
 
 		if(hasKnife)
 		{
-			itemstack.stackSize--;
 			if(specialCraftingTypeAlternate != null)
 				pi.specialCraftingTypeAlternate = specialCraftingTypeAlternate;
 			else
@@ -57,16 +55,16 @@ public class ItemLeather extends ItemLooseRock
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
 		if (TFC_Core.showShiftInformation()) 
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.Help"));
-			arraylist.add(StatCollector.translateToLocal("gui.Leather.Inst0"));
+			arraylist.add(TFC_Core.translate("gui.Help"));
+			arraylist.add(TFC_Core.translate("gui.Leather.Inst0"));
 		}
 		else
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.ShowHelp"));
+			arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 		}
 	}
 
@@ -87,7 +85,7 @@ public class ItemLeather extends ItemLooseRock
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + textureFolder + this.getUnlocalizedName().replace("item.", ""));
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder + this.getUnlocalizedName().replace("item.", ""));
 	}
 
 	@Override

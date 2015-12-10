@@ -5,11 +5,11 @@ import com.bioxx.tfc.WorldGen.GenLayers.GenLayerTFC;
 
 public class GenLayerRockInit extends GenLayerTFC
 {
-	DataLayer[] layerRocks;
+	private DataLayer[] layerRocks;
 	public GenLayerRockInit(long par1, DataLayer[] rocks)
 	{
 		super(par1);
-		layerRocks = rocks;
+		layerRocks = rocks.clone();
 	}
 
 	@Override
@@ -22,7 +22,7 @@ public class GenLayerRockInit extends GenLayerTFC
 			for (int x = 0; x < maxX; ++x)
 			{
 				this.initChunkSeed(par1 + x, par2 + z);
-				cache[x + z * maxX] = layerRocks[this.nextInt(layerRocks.length)].ID;
+				cache[x + z * maxX] = layerRocks[this.nextInt(layerRocks.length)].layerID;
 			}
 		}
 

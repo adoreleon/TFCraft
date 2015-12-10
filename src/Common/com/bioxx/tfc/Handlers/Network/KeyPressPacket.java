@@ -1,21 +1,21 @@
 package com.bioxx.tfc.Handlers.Network;
 
-import com.bioxx.tfc.Core.TFC_Time;
-import com.bioxx.tfc.Core.Player.PlayerInfo;
-import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+
 import net.minecraft.entity.player.EntityPlayer;
+
+import com.bioxx.tfc.Core.TFC_Time;
+import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
 
 public class KeyPressPacket extends AbstractPacket
 {
 	private int type;
-	private static long keyTimer = 0; // not sure what this is for??
+	private static long keyTimer; // not sure what this is for??
 
 	public KeyPressPacket(){}
 
-	public KeyPressPacket(int t)
+	public KeyPressPacket(byte t)
 	{
 		type = t;
 	}
@@ -43,12 +43,8 @@ public class KeyPressPacket extends AbstractPacket
 		if(keyTimer + 1 < TFC_Time.getTotalTicks())
 		{
 			keyTimer = TFC_Time.getTotalTicks();
-			if(type == 0)//ChiselMode
-			{
-				PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(player);
-				if(pi != null)
-					pi.switchChiselMode();
-			}
+			//Set the ChiselMode on the server.
+			PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(player).setChiselMode((byte)type);
 		}
 	}
 

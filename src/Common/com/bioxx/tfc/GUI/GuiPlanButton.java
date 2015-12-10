@@ -1,7 +1,6 @@
 package com.bioxx.tfc.GUI;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
@@ -13,8 +12,8 @@ import com.bioxx.tfc.Core.TFC_Core;
 public class GuiPlanButton extends GuiButton 
 {
 	public ItemStack item;
-	GuiPlanSelection screen;
-	protected static final RenderItem itemRenderer = new RenderItem();
+	private GuiPlanSelection screen;
+	protected static final RenderItem ITEM_RENDERER = new RenderItem();
 
 	public GuiPlanButton(int index, int xPos, int yPos, int width, int height, ItemStack ico, GuiPlanSelection gui, String s)
 	{
@@ -45,7 +44,7 @@ public class GuiPlanButton extends GuiButton
 
 			if(field_146123_n)
 			{
-				FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
+				//FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
 				screen.drawTooltip(x, y, this.displayString);
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			}
@@ -56,7 +55,7 @@ public class GuiPlanButton extends GuiButton
 	{
 		if (is != null)
 		{
-			itemRenderer.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().fontRenderer, Minecraft.getMinecraft().getTextureManager(), is, x, y);
+			ITEM_RENDERER.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().fontRenderer, Minecraft.getMinecraft().getTextureManager(), is, x, y);
 			GL11.glDisable(GL11.GL_LIGHTING);
 			GL11.glEnable(GL11.GL_ALPHA_TEST);
 		}

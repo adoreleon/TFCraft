@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 
 import com.bioxx.tfc.Items.ItemMeltedMetal;
 import com.bioxx.tfc.Items.Pottery.ItemPotteryBase;
+import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Interfaces.IBag;
 import com.bioxx.tfc.api.Interfaces.IFood;
@@ -18,8 +19,8 @@ import com.bioxx.tfc.api.Interfaces.ISize;
 
 public class SlotSizeSmallVessel extends Slot
 {
-	EnumSize size = EnumSize.SMALL;
-	List exceptions;
+	private EnumSize size = EnumSize.SMALL;
+	private List<Item> exceptions;
 
 	public SlotSizeSmallVessel(IInventory iinventory, int i, int j, int k)
 	{
@@ -30,8 +31,6 @@ public class SlotSizeSmallVessel extends Slot
 	@Override
 	public boolean isItemValid(ItemStack itemstack)
 	{
-		boolean except = exceptions.contains(itemstack.getItem());
-
 		if(itemstack.getItem() instanceof IBag ||
 				itemstack.getItem() instanceof ItemMeltedMetal ||
 				itemstack.getItem() instanceof ItemPotteryBase)
@@ -41,9 +40,10 @@ public class SlotSizeSmallVessel extends Slot
 
 		if (itemstack.getItem() instanceof ISize && ((ISize) itemstack.getItem()).getSize(itemstack).stackSize >= size.stackSize &&
 				(itemstack.getItem() instanceof IFood || itemstack.getItem() instanceof IItemFoodBlock) &&
-				!(itemstack.hasTagCompound() && itemstack.getTagCompound().hasKey("foodWeight") && itemstack.getTagCompound().hasKey("foodDecay")))
+				!(itemstack.hasTagCompound() && itemstack.getTagCompound().hasKey(Food.WEIGHT_TAG) && itemstack.getTagCompound().hasKey(Food.DECAY_TAG)))
 				return false;
 
+		boolean except = exceptions.contains(itemstack.getItem());
 		if(itemstack.getItem() instanceof ISize && ((ISize)itemstack.getItem()).getSize(itemstack).stackSize >= size.stackSize && !except)
 			return true;
 		else if (!(itemstack.getItem() instanceof ISize) && !except)
@@ -51,7 +51,7 @@ public class SlotSizeSmallVessel extends Slot
 		return false;
 	}
 
-	public SlotSizeSmallVessel addItemException(ArrayList<Item> ex)
+	public SlotSizeSmallVessel addItemException(List<Item> ex)
 	{
 		exceptions = ex;
 		return this;

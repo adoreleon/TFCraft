@@ -11,12 +11,15 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TileEntities.TEPartial;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Items.Tools.ItemHammer;
+import com.bioxx.tfc.TileEntities.TEPartial;
+import com.bioxx.tfc.api.Tools.IToolChisel;
 
 public class BlockPartial extends BlockTerraContainer
 {
@@ -63,9 +66,26 @@ public class BlockPartial extends BlockTerraContainer
 	@Override
 	public void onBlockDestroyedByExplosion(World world, int i, int j, int k, Explosion ex)
 	{
-		if(!world.isRemote)
-		{
+		// Do Nothing
+	}
+
+	/**
+	 * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
+	 */
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int side, float hitX, float hitY, float hitZ) {
+		boolean hasHammer = false;
+		for (int i = 0; i < 9; i++)
+			if (entityplayer.inventory.mainInventory[i] != null && entityplayer.inventory.mainInventory[i].getItem() instanceof ItemHammer)
+				hasHammer = true;
+
+		if (entityplayer.getCurrentEquippedItem() != null && entityplayer.getCurrentEquippedItem().getItem() instanceof IToolChisel &&
+				hasHammer && !world.isRemote && ((IToolChisel) entityplayer.getCurrentEquippedItem().getItem()).canChisel(entityplayer, x, y, z)) {
+			Block id = world.getBlock(x, y, z);
+			byte meta = (byte) world.getBlockMetadata(x, y, z);
+			return ((IToolChisel) entityplayer.getCurrentEquippedItem().getItem()).onUsed(world, entityplayer, x, y, z, id, meta, side, hitX, hitY, hitZ);
 		}
+		return false;
 	}
 
 	@Override
@@ -83,8 +103,8 @@ public class BlockPartial extends BlockTerraContainer
 	public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
 		TEPartial te = (TEPartial) world.getTileEntity(x, y, z);
-		if(te.TypeID >= 0)
-			return Blocks.fire.getFlammability(Block.getBlockById(te.TypeID));
+		if(te.typeID >= 0)
+			return Blocks.fire.getFlammability(Block.getBlockById(te.typeID));
 		else return 0;
 	}
 
@@ -92,8 +112,8 @@ public class BlockPartial extends BlockTerraContainer
 	public int getFireSpreadSpeed(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
 		TEPartial te = (TEPartial) world.getTileEntity(x, y, z);
-		if(te.TypeID >= 0)
-			return Blocks.fire.getEncouragement(Block.getBlockById(te.TypeID));
+		if(te.typeID >= 0)
+			return Blocks.fire.getEncouragement(Block.getBlockById(te.typeID));
 		else return 0;
 	}
 

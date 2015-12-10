@@ -13,15 +13,14 @@ import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Core.WeatherManager;
-import com.bioxx.tfc.api.Util.Helper;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Core.WeatherManager;
+import com.bioxx.tfc.api.Util.Helper;
 
 @SideOnly(Side.CLIENT)
 public class ClientOverrides 
@@ -29,6 +28,9 @@ public class ClientOverrides
 	public static void loadRenderers()
 	{
 		RenderGlobal renderG = Minecraft.getMinecraft().renderGlobal;
+		Object obj = Helper.getObject(renderG, "t", "field_72767_j", "worldRenderersToUpdate", TFCASMLoadingPlugin.runtimeDeobf);
+		if(!(obj instanceof List))
+			return;
 		int k = 0, j = 0;
 		int renderChunksWide = Helper.getInteger(renderG, "w","field_72766_m", "renderChunksWide", TFCASMLoadingPlugin.runtimeDeobf);
 		int renderChunksTall = Helper.getInteger(renderG, "x","field_72763_n", "renderChunksTall", TFCASMLoadingPlugin.runtimeDeobf);
@@ -36,10 +38,8 @@ public class ClientOverrides
 		int glRenderListBase = Helper.getInteger(renderG, "z","field_72778_p", "glRenderListBase", TFCASMLoadingPlugin.runtimeDeobf);
 		WorldRenderer[] worldRenderers = (WorldRenderer[])(Helper.getObject(renderG,"v", "field_72765_l", "worldRenderers", TFCASMLoadingPlugin.runtimeDeobf));
 		WorldRenderer[] sortedWorldRenderers = (WorldRenderer[])(Helper.getObject(renderG, "u","field_72768_k", "sortedWorldRenderers", TFCASMLoadingPlugin.runtimeDeobf));
-		Object obj = Helper.getObject(renderG, "t", "field_72767_j", "worldRenderersToUpdate", TFCASMLoadingPlugin.runtimeDeobf);
-		if(!(obj instanceof List))
-			return;
-		List worldRenderersToUpdate = (List)(Helper.getObject(renderG, "t", "field_72767_j", "worldRenderersToUpdate", TFCASMLoadingPlugin.runtimeDeobf));
+
+		List<WorldRenderer> worldRenderersToUpdate = (List<WorldRenderer>) (Helper.getObject(renderG, "t", "field_72767_j", "worldRenderersToUpdate", TFCASMLoadingPlugin.runtimeDeobf));
 		World world = (World)(Helper.getObject(renderG, "r", "field_72769_h", "theWorld", TFCASMLoadingPlugin.runtimeDeobf));
 
 		worldRenderersToUpdate.clear();
@@ -71,7 +71,7 @@ public class ClientOverrides
 		}
 	}
 
-	private static int rainSoundCounter = 0;
+	private static int rainSoundCounter;
 
 	public static void doRainClient(Random random, int rendererUpdateCount)
 	{
@@ -119,7 +119,7 @@ public class ClientOverrides
 						float f1 = random.nextFloat();
 						float f2 = random.nextFloat();
 
-						if (b != Blocks.air)
+						if (!b.isAir(worldclient, x, y - 1, z))
 						{
 							if (b.getMaterial() == Material.lava)
 							{

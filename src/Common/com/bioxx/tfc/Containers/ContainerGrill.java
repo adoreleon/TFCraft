@@ -14,14 +14,14 @@ import com.bioxx.tfc.api.TileEntities.TEFireEntity;
 
 public class ContainerGrill extends ContainerTFC
 {
-	private TEGrill grill;
+	//private TEGrill grill;
 	private TEFireEntity fire;
 	private float firetemp;
-	private int charcoal;
+	//private int charcoal;
 
 	public ContainerGrill(InventoryPlayer inventoryplayer, TEGrill grill, World world, int x, int y, int z)
 	{
-		this.grill = grill;
+		//this.grill = grill;
 		firetemp = -1111;
 
 		if(world.getTileEntity(x, y-1, z) instanceof TEFireEntity)
@@ -47,29 +47,39 @@ public class ContainerGrill extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer entityplayer, int i)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		Slot slot = (Slot)inventorySlots.get(i);
+		ItemStack origStack = null;
+		Slot slot = (Slot) inventorySlots.get(slotNum);
+
 		if(slot != null && slot.getHasStack())
 		{
-			ItemStack itemstack1 = slot.getStack();
-			if(i < 6)
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
+
+			if (slotNum < 6)
 			{
-				if(!this.mergeItemStack(itemstack1, 6, this.inventorySlots.size(), true))
+				if (!this.mergeItemStack(slotStack, 6, this.inventorySlots.size(), true))
 					return null;
 			}
 			else
 			{
-				if (!this.mergeItemStack(itemstack1, 0, 6, false))
+				if (!this.mergeItemStack(slotStack, 0, 6, false))
 					return null;
 			}
 
-			if(itemstack1.stackSize == 0)
+			if (slotStack.stackSize <= 0)
 				slot.putStack(null);
 			else
 				slot.onSlotChanged();
+
+			if (slotStack.stackSize == origStack.stackSize)
+				return null;
+
+			slot.onPickupFromSlot(player, slotStack);
 		}
-		return null;
+
+		return origStack;
 	}
 
 	@Override

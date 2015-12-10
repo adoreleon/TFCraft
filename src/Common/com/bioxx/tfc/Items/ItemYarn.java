@@ -4,11 +4,12 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Blocks.BlockWoodSupport;
 import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class ItemYarn extends ItemTerra
 {
@@ -19,13 +20,13 @@ public class ItemYarn extends ItemTerra
 		super();
 		this.hasSubtypes = false;
 		this.setMaxDamage(0);
-		this.setCreativeTab(TFCTabs.TFCMaterials);
+		this.setCreativeTab(TFCTabs.TFC_MATERIALS);
 	}
 
 	@Override
 	public boolean onItemUse(ItemStack is, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
-		if(!world.isRemote && side > 1 && !world.getBlock(x, y, z).equals(TFCBlocks.Loom))
+		if(!world.isRemote && side > 1 && !world.getBlock(x, y, z).equals(TFCBlocks.loom))
 		{
 			int length = 0;
 			int[] map = sidesMap[side];
@@ -70,8 +71,8 @@ public class ItemYarn extends ItemTerra
 				int xCoord = x+(map[0] * i);
 				int yCoord = y+(map[1] * i);
 				int zCoord = z+(map[2] * i);
-				int meta = ((side & 4) >> 2);
-				world.setBlock(xCoord, yCoord, zCoord, TFCBlocks.SmokeRack, meta, 2);
+				int meta = (side & 4) >> 2;
+				world.setBlock(xCoord, yCoord, zCoord, TFCBlocks.smokeRack, meta, 2);
 				is.stackSize--;
 			}
 

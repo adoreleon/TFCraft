@@ -6,7 +6,7 @@ import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.TileEntities.TileEntityToolRack;
+import com.bioxx.tfc.TileEntities.TEToolRack;
 
 public class TESRToolrack extends TESRBase
 {
@@ -17,7 +17,7 @@ public class TESRToolrack extends TESRBase
 	/**
 	 * Renders the TileEntity for the chest at a position.
 	 */
-	public void renderAt(TileEntityToolRack te, double d, double d1, double d2, float f)
+	public void renderAt(TEToolRack te, double d, double d1, double d2, float f)
 	{
 		if (te.getWorldObj() != null)
 		{
@@ -26,7 +26,7 @@ public class TESRToolrack extends TESRBase
 			EntityItem customitem = new EntityItem(field_147501_a.field_147550_f); //tileEntityRenderer.worldObj
 			customitem.hoverStart = 0f;
 			float blockScale = 1.0F;
-			float timeD = (float) (360.0 * (System.currentTimeMillis() & 0x3FFFL) / 0x3FFFL);
+			//float timeD = (float) (360.0 * (System.currentTimeMillis() & 0x3FFFL) / 0x3FFFL);
 			for(int i = 0; i < 4; i++)
 			{
 				if (te.getStackInSlot(i) != null)
@@ -80,7 +80,7 @@ public class TESRToolrack extends TESRBase
 		}
 		else if(dir == 1)
 		{
-			out[3] = 90f;
+			out[3] = 270f;
 			if(slot == 0)
 			{
 				out[0] = 0.06f; 
@@ -136,7 +136,7 @@ public class TESRToolrack extends TESRBase
 		}
 		else if(dir == 3)
 		{
-			out[3] = 270f;
+			out[3] = 90f;
 			if(slot == 0)
 			{
 				out[0] = 0.94f; 
@@ -168,6 +168,6 @@ public class TESRToolrack extends TESRBase
 	@Override
 	public void renderTileEntityAt(TileEntity par1TileEntity, double par2, double par4, double par6, float par8)
 	{
-		this.renderAt((TileEntityToolRack)par1TileEntity, par2, par4, par6, par8);
+		this.renderAt((TEToolRack)par1TileEntity, par2, par4, par6, par8);
 	}
 }

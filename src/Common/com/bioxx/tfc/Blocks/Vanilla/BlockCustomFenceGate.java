@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -18,35 +19,46 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.TileEntities.TileEntityFenceGate;
-import com.bioxx.tfc.api.Constant.Global;
-import com.bioxx.tfc.api.Interfaces.IMultipleBlock;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.TileEntities.TEFenceGate;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
+import com.bioxx.tfc.api.Interfaces.IMultipleBlock;
+
 public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityProvider, IMultipleBlock
 {
-	String[] woodNames;
-	IIcon[] icons;
+	public String[] woodNames;
+	public IIcon[] icons;
 	public BlockCustomFenceGate()
 	{
 		super();
 		woodNames = new String[16];
 		System.arraycopy(Global.WOOD_ALL, 0, woodNames, 0, 16);
 		icons = new IIcon[woodNames.length];
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		int l = (par1World.getTileEntity(par2, par3, par4)!=null)?(((TileEntityFenceGate)(par1World.getTileEntity(par2, par3, par4))).getDirection()):0;
-		boolean open = (par1World.getTileEntity(par2, par3, par4)!=null)?(((TileEntityFenceGate)(par1World.getTileEntity(par2, par3, par4))).getOpen()):false;
-		return open ? null : (l != 2 && l != 0 ? AxisAlignedBB.getBoundingBox((double)((float)par2 + 0.375F), (double)par3, (double)par4, (double)((float)par2 + 0.625F), (double)((float)par3 + 1.5F), (double)(par4 + 1)) : AxisAlignedBB.getBoundingBox((double)par2, (double)par3, (double)((float)par4 + 0.375F), (double)(par2 + 1), (double)((float)par3 + 1.5F), (double)((float)par4 + 0.625F)));
+		int direction = 0;
+		boolean open = false;
+		TileEntity te = world.getTileEntity(x, y, z);
+
+		if (te instanceof TEFenceGate) // Fixes any possible ClassCastExceptions
+		{
+			direction = ((TEFenceGate) te).getDirection();
+			open = ((TEFenceGate) te).getOpen();
+		}
+
+		if (open)
+			return null; // Gate is open so it has no bounding box.
+		else
+			return (direction != 2 && direction != 0 ? AxisAlignedBB.getBoundingBox(x + 0.375F, y, z, x + 0.625F, y + 1.5F, z + 1) : AxisAlignedBB.getBoundingBox(x, y, z + 0.375F, x + 1, y + 1.5F, z + 0.625F));
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -61,13 +73,13 @@ public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityP
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
 		for(int i = 0; i < woodNames.length; i++)
-			icons[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/" + woodNames[i] + " Plank");
+			icons[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/" + woodNames[i] + " Plank");
 	}
 
 	@Override
 	public int getRenderType()
 	{
-		return TFCBlocks.FenceGateRenderId;
+		return TFCBlocks.fenceGateRenderId;
 	}
 
 	@Override
@@ -91,13 +103,15 @@ public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityP
 	@Override
 	public boolean getBlocksMovement(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
 	{
-		return ((TileEntityFenceGate)(par1IBlockAccess.getTileEntity(par2, par3, par4))).getOpen();
+		if (par1IBlockAccess.getTileEntity(par3, par3, par4) instanceof TEFenceGate)
+			return ((TEFenceGate) (par1IBlockAccess.getTileEntity(par2, par3, par4))).getOpen();
+		return false;
 	}
 
 	@Override
 	public void setBlockBoundsBasedOnState(IBlockAccess par1IBlockAccess, int par2, int par3, int par4)
 	{
-		int l = ((TileEntityFenceGate)par1IBlockAccess.getTileEntity(par2, par3, par4)).getDirection();
+		int l = ((TEFenceGate)par1IBlockAccess.getTileEntity(par2, par3, par4)).getDirection();
 
 		if (l != 2 && l != 0)
 		{
@@ -112,8 +126,8 @@ public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityP
 	@Override
 	public void onBlockPlacedBy(World par1World, int par2, int par3, int par4, EntityLivingBase par5EntityLivingBase, ItemStack par6ItemStack)
 	{
-		int l = (MathHelper.floor_double((double)(par5EntityLivingBase.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3) % 4;
-		((TileEntityFenceGate)(par1World.getTileEntity(par2, par3, par4))).setDirection((byte)l);
+		int l = (MathHelper.floor_double(par5EntityLivingBase.rotationYaw * 4.0F / 360.0F + 0.5D) & 3) % 4;
+		((TEFenceGate)(par1World.getTileEntity(par2, par3, par4))).setDirection((byte)l);
 
 		//par1World.setBlockMetadataWithNotify(par2, par3, par4, l, 2);
 	}
@@ -121,7 +135,7 @@ public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityP
 	@Override
 	public boolean onBlockActivated(World par1World, int par2, int par3, int par4, EntityPlayer par5EntityPlayer, int par6, float par7, float par8, float par9)
 	{
-		TileEntityFenceGate te = (TileEntityFenceGate)par1World.getTileEntity(par2, par3, par4);
+		TEFenceGate te = (TEFenceGate)par1World.getTileEntity(par2, par3, par4);
 
 		if (te.getOpen())
 			te.setOpen(false);
@@ -135,34 +149,35 @@ public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityP
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
 	{
-		/*TileEntityFenceGate te = (TileEntityFenceGate) world.getTileEntity(x, y, z);
+		TEFenceGate te = (TEFenceGate) world.getTileEntity(x, y, z);
 		boolean flag = world.isBlockIndirectlyGettingPowered(x, y, z);
 
-		if (flag || block != Blocks.air && block.canProvidePower())
+		if (flag || block.getMaterial() != Material.air && block.canProvidePower())
 		{
 			if (flag && !te.getOpen())
 			{
 				te.setOpen(true);
+				world.playAuxSFXAtEntity((EntityPlayer) null, 1003, x, y, z, 0);
 			}
 			else if (!flag && te.getOpen())
 			{
 				te.setOpen(false);
+				world.playAuxSFXAtEntity((EntityPlayer) null, 1003, x, y, z, 0);
 			}
 
-			world.playAuxSFXAtEntity((EntityPlayer) null, 1003, x, y, z, 0);
-		}*/
+		}
 	}
 
 	@Override
 	public TileEntity createNewTileEntity(World var1, int var2)
 	{
-		return new TileEntityFenceGate();
+		return new TEFenceGate();
 	}
 
 	@Override
 	public Block getBlockTypeForRender()
 	{
-		return TFCBlocks.FenceGate;
+		return TFCBlocks.fenceGate;
 	}
 
 	@Override
@@ -170,5 +185,11 @@ public class BlockCustomFenceGate extends BlockFenceGate implements ITileEntityP
 	public boolean shouldSideBeRendered(IBlockAccess bAccess, int x, int y, int z, int side)
 	{
 		return true;
+	}
+
+	@Override
+	public boolean canBeReplacedByLeaves(IBlockAccess world, int x, int y, int z)
+	{
+		return false;
 	}
 }

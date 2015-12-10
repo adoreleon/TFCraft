@@ -8,18 +8,18 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.DataLayer;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class MapGenCavesTFC extends MapGenBaseTFC
 {
-	private byte[] metaArray;
+	//private byte[] metaArray;
 
 	public void generate(IChunkProvider par1IChunkProvider, World par2World, int par3, int par4, Block[] idsBig, byte[] metaBig)
 	{
-		metaArray = metaBig;
+		//metaArray = metaBig;
 		super.generate(par1IChunkProvider, par2World, par3, par4, idsBig);
 	}
 	/**
@@ -57,8 +57,6 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 		int var27 = var25.nextInt(par16 / 2) + par16 / 4;
 		for (boolean var28 = var25.nextInt(6) == 0; par15 < par16; ++par15)
 		{
-			double var29 = width + MathHelper.sin(par15 * (float)Math.PI / par16) * par12 * 1.0F;
-			double var31 = var29 * par17;
 			float var33 = MathHelper.cos(par14);
 			float var34 = MathHelper.sin(par14);
 			i += MathHelper.cos(par13) * var33;
@@ -84,6 +82,8 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 				return;
 			}
 
+			double var29 = width + MathHelper.sin(par15 * (float) Math.PI / par16) * par12 * 1.0F;
+			double var31 = var29 * par17;
 			if (var54 || var25.nextInt(4) != 0)
 			{
 				double var35 = i - worldX;
@@ -134,7 +134,7 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 								int index = (xCoord * 16 + zCoord) * 256 + y;
 								if (y >= 0 && y < 256)
 								{
-									if (idArray[index] == TFCBlocks.SaltWaterStationary || idArray[index] == TFCBlocks.FreshWaterStationary)
+									if (idArray[index] == TFCBlocks.saltWaterStationary || idArray[index] == TFCBlocks.freshWaterStationary)
 										var58 = true;
 									if (y != var57 - 1 && xCoord != var55 && xCoord != var36 - 1 && zCoord != var56 && zCoord != var40 - 1)
 										y = var57;
@@ -176,16 +176,16 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 
 												if (var50 < 10 && TFC_Climate.getStability(this.worldObj, (int)worldX, (int)worldZ) == 1)
 												{
-													idArray[index] = TFCBlocks.Lava;
-													metaArray[index] = 0;
+													idArray[index] = TFCBlocks.lava;
+													//metaArray[index] = 0;
 												}
 												else
 												{
 													idArray[index] = Blocks.air;
-													metaArray[index] = 0;
+													//metaArray[index] = 0;
 													if (isGrass && TFC_Core.isDirt(idArray[index - 1]))
 													{
-														int meta = metaArray[index - 1];
+														//int meta = metaArray[index - 1];
 														idArray[index - 1] = grassBlock;
 													}
 												}
@@ -212,59 +212,62 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 	{
 		int var7 = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(40) + 1) + 1);
 		double xCoord = par2 * 16 + this.rand.nextInt(16);
-		double yCoord = this.rand.nextInt(1+this.rand.nextInt(140))+60;
+		double yCoord = this.rand.nextInt(1 + this.rand.nextInt(140)) + 60;
 		double zCoord = par3 * 16 + this.rand.nextInt(16);
-		DataLayer rockLayer1 = TFC_Climate.getCacheManager(world).getRockLayerAt((int)xCoord, (int)zCoord, 0);
-		float rain = TFC_Climate.getRainfall(world, (int)xCoord, 144, (int)zCoord);
+		float rain = TFC_Climate.getRainfall(world, (int) xCoord, 144, (int) zCoord);
 		double width = 2;
 		int caveChance = 35;
 
-		if(rain > 1000)
+		if (rain > 1000)
 		{
 			width += 0.5;
 			caveChance -= 5;
 		}
-		else if(rain > 2000)
+		else if (rain > 2000)
 		{
 			width += 1;
 			caveChance -= 10;
 		}
-		else if(rain < 1000)
+		else if (rain < 1000)
 		{
 			width -= 0.5;
 			caveChance += 5;
 		}
-		else if(rain < 500)
+		else if (rain < 500)
 		{
 			width -= 1;
 			caveChance += 10;
 		}
-		else if(rain < 250)
+		else if (rain < 250)
 		{
 			width -= 1.25;
 			caveChance += 15;
 		}
 
-		Block layerID = rockLayer1.block;
-		if(layerID == TFCBlocks.StoneIgEx)
+		if (TFC_Climate.getCacheManager(world) != null)
 		{
-			width -= 0.4;
-		}
-		else if(layerID == TFCBlocks.StoneIgIn)
-		{
-			width -= 0.5;
-		}
-		else if(layerID == TFCBlocks.StoneSed)
-		{
-			width += 0.2;
-			var7 += 5;
-		}
-		else if(layerID == TFCBlocks.StoneMM)
-		{
-			width += 0.3;
+			DataLayer rockLayer1 = TFC_Climate.getCacheManager(world).getRockLayerAt((int)xCoord, (int)zCoord, 0);
+			Block layerID = rockLayer1.block;
+			if(layerID == TFCBlocks.stoneIgEx)
+			{
+				width -= 0.4;
+			}
+			else if(layerID == TFCBlocks.stoneIgIn)
+			{
+				width -= 0.5;
+			}
+			else if(layerID == TFCBlocks.stoneSed)
+			{
+				width += 0.2;
+				var7 += 5;
+			}
+			else if(layerID == TFCBlocks.stoneMM)
+			{
+				width += 0.3;
+			}
 		}
 
-		if(yCoord < 32)
+		if (yCoord < 32)
 			width *= 0.5;
 		else if (yCoord < 64)
 			width *= 0.65;
@@ -275,7 +278,7 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 		else
 			width *= 0.5;
 
-		if(this.rand.nextInt(8) == 0)
+		if (this.rand.nextInt(8) == 0)
 			width += 1;
 
 		if (this.rand.nextInt(caveChance) != 0)
@@ -292,7 +295,7 @@ public class MapGenCavesTFC extends MapGenBaseTFC
 
 			for (int var16 = 0; var16 < var15; ++var16)
 			{
-				float var17 = this.rand.nextFloat() * (float)Math.PI * 2.0F;
+				float var17 = this.rand.nextFloat() * (float) Math.PI * 2.0F;
 				float var18 = (this.rand.nextFloat() - 0.5F) * 2.0F / 8.0F;
 				float var19 = this.rand.nextFloat() * 2.0F + this.rand.nextFloat();
 				if (this.rand.nextInt(10) == 0)

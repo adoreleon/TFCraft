@@ -1,25 +1,16 @@
 package com.bioxx.tfc.Items;
 
-import java.util.BitSet;
-
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Items.Tools.ItemChisel;
-import com.bioxx.tfc.Items.Tools.ItemHammer;
-import com.bioxx.tfc.TileEntities.TEDetailed;
-import com.bioxx.tfc.api.Entities.IAnimal;
-import com.bioxx.tfc.api.Util.Helper;
+import com.bioxx.tfc.Core.TFC_Core;
 
 public class ItemCustomNameTag extends ItemTerra
 {
@@ -29,7 +20,7 @@ public class ItemCustomNameTag extends ItemTerra
 		setMaxDamage(0);
 		setHasSubtypes(true);
 		setUnlocalizedName("Nametag");
-		setCreativeTab(TFCTabs.TFCTools);
+		setCreativeTab(TFCTabs.TFC_TOOLS);
 		setFolder("tools/");
 	}
 
@@ -61,10 +52,16 @@ public class ItemCustomNameTag extends ItemTerra
 		}
 		if(stack.stackTagCompound != null && !stack.stackTagCompound.hasKey("ItemName"))
 		{
-			player.openGui(TerraFirmaCraft.instance, 34, player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
+			player.openGui(TerraFirmaCraft.instance, 48, player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
 		}
 
 		return stack;
+	}
+	
+	@Override
+	public void registerIcons(IIconRegister registerer)
+	{
+		//Don't
 	}
 
 	@Override
@@ -78,6 +75,6 @@ public class ItemCustomNameTag extends ItemTerra
 	{
 		if(is.hasTagCompound() && is.stackTagCompound.hasKey("ItemName"))
 			return is.stackTagCompound.getString("ItemName");
-		else return StatCollector.translateToLocal("gui.Nametag");
+		else return TFC_Core.translate("gui.Nametag");
 	}
 }

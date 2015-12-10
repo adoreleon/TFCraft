@@ -11,17 +11,22 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 
 public class TEIngotPile extends NetworkTileEntity implements IInventory
 {
 	public ItemStack[] storage;
 	public String type;
-	public static Item[] INGOTS;
+	public static final Item[] INGOTS = new Item[]{TFCItems.bismuthIngot,TFCItems.bismuthBronzeIngot,TFCItems.blackBronzeIngot,
+		TFCItems.blackSteelIngot,TFCItems.blueSteelIngot,TFCItems.brassIngot,TFCItems.bronzeIngot,
+		TFCItems.copperIngot,TFCItems.goldIngot,TFCItems.wroughtIronIngot,TFCItems.leadIngot,
+		TFCItems.nickelIngot,TFCItems.pigIronIngot,TFCItems.platinumIngot,TFCItems.redSteelIngot,
+		TFCItems.roseGoldIngot,TFCItems.silverIngot,TFCItems.steelIngot,TFCItems.sterlingSilverIngot,
+		TFCItems.tinIngot,TFCItems.zincIngot, TFCItems.unknownIngot};
 
 	@Override
 	public boolean canUpdate()
@@ -33,16 +38,10 @@ public class TEIngotPile extends NetworkTileEntity implements IInventory
 	{
 		storage = new ItemStack[1];
 		type = "Copper";
-		INGOTS = new Item[]{(TFCItems.BismuthIngot),(TFCItems.BismuthBronzeIngot),(TFCItems.BlackBronzeIngot),
-				(TFCItems.BlackSteelIngot),(TFCItems.BlueSteelIngot),(TFCItems.BrassIngot),(TFCItems.BronzeIngot),
-				(TFCItems.CopperIngot),(TFCItems.GoldIngot),(TFCItems.WroughtIronIngot),(TFCItems.LeadIngot),
-				(TFCItems.NickelIngot),(TFCItems.PigIronIngot),(TFCItems.PlatinumIngot),(TFCItems.RedSteelIngot),
-				(TFCItems.RoseGoldIngot),(TFCItems.SilverIngot),(TFCItems.SteelIngot),(TFCItems.SterlingSilverIngot),
-				(TFCItems.TinIngot),(TFCItems.ZincIngot), TFCItems.UnknownIngot};
 	}
 	public static Item[] getIngots()
 	{
-		return INGOTS;
+		return INGOTS.clone();
 	}
 
 	public void setType(String i)
@@ -54,8 +53,7 @@ public class TEIngotPile extends NetworkTileEntity implements IInventory
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord +1, yCoord + 1, zCoord + 1);
-		return bb;
+		return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1);
 	}
 
 	public int getStack()
@@ -94,11 +92,8 @@ public class TEIngotPile extends NetworkTileEntity implements IInventory
 				return true;
 		}
 
-		if(storage[index].getItem() == is.getItem() && storage[index].getItem() == is.getItem() &&
-				/*storage[index].stackSize < storage[index].getMaxStackSize() &&*/ storage[index].stackSize+1 <= this.getInventoryStackLimit())
-			return true;
-
-		return false;
+		return storage[index].getItem() == is.getItem() &&storage[index].getItem() == is.getItem() &&
+				/*storage[index].stackSize < storage[index].getMaxStackSize() &&*/ storage[index].stackSize + 1 <= this.getInventoryStackLimit();
 	}
 
 	@Override
@@ -212,7 +207,7 @@ public class TEIngotPile extends NetworkTileEntity implements IInventory
 	public void updateNeighbours()
 	{
 		if(worldObj.blockExists(xCoord, yCoord+1, zCoord) && !worldObj.isAirBlock(xCoord, yCoord+1, zCoord))
-			worldObj.getBlock(xCoord, yCoord+1, zCoord).onNeighborBlockChange(worldObj, xCoord, yCoord+1, zCoord, TFCBlocks.IngotPile);
+			worldObj.getBlock(xCoord, yCoord+1, zCoord).onNeighborBlockChange(worldObj, xCoord, yCoord+1, zCoord, TFCBlocks.ingotPile);
 	}
 
 	@Override

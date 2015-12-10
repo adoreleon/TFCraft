@@ -1,7 +1,5 @@
 package com.bioxx.tfc.Blocks.Devices;
 
-import static net.minecraftforge.common.util.ForgeDirection.UP;
-
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -17,24 +15,27 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Items.ItemLogs;
-import com.bioxx.tfc.Items.Pottery.ItemPotteryBase;
-import com.bioxx.tfc.TileEntities.TEPottery;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Blocks.BlockTerraContainer;
+import com.bioxx.tfc.Items.ItemLogs;
+import com.bioxx.tfc.Items.Pottery.ItemPotteryBase;
+import com.bioxx.tfc.TileEntities.TEPottery;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
+
+import static net.minecraftforge.common.util.ForgeDirection.UP;
+
 public class BlockPottery extends BlockTerraContainer
 {
-	public IIcon Clay;
-	public IIcon Ceramic;
-	public IIcon Straw;
+	public IIcon clay;
+	public IIcon ceramic;
+	public IIcon straw;
 
 	public BlockPottery()
 	{
@@ -46,15 +47,15 @@ public class BlockPottery extends BlockTerraContainer
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		this.Clay = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Clay");
-		this.Ceramic = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Ceramic");
-		this.Straw = iconRegisterer.registerIcon(Reference.ModID + ":" + "plants/Straw");
+		this.clay = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Clay");
+		this.ceramic = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Ceramic");
+		this.straw = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "plants/Straw");
 	}
 
 	@Override
 	public IIcon getIcon(int side, int meta)
 	{
-		return Straw;
+		return straw;
 	}
 
 	@Override
@@ -67,20 +68,14 @@ public class BlockPottery extends BlockTerraContainer
 	public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
 	{
 		TEPottery te = (TEPottery) world.getTileEntity(x, y, z);
-		if(side == ForgeDirection.UP && te!= null && te.wood == 8)
-			return true;
-		return false;
+		return side == UP && te != null && te.wood == 8;
 	}
 
 	@Override
 	public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side)
 	{
 		TEPottery te = (TEPottery) world.getTileEntity(x, y, z);
-		if (te.isLit() && side == UP)
-		{
-			return true;
-		}
-		return false;
+		return te.isLit() && side == UP;
 	}
 
 	public int idDropped(int metadata, Random rand, int fortune)
@@ -95,22 +90,26 @@ public class BlockPottery extends BlockTerraContainer
 		{
 			TEPottery te = (TEPottery) world.getTileEntity(x, y, z);
 
-			if (te.isLit() || player.inventory.getCurrentItem() != null && 
-					(player.inventory.getCurrentItem().getItem() == TFCItems.FlintSteel || player.inventory.getCurrentItem().getItem() == TFCItems.FireStarter))
+			if (te.isLit() || player.inventory.getCurrentItem() != null
+					&& (player.inventory.getCurrentItem().getItem() == TFCItems.flintSteel || player.inventory.getCurrentItem().getItem() == TFCItems.fireStarter))
 				return false;
 
-			if(player.inventory.getCurrentItem() != null && player.inventory.getCurrentItem().getItem() == TFCItems.Straw && !player.isSneaking())
+			if(player.inventory.getCurrentItem() != null && player.inventory.getCurrentItem().getItem() == TFCItems.straw && !player.isSneaking())
 			{
 				te.addStraw(player.inventory.getCurrentItem(), player);
 				return true;
 			}
 			else if(player.inventory.getCurrentItem() != null && player.inventory.getCurrentItem().getItem() instanceof ItemLogs && !player.isSneaking() && te.straw == 8)
 			{
-				te.addLog(player.inventory.getCurrentItem(), player);
-				return true;
+				if (te.addLog(player.inventory.getCurrentItem(), player))
+				{
+					world.playSoundEffect(x + 0.5, y + 0.5, z + 0.5, TFCBlocks.logNatural.stepSound.func_150496_b(), (TFCBlocks.logNatural.stepSound.getVolume() + 1.0F) / 2.0F, TFCBlocks.logNatural.stepSound.getPitch() * 0.8F);
+					return true;
+				}
 			}
-			else if((player.inventory.getCurrentItem() != null && !(player.inventory.getCurrentItem().getItem() instanceof ItemPotteryBase)) || (te.getStackInSlot(0) != null && 
-					te.getStackInSlot(1) != null && te.getStackInSlot(2) != null && te.getStackInSlot(3) != null) || player.inventory.getCurrentItem() == null)
+			else if(player.inventory.getCurrentItem() != null && !(player.inventory.getCurrentItem().getItem() instanceof ItemPotteryBase) || 
+					te.getStackInSlot(0) != null && te.getStackInSlot(1) != null && te.getStackInSlot(2) != null && te.getStackInSlot(3) != null || 
+					player.inventory.getCurrentItem() == null)
 			{
 				if(te.wood > 0)
 				{
@@ -120,7 +119,7 @@ public class BlockPottery extends BlockTerraContainer
 				}
 				else if(te.wood == 0 && side == 1 && player.isSneaking())
 				{
-					if((te.getStackInSlot(0) != null && te.getStackInSlot(0).getItem() instanceof ItemBlock) || (hitX < 0.5 && hitZ < 0.5))
+					if (te.getStackInSlot(0) != null && te.getStackInSlot(0).getItem() instanceof ItemBlock || hitX < 0.5 && hitZ < 0.5)
 						te.ejectItem(0);
 					else if(hitX > 0.5 && hitZ < 0.5)
 						te.ejectItem(1);
@@ -160,7 +159,7 @@ public class BlockPottery extends BlockTerraContainer
 			h = te.straw == 0 ? 1 : te.straw;
 			w = (te.wood > 0 ? 1 : 0) + (te.wood > 4 ? 1 : 0);
 		}
-		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, (0.0625f*h) + (0.25f * w), 1.0F);
+		setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.0625f * h + 0.25f * w, 1.0F);
 	}
 
 	@Override
@@ -181,12 +180,11 @@ public class BlockPottery extends BlockTerraContainer
 		return false;
 	}
 
-	public void Eject(World world, int x, int y, int z)
+	public void eject(World world, int x, int y, int z)
 	{
-		if(!world.isRemote && (TEPottery)world.getTileEntity(x, y, z) != null)
+		if (!world.isRemote && world.getTileEntity(x, y, z) instanceof TEPottery)
 		{
-			TEPottery te;
-			te = (TEPottery)world.getTileEntity(x, y, z);
+			TEPottery te = (TEPottery) world.getTileEntity(x, y, z);
 			te.ejectContents();
 			world.removeTileEntity(x, y, z);
 		}
@@ -195,12 +193,12 @@ public class BlockPottery extends BlockTerraContainer
 	@Override
 	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
-		Eject(world, x, y, z);
+		eject(world, x, y, z);
 		return world.setBlockToAir(x, y, z);
 	}
 
 	@Override
-	public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_)
+	public Item getItemDropped(int i, Random rand, int j)
 	{
 		return null;
 	}
@@ -216,7 +214,7 @@ public class BlockPottery extends BlockTerraContainer
 	{
 		if(!world.isRemote)
 		{
-			if(!world.isSideSolid(x, y - 1, z, ForgeDirection.UP))
+			if (!world.isSideSolid(x, y - 1, z, UP))
 			{
 				((TEPottery)world.getTileEntity(x, y, z)).ejectContents();
 				world.setBlockToAir(x, y, z);

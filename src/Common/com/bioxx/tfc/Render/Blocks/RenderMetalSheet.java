@@ -1,12 +1,13 @@
 package com.bioxx.tfc.Render.Blocks;
 
-import com.bioxx.tfc.TileEntities.TEMetalSheet;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
+
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
+import com.bioxx.tfc.TileEntities.TEMetalSheet;
 
 public class RenderMetalSheet implements ISimpleBlockRenderingHandler
 {
@@ -20,34 +21,34 @@ public class RenderMetalSheet implements ISimpleBlockRenderingHandler
 		double f0 = 0.0625;
 		double f1 = 0.9375;
 
-		if(te.BottomExists())
+		if(te.bottomExists())
 		{
 			renderblocks.setRenderBounds(0, 0, 0, 1, f0, 1);
 			renderblocks.renderStandardBlock(block, i, j, k);
 			yMin = 0.0625;
 		}
-		if(te.TopExists())
+		if(te.topExists())
 		{
 			renderblocks.setRenderBounds(0, f1, 0, 1, 1, 1);
 			renderblocks.renderStandardBlock(block, i, j, k);
 			yMax = 0.9375;
 		}
-		if(te.NorthExists())
+		if(te.northExists())
 		{
 			renderblocks.setRenderBounds(0, yMin, 0, 1, yMax, f0);
 			renderblocks.renderStandardBlock(block, i, j, k);
 		}
-		if(te.SouthExists())
+		if(te.southExists())
 		{
 			renderblocks.setRenderBounds(0, yMin, f1, 1, yMax, 1);
 			renderblocks.renderStandardBlock(block, i, j, k);
 		}
-		if(te.EastExists())
+		if(te.eastExists())
 		{
 			renderblocks.setRenderBounds(0, yMin, 0, f0, yMax, 1);
 			renderblocks.renderStandardBlock(block, i, j, k);
 		}
-		if(te.WestExists())
+		if(te.westExists())
 		{
 			renderblocks.setRenderBounds(f1, yMin, 0, 1, yMax, 1);
 			renderblocks.renderStandardBlock(block, i, j, k);

@@ -1,64 +1,26 @@
 package com.bioxx.tfc.Handlers;
 
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Containers.ContainerAnvil;
-import com.bioxx.tfc.Containers.ContainerBarrel;
-import com.bioxx.tfc.Containers.ContainerBlastFurnace;
-import com.bioxx.tfc.Containers.ContainerChestTFC;
-import com.bioxx.tfc.Containers.ContainerCrucible;
-import com.bioxx.tfc.Containers.ContainerFirepit;
-import com.bioxx.tfc.Containers.ContainerFoodPrep;
-import com.bioxx.tfc.Containers.ContainerForge;
-import com.bioxx.tfc.Containers.ContainerGrill;
-import com.bioxx.tfc.Containers.ContainerHorseInventoryTFC;
-import com.bioxx.tfc.Containers.ContainerLargeVessel;
-import com.bioxx.tfc.Containers.ContainerLiquidVessel;
-import com.bioxx.tfc.Containers.ContainerLogPile;
-import com.bioxx.tfc.Containers.ContainerMold;
-import com.bioxx.tfc.Containers.ContainerNestBox;
-import com.bioxx.tfc.Containers.ContainerPlanSelection;
-import com.bioxx.tfc.Containers.ContainerPlayerTFC;
-import com.bioxx.tfc.Containers.ContainerQuern;
-import com.bioxx.tfc.Containers.ContainerQuiver;
-import com.bioxx.tfc.Containers.ContainerSluice;
-import com.bioxx.tfc.Containers.ContainerSpecialCrafting;
-import com.bioxx.tfc.Containers.ContainerVessel;
-import com.bioxx.tfc.Containers.ContainerWorkbench;
+import cpw.mods.fml.common.network.IGuiHandler;
+
+import com.bioxx.tfc.Containers.*;
 import com.bioxx.tfc.Core.Player.PlayerInfo;
 import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
 import com.bioxx.tfc.Entities.Mobs.EntityHorseTFC;
-import com.bioxx.tfc.TileEntities.TEAnvil;
-import com.bioxx.tfc.TileEntities.TEBarrel;
-import com.bioxx.tfc.TileEntities.TEBlastFurnace;
-import com.bioxx.tfc.TileEntities.TEChest;
-import com.bioxx.tfc.TileEntities.TECrucible;
-import com.bioxx.tfc.TileEntities.TEFirepit;
-import com.bioxx.tfc.TileEntities.TEFoodPrep;
-import com.bioxx.tfc.TileEntities.TEForge;
-import com.bioxx.tfc.TileEntities.TEGrill;
-import com.bioxx.tfc.TileEntities.TELogPile;
-import com.bioxx.tfc.TileEntities.TENestBox;
-import com.bioxx.tfc.TileEntities.TEVessel;
-import com.bioxx.tfc.TileEntities.TileEntityQuern;
-import com.bioxx.tfc.TileEntities.TESluice;
-import com.bioxx.tfc.TileEntities.TileEntityWorkbench;
-
-import cpw.mods.fml.common.network.IGuiHandler;
+import com.bioxx.tfc.TileEntities.*;
 
 public class GuiHandler implements IGuiHandler
 {
 
 	@Override
-	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) 
+	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) 
 	{
 		TileEntity te = world.getTileEntity(x, y, z);
 
-		switch(ID)
+		switch(id)
 		{
 		case 0:
 		{
@@ -66,7 +28,7 @@ public class GuiHandler implements IGuiHandler
 		}
 		case 1:
 		{
-			return new ContainerWorkbench(player.inventory, (TileEntityWorkbench) te, world, x, y, z);
+			return new ContainerWorkbench(player.inventory, (TEWorkbench) te, world, x, y, z);
 		}
 		case 19:
 		{
@@ -115,7 +77,7 @@ public class GuiHandler implements IGuiHandler
 		}
 		case 33:
 		{
-			return new ContainerQuern(player.inventory, (TileEntityQuern) te, world, x, y, z);
+			return new ContainerQuern(player.inventory, (TEQuern) te, world, x, y, z);
 		}
 		case 34:
 		{
@@ -151,12 +113,12 @@ public class GuiHandler implements IGuiHandler
 		}
 		case 42:
 		{
-			List list = player.worldObj.getEntitiesWithinAABB(EntityHorseTFC.class, player.boundingBox.expand(2, 2, 2));
-			if(list.size() > 0)
+			if (player.ridingEntity instanceof EntityHorseTFC)
 			{
-				EntityHorseTFC horse = (EntityHorseTFC) list.get(0);
+				EntityHorseTFC horse = (EntityHorseTFC) player.ridingEntity;
 				return new ContainerHorseInventoryTFC(player.inventory, horse.getHorseChest(), horse);
 			}
+
 			return null;
 		}
 		case 43:
@@ -171,6 +133,14 @@ public class GuiHandler implements IGuiHandler
 			return new ContainerLargeVessel(player.inventory, ((TEVessel) te), world, x, y, z, 0);
 		case 47:
 			return new ContainerLargeVessel(player.inventory, ((TEVessel) te), world, x, y, z, 1);
+		case 48:
+		{
+			return null;//guinametag
+		}
+		case 49:
+		{
+			return new ContainerHopper(player.inventory, ((TEHopper) te));
+		}
 		default:
 		{
 			return null;
@@ -179,7 +149,7 @@ public class GuiHandler implements IGuiHandler
 	}
 
 	@Override
-	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
+	public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
 	{
 		return null;
 	}

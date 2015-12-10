@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
@@ -22,26 +21,26 @@ import com.bioxx.tfc.api.Constant.Global;
 
 public class ItemLooseRock extends ItemTerra
 {
-	IIcon[] icons;
-	Item specialCraftingType;
-	ItemStack specialCraftingTypeAlternate;
+	protected IIcon[] icons;
+	protected Item specialCraftingType;
+	protected ItemStack specialCraftingTypeAlternate;
 
 	public ItemLooseRock() 
 	{
 		super();
 		this.hasSubtypes = true;
 		this.setMaxDamage(0);
-		this.setCreativeTab(TFCTabs.TFCMaterials);
-		this.MetaNames = Global.STONE_ALL;
-		icons = new IIcon[MetaNames.length];
+		this.setCreativeTab(TFCTabs.TFC_MATERIALS);
+		this.metaNames = Global.STONE_ALL;
+		icons = new IIcon[metaNames.length];
 	}
 
 	@Override
 	public ItemTerra setMetaNames(String[] metanames)
 	{
-		MetaNames = metanames;
-		if(metanames != null)
-			icons = new IIcon[MetaNames.length];
+		metaNames = metanames.clone();
+		if (metaNames != null)
+			icons = new IIcon[metaNames.length];
 		return this;
 	}
 
@@ -65,7 +64,17 @@ public class ItemLooseRock extends ItemTerra
 		return this;
 	}
 
-	@Override
+    public Item getSpecialCraftingType()
+    {
+        return specialCraftingType;
+    }
+
+    public ItemStack getSpecialCraftingTypeAlternate()
+    {
+        return specialCraftingTypeAlternate;
+    }
+
+    @Override
 	public ItemStack onItemRightClick(ItemStack is, World world, EntityPlayer player)
 	{
 		PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(player);
@@ -77,7 +86,6 @@ public class ItemLooseRock extends ItemTerra
 
 		if(is.stackSize > 1)
 		{
-			is.stackSize--;
 			player.openGui(TerraFirmaCraft.instance, 28, player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
 		}
 		return is;
@@ -85,16 +93,16 @@ public class ItemLooseRock extends ItemTerra
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
 		if (TFC_Core.showShiftInformation()) 
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.Help"));
-			arraylist.add(StatCollector.translateToLocal("gui.LooseRock.Inst0"));
+			arraylist.add(TFC_Core.translate("gui.Help"));
+			arraylist.add(TFC_Core.translate("gui.LooseRock.Inst0"));
 		}
 		else
 		{
-			arraylist.add(StatCollector.translateToLocal("gui.ShowHelp"));
+			arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 		}
 	}
 
@@ -115,14 +123,14 @@ public class ItemLooseRock extends ItemTerra
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		for(int i = 0; i < MetaNames.length; i++)
-			icons[i] = registerer.registerIcon(Reference.ModID + ":" + "rocks/" + MetaNames[i] + " Rock");
+		for(int i = 0; i < metaNames.length; i++)
+			icons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "rocks/" + metaNames[i] + " Rock");
 	}
 
 	@Override
 	public void getSubItems(Item item, CreativeTabs tabs, List list)
 	{
-		for(int i = 0; i < MetaNames.length; i++)
+		for(int i = 0; i < metaNames.length; i++)
 		{
 			list.add(new ItemStack(this, 1, i));
 		}

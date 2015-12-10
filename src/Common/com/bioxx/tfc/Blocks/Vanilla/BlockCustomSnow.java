@@ -17,9 +17,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Blocks.BlockTerra;
 import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockCustomSnow extends BlockTerra
 {
@@ -33,24 +33,22 @@ public class BlockCustomSnow extends BlockTerra
 	@Override
 	public boolean canPlaceBlockAt(World world, int i, int j, int k)
 	{
-		Block b = world.getBlock(i, j - 1, k);
-		boolean flag = false;
-		if (b == TFCBlocks.Ice)
+		Block block = world.getBlock(i, j - 1, k);
+		
+		if (block == TFCBlocks.ice || block == TFCBlocks.pottery)
 			return false;
-		if (World.doesBlockHaveSolidTopSurface(world, i, j-1, k))
-			flag =  true;
-		if (b == TFCBlocks.Leaves || b == TFCBlocks.Leaves2)
-			flag =  true;
-		return flag;
+		if (block == TFCBlocks.leaves || block == TFCBlocks.leaves2 || block == TFCBlocks.thatch)
+			return true;
+		return World.doesBlockHaveSolidTopSurface(world, i, j - 1, k);
 	}
 
 	@Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
 	{
-		int l = world.getBlockMetadata(x, y, z) & 7;
 		float f = 0.125F;
 		return AxisAlignedBB.getBoundingBox(x + this.minX, y + this.minY, z + this.minZ, x + this.maxX, y + f, z + this.maxZ);
 	}
+	
 	@Override
 	public int getRenderType()
 	{
@@ -65,7 +63,7 @@ public class BlockCustomSnow extends BlockTerra
 	}
 
 	@Override
-	public Item getItemDropped(int par1, Random R, int par3)
+	public Item getItemDropped(int i, Random r, int j)
 	{
 		return Items.snowball;
 	}
@@ -85,13 +83,14 @@ public class BlockCustomSnow extends BlockTerra
 	@Override
 	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
 	{
-		int var5 = world.getBlockMetadata(x, y, z);
-		if(var5 > 0)
-		{
-			double speed = 0.58D + 0.4D * (15 / var5 / 15);
-			entity.motionX *= speed;
-			entity.motionZ *= speed;
-		}
+		// meta  speed
+		//    0  0.98   -  one layer
+		//    7  0.10   -  eight layers = like leaves
+		
+		int meta = world.getBlockMetadata(x, y, z) & 7;
+		double speed = 0.98 - 0.125 * meta;
+		entity.motionX *= speed;
+		entity.motionZ *= speed;
 	}
 
 	@Override
@@ -104,7 +103,7 @@ public class BlockCustomSnow extends BlockTerra
 	}
 
 	@Override
-	public int quantityDropped(Random R)
+	public int quantityDropped(Random r)
 	{
 		return 1;
 	}
@@ -118,9 +117,9 @@ public class BlockCustomSnow extends BlockTerra
 	@Override
 	public void setBlockBoundsBasedOnState(IBlockAccess bAccess, int x, int y, int z)
 	{
-		int var5 = bAccess.getBlockMetadata(x, y, z) & 7;
-		float var6 = 2 * (1 + var5) / 16.0F;
-		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, var6, 1.0F);
+		int meta = bAccess.getBlockMetadata(x, y, z) & 7;
+		float top = (meta + 1) / 8.0F;
+		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, top, 1.0F);
 	}
 
 	@Override
@@ -130,88 +129,84 @@ public class BlockCustomSnow extends BlockTerra
 	}
 
 	@Override
-	public void updateTick(World world, int x, int y, int z, Random R)
+	public void updateTick(World world, int x, int y, int z, Random r)
 	{
-		if(!canPlaceBlockAt(world, x, y, z))
+		if (!canPlaceBlockAt(world, x, y, z))
 		{
 			world.setBlock(x, y, z, Blocks.air, 0, 2);
 			return;
 		}
-		int meta = world.getBlockMetadata(x, y, z);
+		
+		int meta = world.getBlockMetadata(x, y, z) & 7;
+		
 		if (world.getSavedLightValue(EnumSkyBlock.Block, x, y, z) > 11)
 		{
-			if(meta > 1 && R.nextInt(5) == 0)
-				world.setBlockMetadataWithNotify(x, y, z, meta - 1, 2);
-			else if(meta == 1 && R.nextInt(5) == 0)
-				world.setBlock(x, y, z, Blocks.air, 0, 0x2);
+			if (r.nextInt(5) == 0)
+			{
+				if(meta > 0)
+					world.setBlockMetadataWithNotify(x, y, z, meta - 1, 2);
+				else
+					world.setBlock(x, y, z, Blocks.air, 0, 0x2);
+			}
 		}
+		
 		float temp = TFC_Climate.getHeightAdjustedTemp(world, x, y, z);
-		if(world.isRaining() && temp <= 0)//Raining and Below Freezing
+		
+		if (temp <= 0 && world.isRaining())  //Raining and Below Freezing
 		{
-			if(meta < 15 && R.nextInt(20) == 0 && world.getBlock(x, y - 1, z).getMaterial() != Material.leaves)
+			if (r.nextInt(20) == 0)
 			{
-				if (canAddSnow(world, x, y, z, meta))
+				int max = (world.getBlock(x, y - 1, z).getMaterial() == Material.leaves) ? 3 : 7;
+				if(meta < max && canAddSnow(world, x, y, z, meta))
+				{
 					world.setBlockMetadataWithNotify(x, y, z, meta + 1, 2);
-			}
-			else if(meta < 3 && R.nextInt(20) == 0 && world.getBlock(x, y - 1, z).getMaterial() == Material.leaves)
-			{
-				if (canAddSnow(world, x, y, z, meta))
-					world.setBlockMetadataWithNotify(x, y, z, meta + 1, 2);
+				}
 			}
 		}
-		else if(world.isRaining() && temp > 0)//Raining and above freezing
+		else if (temp > 10)  // to hot for snow (probably chunk loading error)
 		{
-			if(meta <= 15 && world.getBlock(x, y - 1, z).getMaterial() != Material.leaves)
+			world.setBlock(x, y, z, Blocks.air, 0, 0x2);
+		}
+		else if (temp > 0 && world.isRaining())  //Raining and above freezing
+		{
+			if (r.nextInt(5) == 0)
 			{
-				if(meta > 1)
+				if (meta > 0)
 					world.setBlockMetadataWithNotify(x, y, z, meta - 1, 2);
 				else
 					world.setBlock(x, y, z, Blocks.air, 0, 0x2);
 			}
-			else if(meta <= 15 && world.getBlock(x, y-1, z).getMaterial() == Material.leaves)
+		}
+		else if (temp > 0)  //Above freezing, not raining
+		{
+			if (r.nextInt(20) == 0)
 			{
-				if(meta > 1)
+				if(meta > 0)
 					world.setBlockMetadataWithNotify(x, y, z, meta - 1, 2);
 				else
 					world.setBlock(x, y, z, Blocks.air, 0, 0x2);
 			}
 		}
-		else if(TFC_Climate.getHeightAdjustedTemp(world, x, y, z) >= 0F)//Above fReezing
-		{
-			if(meta > 0 )
-				world.setBlockMetadataWithNotify(x, y, z, meta - 1, 2);
-			else
-				world.setBlock(x, y, z, Blocks.air, 0, 0x2);
-		}
-		//else//Below Freezing
-		//{
-		//	if(meta > 1 && par5Random.nextInt(5) == 0)
-		//	{
-		//		world.setBlockMetadataWithNotify(par2, par3, par4, meta-1, 2);
-		//	}
-		//	else if(meta == 1 && par5Random.nextInt(5) == 0)
-		//	{
-		//		world.setBlockToAir(par2, par3, par4);
-		//	}
-		//}
 	}
 
 	@Override
 	public void registerBlockIcons(IIconRegister registerer)
 	{
-		this.blockIcon = registerer.registerIcon(Reference.ModID + ":snow");
+		this.blockIcon = registerer.registerIcon(Reference.MOD_ID + ":snow");
 	}
 
 	private boolean canAddSnowCheckNeighbors(World world, int x, int y, int z, int meta)
 	{
-		if (!this.canPlaceBlockAt(world, x, y, z))
-			return true;
-		if (world.getBlock(x, y, z).getMaterial() != Material.snow)
+ 		Block block = world.getBlock(x, y, z);
+ 		
+ 		if (block.getMaterial() == Material.snow)  // if neighbor is snow, allow up to one additional level
+ 			return meta <= (world.getBlockMetadata(x, y, z) & 7);
+		else if (block == TFCBlocks.leaves || block == TFCBlocks.leaves2)  // 4 levels if adjacent to leaves (instead of just one level)
+			return meta < 3;  
+		else if (block.isNormalCube())  // if neighbor is a normal block (opaque, render as normal, not power),
+			return meta < 6;            // up to 7 - leave the top layer empty so we just can see the block
+ 		else
 			return false;
-		if ( world.getBlock(x, y, z).getMaterial() == Material.snow && meta > world.getBlockMetadata(x, y, z))
-			return false;
-
-		return true;
 	}
 
 	private boolean canAddSnow(World world, int x, int y, int z, int meta)
@@ -222,9 +217,6 @@ public class BlockCustomSnow extends BlockTerra
 			return false;
 		if (!canAddSnowCheckNeighbors(world, x, y, z + 1, meta))
 			return false;
-		if (!canAddSnowCheckNeighbors(world, x, y, z - 1, meta))
-			return false;
-
-		return true;
+		return canAddSnowCheckNeighbors(world, x, y, z - 1, meta);
 	}
 }

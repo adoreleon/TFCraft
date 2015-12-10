@@ -1,11 +1,6 @@
 package com.bioxx.tfc.Blocks.Vanilla;
 
-import java.util.Random;
-
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.Blocks.BlockTerra;
-import com.bioxx.tfc.Core.Recipes;
-import com.bioxx.tfc.api.Constant.Global;
+import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -13,28 +8,37 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.IconFlipped;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Blocks.BlockTerra;
+import com.bioxx.tfc.Core.Recipes;
+import com.bioxx.tfc.api.Constant.Global;
+
 public class BlockCustomDoor extends BlockTerra
 {
-	int woodType;
-	String[] WoodNames = {"Oak Door Lower","Oak Door Upper","Aspen Door Lower","Aspen Door Upper","Birch Door Lower","Birch Door Upper",
+	private int woodType;
+	private String[] woodNames =
+	{ "Oak Door Lower", "Oak Door Upper", "Aspen Door Lower", "Aspen Door Upper", "Birch Door Lower", "Birch Door Upper",
 			"Chestnut Door Lower","Chestnut Door Upper","Douglas Fir Door Lower","Douglas Fir Door Upper","Hickory Door Lower","Hickory Door Upper",
 			"Maple Door Lower","Maple Door Upper","Ash Door Lower","Ash Door Upper","Pine Door Lower","Pine Door Upper",
 			"Sequoia Door Lower","Sequoia Door Upper","Spruce Door Lower","Spruce Door Upper","Sycamore Door Lower","Sycamore Door Upper",
 			"White Cedar Door Lower","White Cedar Door Upper","White Elm Door Lower","White Elm Door Upper","Willow Door Lower","Willow Door Upper",
 			"Kapok Door Lower","Kapok Door Upper","Acacia Door Lower","Acacia Door Upper"};
 
-	IIcon[] icons = new IIcon[Global.WOOD_ALL.length*2];
+	private IIcon[] icons = new IIcon[Global.WOOD_ALL.length * 2];
 	public BlockCustomDoor(int woodId)
 	{
 		super(Material.wood);
@@ -43,14 +47,14 @@ public class BlockCustomDoor extends BlockTerra
 		float var3 = 0.5F;
 		float var4 = 1.0F;
 		this.setBlockBounds(0.5F - var3, 0.0F, 0.5F - var3, 0.5F + var3, var4, 0.5F + var3);
-		woodType = woodId;
+		setWoodType(woodId);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int par1, int par2)
 	{
-		return this.icons[woodType];
+		return this.icons[getWoodType()];
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -91,22 +95,22 @@ public class BlockCustomDoor extends BlockTerra
 					flag1 = !flag1;
 			}
 
-			return icons[woodType + (flag1 ? WoodNames.length : 0) + (flag2 ? 1 : 0)];
+			return icons[getWoodType() + (flag1 ? woodNames.length : 0) + (flag2 ? 1 : 0)];
 		}
 		else
 		{
-			return icons[woodType];
+			return icons[getWoodType()];
 		}
 	}
 
 	@Override
 	public void registerBlockIcons(IIconRegister registerer)
 	{
-		this.icons = new IIcon[WoodNames.length * 2];
-		for(int i = 0; i < WoodNames.length; i++)
+		this.icons = new IIcon[woodNames.length * 2];
+		for(int i = 0; i < woodNames.length; i++)
 		{
-			icons[i] = registerer.registerIcon(Reference.ModID + ":" + "wood/doors/"+WoodNames[i]);
-			this.icons[i + WoodNames.length] = new IconFlipped(this.icons[i], true, false);
+			icons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "wood/doors/"+woodNames[i]);
+			this.icons[i + woodNames.length] = new IconFlipped(this.icons[i], true, false);
 		}
 	}
 
@@ -343,15 +347,6 @@ public class BlockCustomDoor extends BlockTerra
 	}
 
 	/**
-	 * Returns the Item to drop on destruction.
-	 */
-	@Override
-	public Item getItemDropped(int par1, Random par2Random, int par3)
-	{
-		return (par1 & 8) != 0 ? null : Recipes.Doors[woodType/2];
-	}
-
-	/**
 	 * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit. Args: world,
 	 * x, y, z, startVec, endVec
 	 */
@@ -425,5 +420,70 @@ public class BlockCustomDoor extends BlockTerra
 	public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
 	{
 		return true;
+	}
+	
+    /**
+     * Get the block's damage value (for use with pick block).
+     */
+    @Override
+	public int getDamageValue(World world, int x, int y, int z)
+    {
+		return getWoodType() / 2;
+    }
+
+    /**
+     * This returns a complete list of items dropped from this block.
+     */
+	@Override
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	{
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+	
+		// check if the block is the bottom half of the door
+		if ((metadata & 8) == 0)
+		{
+			// block is the bottom half of the door
+			// check if the top half of the door still exists (or is air)
+			Block block = world.getBlock(x, y+1, z);
+			if (block != null && (block instanceof BlockCustomDoor || block == Blocks.air)) // only return an item is the top half of the door exists, or the bottom half is air.
+			{
+				// top half of the door still exists or is air
+				// return the door item (used to return the door item when mouse pointer over the bottom half of the door)
+				int damageValue = getDamageValue(world, x, y, z);
+				ret.add(new ItemStack(Recipes.doors[damageValue], 1, 0));				
+			}		
+		}
+		else
+		{
+			// block is the top half of the door
+			// check if the bottom half of the door still exists
+			Block block = world.getBlock(x, y-1, z);
+			if (block instanceof BlockCustomDoor) // only return an item is the bottom half of the door exists
+			{
+				// bottom half of the door still exists
+				// return the door item (used to return the door item when mouse pointer over the top half of the door)
+				int damageValue = getDamageValue(world, x, y, z);
+				ret.add(new ItemStack(Recipes.doors[damageValue], 1, 0));				
+			}
+		}
+		
+		return ret;
+	}
+	
+	@Override
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+    {
+		int damageValue = getDamageValue(world, x, y, z);
+		return new ItemStack(Recipes.doors[damageValue], 1, 0);
+    }
+
+	public int getWoodType()
+	{
+		return woodType;
+	}
+
+	private void setWoodType(int woodType)
+	{
+		this.woodType = woodType;
 	}
 }

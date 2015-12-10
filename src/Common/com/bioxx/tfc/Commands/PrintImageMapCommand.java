@@ -11,10 +11,13 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.DataLayer;
 import com.bioxx.tfc.WorldGen.TFCBiome;
 import com.bioxx.tfc.api.TFCOptions;
@@ -30,14 +33,16 @@ public class PrintImageMapCommand extends CommandBase
 	@Override
 	public void processCommand(ICommandSender sender, String[] params)
 	{
+		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
+
 		if(!TFCOptions.enableDebugMode)
 		{
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Debug Mode Required"));
 			return;
 		}
-		MinecraftServer server = MinecraftServer.getServer();
-		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
-		WorldServer world = server.worldServerForDimension(player.getEntityWorld().provider.dimensionId);
 
+		MinecraftServer server = MinecraftServer.getServer();
+		WorldServer world = server.worldServerForDimension(player.getEntityWorld().provider.dimensionId);
 		if(params.length >= 2)
 		{
 			String name = params[1];
@@ -75,7 +80,7 @@ public class PrintImageMapCommand extends CommandBase
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = (Graphics2D) outBitmap.getGraphics();
 			graphics.clearRect(0, 0, size, size);
-			System.out.println(name+".bmp");
+			TerraFirmaCraft.LOG.info(name+".bmp");
 			float perc = 0.1f;
 			int sizeHalf = size/2;
 			float count = 0;
@@ -85,22 +90,22 @@ public class PrintImageMapCommand extends CommandBase
 				{
 					count++;
 					int ph = TFC_Climate.getCacheManager(world).getDrainageLayerAt(xCoord+x*skipSize, zCoord+z*skipSize).data1;
-					int g = (ph*50);
-					graphics.setColor(Color.getColor("", (g << 8)));	
+					int g = ph * 50;
+					graphics.setColor(Color.getColor("", g << 8));
 					graphics.drawRect(x+sizeHalf, z+sizeHalf, 1, 1);
 					if(count / (size*size) > perc)
 					{
-						System.out.println((int)(perc*100)+"%");
+						TerraFirmaCraft.LOG.info((int)(perc*100)+"%");
 						perc+=0.1f;
 					}
 				}
 			}
-			System.out.println(name+".bmp Done!");
+			TerraFirmaCraft.LOG.info(name+".bmp Done!");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 	public static void drawDrainageImage(int xCoord, int zCoord, int size, World world, String name, int skipSize)
@@ -111,7 +116,7 @@ public class PrintImageMapCommand extends CommandBase
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = (Graphics2D) outBitmap.getGraphics();
 			graphics.clearRect(0, 0, size, size);
-			System.out.println(name+".bmp");
+			TerraFirmaCraft.LOG.info(name+".bmp");
 			float perc = 0.1f;
 			int sizeHalf = size/2;
 			float count = 0;
@@ -128,17 +133,17 @@ public class PrintImageMapCommand extends CommandBase
 					graphics.drawRect(x+sizeHalf, z+sizeHalf, 1, 1);
 					if(count / (size*size) > perc)
 					{
-						System.out.println((int)(perc*100)+"%");
+						TerraFirmaCraft.LOG.info((int)(perc*100)+"%");
 						perc+=0.1f;
 					}
 				}
 			}
-			System.out.println(name+".bmp Done!");
+			TerraFirmaCraft.LOG.info(name+".bmp Done!");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 	public static void drawTempImage(int xCoord, int zCoord, int size, World world, String name, int skipSize)
@@ -149,7 +154,7 @@ public class PrintImageMapCommand extends CommandBase
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = (Graphics2D) outBitmap.getGraphics();
 			graphics.clearRect(0, 0, size, size);
-			System.out.println(name+".bmp");
+			TerraFirmaCraft.LOG.info(name+".bmp");
 			float perc = 0.1f;
 			int sizeHalf = size/2;
 			float count = 0;
@@ -163,17 +168,17 @@ public class PrintImageMapCommand extends CommandBase
 					graphics.drawRect(x+sizeHalf, z+sizeHalf, 1, 1);
 					if(count / (size*size) > perc)
 					{
-						System.out.println((int)(perc*100)+"%");
+						TerraFirmaCraft.LOG.info((int)(perc*100)+"%");
 						perc+=0.1f;
 					}
 				}
 			}
-			System.out.println(name+".bmp Done!");
+			TerraFirmaCraft.LOG.info(name+".bmp Done!");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 	public static void drawBiomeImage(int xCoord, int zCoord, int size, World world, String name, int skipSize)
@@ -184,7 +189,7 @@ public class PrintImageMapCommand extends CommandBase
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics = (Graphics2D) outBitmap.getGraphics();
 			graphics.clearRect(0, 0, size, size);
-			System.out.println(name+".bmp");
+			TerraFirmaCraft.LOG.info(name+".bmp");
 			float perc = 0.1f;
 			float count = 0;
 			for(int x = -size/2; x < size/2; x++)
@@ -196,17 +201,17 @@ public class PrintImageMapCommand extends CommandBase
 					graphics.drawRect(x+size/2, z+size/2, 1, 1);
 					if(count / (size*size) > perc)
 					{
-						System.out.println((int)(perc*100)+"%");
+						TerraFirmaCraft.LOG.info((int)(perc*100)+"%");
 						perc+=0.1f;
 					}
 				}
 			}
-			System.out.println(name+".bmp Done!");
+			TerraFirmaCraft.LOG.info(name+".bmp Done!");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 

@@ -2,6 +2,7 @@ package com.bioxx.tfc.Blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -18,25 +20,27 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Core.CollisionRayTraceDetailed;
 import com.bioxx.tfc.Core.Player.PlayerInfo;
 import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
 import com.bioxx.tfc.Items.Tools.ItemChisel;
 import com.bioxx.tfc.Items.Tools.ItemHammer;
 import com.bioxx.tfc.TileEntities.TEDetailed;
-import com.bioxx.tfc.TileEntities.TileEntityWoodConstruct;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import com.bioxx.tfc.TileEntities.TEWoodConstruct;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCOptions;
 
 public class BlockDetailed extends BlockPartial
 {
-	public static int lockX = 0;
-	public static int lockY = 0;
-	public static int lockZ = 0;
+	public static int lockX;
+	public static int lockY;
+	public static int lockZ;
 
 	public BlockDetailed()
 	{
@@ -78,7 +82,7 @@ public class BlockDetailed extends BlockPartial
 	public IIcon getIcon(IBlockAccess bAccess, int x, int y, int z, int side)
 	{
 		TEDetailed te = ((TEDetailed)bAccess.getTileEntity(x, y, z));
-		return te.getBlockType().getIcon(side, te.MetaID);
+		return te.getBlockType().getIcon(side, te.metaID);
 	}
 
 	@Override
@@ -91,6 +95,38 @@ public class BlockDetailed extends BlockPartial
 	public boolean isOpaqueCube()
 	{
 		return false;
+	}
+
+	@Override
+	public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
+	{
+		if (!TFCOptions.enableSolidDetailed)
+			return false;
+		if (side == ForgeDirection.UNKNOWN)
+			return false;
+
+		int transpCount = TFCOptions.maxRemovedSolidDetailed;
+		if (transpCount < 0 || transpCount >= 64)
+			return false;
+
+		TEDetailed te = (TEDetailed) world.getTileEntity(x, y, z);
+
+		int startX = (side == ForgeDirection.EAST ? 7 : 0);
+		int endX = (side == ForgeDirection.WEST ? 1 : 8);
+
+		int startY = (side == ForgeDirection.UP ? 7 : 0);
+		int endY = (side == ForgeDirection.DOWN ? 1 : 8);
+
+		int startZ = (side == ForgeDirection.SOUTH ? 7 : 0);
+		int endZ = (side == ForgeDirection.NORTH ? 1 : 8);
+
+		for (int subX = startX; subX < endX; ++subX)
+			for (int subY = startY; subY < endY; ++subY)
+				for (int subZ = startZ; subZ < endZ; ++subZ)
+					if (!te.getBlockExists(subX, subY, subZ) && --transpCount < 0)
+						return false;
+
+		return true;
 	}
 
 	@Override
@@ -122,7 +158,7 @@ public class BlockDetailed extends BlockPartial
 			TEDetailed te = (TEDetailed) world.getTileEntity(x, y, z);
 			lockX = x; lockY = y; lockZ = z;
 			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setByte("packetType", TEDetailed.Packet_Activate);
+			nbt.setByte("packetType", TEDetailed.PACKET_ACTIVATE);
 			nbt.setInteger("xSelected", xSelected);
 			nbt.setInteger("ySelected", ySelected);
 			nbt.setInteger("zSelected", zSelected);
@@ -137,7 +173,9 @@ public class BlockDetailed extends BlockPartial
 		int mode = 0;
 		PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(player);
 		if(pi!=null)
-			mode = pi.ChiselMode;
+			mode = pi.chiselMode;
+
+		TEDetailed te = (TEDetailed) world.getTileEntity(x, y, z);
 
 		int hasChisel = -1;
 		int hasHammer = -1;
@@ -150,34 +188,82 @@ public class BlockDetailed extends BlockPartial
 				hasChisel = i;
 		}
 
-		if(mode == 3 && xSelected != -10)
+		if(mode == 1)
 		{
-			TEDetailed te = (TEDetailed) world.getTileEntity(x, y, z);
+			int index = -10;
+
+			if( xSelected < 4 && ySelected < 4 && zSelected < 4 )
+				for(int subX = 0; subX < 4; subX++) for(int subZ = 0; subZ < 4; subZ++) for(int subY = 0; subY < 4; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected > 3 && ySelected < 4 && zSelected < 4 )
+				for(int subX = 4; subX < 8; subX++) for(int subZ = 0; subZ < 4; subZ++) for(int subY = 0; subY < 4; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected > 3 && ySelected < 4 && zSelected > 3 )
+				for(int subX = 4; subX < 8; subX++) for(int subZ = 4; subZ < 8; subZ++) for(int subY = 0; subY < 4; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected < 4 && ySelected < 4 && zSelected > 3 )
+				for(int subX = 0; subX < 4; subX++) for(int subZ = 4; subZ < 8; subZ++) for(int subY = 0; subY < 4; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected < 4 && ySelected > 3 && zSelected < 4 )
+				for(int subX = 0; subX < 4; subX++) for(int subZ = 0; subZ < 4; subZ++) for(int subY = 4; subY < 8; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected > 3 && ySelected > 3 && zSelected < 4 )
+				for(int subX = 4; subX < 8; subX++) for(int subZ = 0; subZ < 4; subZ++) for(int subY = 4; subY < 8; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected > 3 && ySelected > 3 && zSelected > 3 )
+				for(int subX = 4; subX < 8; subX++) for(int subZ = 4; subZ < 8; subZ++) for(int subY = 4; subY < 8; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+			if( xSelected < 4 && ySelected > 3 && zSelected > 3 )
+				for(int subX = 0; subX < 4; subX++) for(int subZ = 4; subZ < 8; subZ++) for(int subY = 4; subY < 8; subY++) {
+					index = (subX * 8 + subZ) * 8 + subY;
+					deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
+				}
+
+			return true;
+		}
+		else if(mode == 3 && xSelected != -10)
+		{
 			int index = (xSelected * 8 + zSelected) * 8 + ySelected;
 
 			if(index >= 0)
 			{
-				te.data.clear(index);
-				te.clearQuad(xSelected, ySelected, zSelected);
-				if(te.isBlockEmpty())
-				{
-					world.setBlockToAir(x, y, z);
-				}
-				if(player.inventory.mainInventory[hasChisel] != null)
-					player.inventory.mainInventory[hasChisel].damageItem(1, player);
-
-				if(player.inventory.mainInventory[hasHammer] != null)
-					player.inventory.mainInventory[hasHammer].damageItem(1, player);
-
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setByte("packetType", TEDetailed.Packet_Update);
-				nbt.setInteger("index", index);
-				te.createDataNBT(nbt);
-				te.broadcastPacketInRange(te.createDataPacket(nbt));
+				deleteBox(world, x, y, z, player, te, index, hasChisel, hasHammer);
 			}
 			return true;
 		}
 		return false;
+	}
+
+	public void deleteBox(World world, int x, int y, int z, EntityPlayer player, TEDetailed te, int index, int hasChisel, int hasHammer)
+	{
+		te.data.clear(index);
+		te.clearQuad(xSelected, ySelected, zSelected);
+		if(te.isBlockEmpty())
+		{
+			world.setBlockToAir(x, y, z);
+		}
+		if(player.inventory.mainInventory[hasChisel] != null)
+			player.inventory.mainInventory[hasChisel].damageItem(1, player);
+
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setByte("packetType", TEDetailed.PACKET_UPDATE);
+		nbt.setInteger("index", index);
+		te.createDataNBT(nbt);
+		te.broadcastPacketInRange(te.createDataPacket(nbt));
 	}
 
 	@Override
@@ -261,8 +347,8 @@ public class BlockDetailed extends BlockPartial
 
 				if (index >= 0 && te.data.get(index)) 
 				{
-					int d = TileEntityWoodConstruct.PlankDetailLevel;
-					int dd = d*d;
+					int d = TEWoodConstruct.plankDetailLevel;
+					//int dd = d*d;
 					float div = 1f / d;
 
 					float minX = x + xSelected * div;
@@ -307,8 +393,8 @@ public class BlockDetailed extends BlockPartial
 			if(index >= 0 && te.data.get(index))
 			{
 				int d = 8;
-				int dd = d * d;
-				int dd2 = dd*2;
+				//int dd = d * d;
+				//int dd2 = dd*2;
 
 				float div = 1f / d;
 
@@ -331,6 +417,7 @@ public class BlockDetailed extends BlockPartial
 		}
 	}
 
+	@SuppressWarnings("null")
 	public Object[] rayTraceBound(AxisAlignedBB bound, int i, int j, int k, Vec3 player, Vec3 view) {
 		Vec3 minX = player.getIntermediateWithXValue(view, bound.minX);
 		Vec3 maxX = player.getIntermediateWithXValue(view, bound.maxX);
@@ -384,33 +471,33 @@ public class BlockDetailed extends BlockPartial
 		return new Object[] { tracedBound, side, player.distanceTo(tracedBound) };
 	}
 
-	private boolean isVecInsideYZBounds(AxisAlignedBB bound, Vec3 Vec3) {
-		if (Vec3 == null)
+	private boolean isVecInsideYZBounds(AxisAlignedBB bound, Vec3 vec3) {
+		if (vec3 == null)
 			return false;
 		else
-			return Vec3.yCoord >= bound.minY && Vec3.yCoord <= bound.maxY && Vec3.zCoord >= bound.minZ && Vec3.zCoord <= bound.maxZ;
+			return vec3.yCoord >= bound.minY && vec3.yCoord <= bound.maxY && vec3.zCoord >= bound.minZ && vec3.zCoord <= bound.maxZ;
 	}
 
-	private boolean isVecInsideXZBounds(AxisAlignedBB bound, Vec3 Vec3) {
-		if (Vec3 == null)
+	private boolean isVecInsideXZBounds(AxisAlignedBB bound, Vec3 vec3) {
+		if (vec3 == null)
 			return false;
 		else
-			return Vec3.xCoord >= bound.minX && Vec3.xCoord <= bound.maxX && Vec3.zCoord >= bound.minZ && Vec3.zCoord <= bound.maxZ;
+			return vec3.xCoord >= bound.minX && vec3.xCoord <= bound.maxX && vec3.zCoord >= bound.minZ && vec3.zCoord <= bound.maxZ;
 	}
 
-	private boolean isVecInsideXYBounds(AxisAlignedBB bound, Vec3 Vec3) {
-		if (Vec3 == null)
+	private boolean isVecInsideXYBounds(AxisAlignedBB bound, Vec3 vec3) {
+		if (vec3 == null)
 			return false;
 		else
-			return Vec3.xCoord >= bound.minX && Vec3.xCoord <= bound.maxX && Vec3.yCoord >= bound.minY && Vec3.yCoord <= bound.maxY;
+			return vec3.xCoord >= bound.minX && vec3.xCoord <= bound.maxX && vec3.yCoord >= bound.minY && vec3.yCoord <= bound.maxY;
 	}
 
 	@Override
 	public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
 		TEDetailed te = (TEDetailed) world.getTileEntity(x, y, z);
-		if(te.TypeID >= 0)
-			return Blocks.fire.getFlammability(Block.getBlockById(te.TypeID));
+		if(te.typeID >= 0)
+			return Blocks.fire.getFlammability(Block.getBlockById(te.typeID));
 		else return 0;
 	}
 
@@ -418,8 +505,14 @@ public class BlockDetailed extends BlockPartial
 	public int getFireSpreadSpeed(IBlockAccess world, int x, int y, int z, ForgeDirection face)
 	{
 		TEDetailed te = (TEDetailed) world.getTileEntity(x, y, z);
-		if(te.TypeID >= 0)
-			return Blocks.fire.getEncouragement(Block.getBlockById(te.TypeID));
+		if(te.typeID >= 0)
+			return Blocks.fire.getEncouragement(Block.getBlockById(te.typeID));
 		else return 0;
+	}
+	
+	@Override
+	public Item getItemDropped(int metadata, Random rand, int fortune)
+	{
+		return null;
 	}
 }

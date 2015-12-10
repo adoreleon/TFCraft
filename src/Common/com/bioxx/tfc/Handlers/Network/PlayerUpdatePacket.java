@@ -1,20 +1,21 @@
 package com.bioxx.tfc.Handlers.Network;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.HashMap;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+
+import cpw.mods.fml.common.network.ByteBufUtils;
 
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.Player.FoodStatsTFC;
 import com.bioxx.tfc.Core.Player.PlayerInventory;
 import com.bioxx.tfc.Core.Player.SkillStats;
-
-import cpw.mods.fml.common.network.ByteBufUtils;
 
 public class PlayerUpdatePacket extends AbstractPacket
 {
@@ -30,17 +31,17 @@ public class PlayerUpdatePacket extends AbstractPacket
 	private SkillStats playerSkills;
 	private String skillName;
 	private int skillLevel;
-	private boolean craftingTable = false;
-	private HashMap<String, Integer> skillMap = new HashMap<String, Integer>();
+	private boolean craftingTable;
+	private Map<String, Integer> skillMap = new HashMap<String, Integer>();
 
 	public PlayerUpdatePacket() {}
 
-	public PlayerUpdatePacket(EntityPlayer P, int f)
+	public PlayerUpdatePacket(EntityPlayer p, int f)
 	{
 		this.flag = (byte)f;
 		if(this.flag == 0)
 		{
-			FoodStatsTFC fs = TFC_Core.getPlayerFoodStats(P);
+			FoodStatsTFC fs = TFC_Core.getPlayerFoodStats(p);
 			this.stomachLevel = fs.stomachLevel;
 			this.waterLevel = fs.waterLevel;
 			this.soberTime = fs.soberTime;
@@ -52,16 +53,16 @@ public class PlayerUpdatePacket extends AbstractPacket
 		}
 		else if(this.flag == 2)
 		{
-			this.craftingTable = P.getEntityData().getBoolean("craftingTable");
+			this.craftingTable = p.getEntityData().getBoolean("craftingTable");
 		}
 		else if(this.flag == 3)
 		{
-			this.playerSkills = TFC_Core.getSkillStats(P);
+			this.playerSkills = TFC_Core.getSkillStats(p);
 		}
-		else if(this.flag == 4)
+		/*else if(this.flag == 4)
 		{
 			// flag 4 -> Send a request to the server for the skills data.
-		}
+		}*/
 	}
 
 	public PlayerUpdatePacket(int f, String name, int lvl)
@@ -102,10 +103,10 @@ public class PlayerUpdatePacket extends AbstractPacket
 		{
 			this.playerSkills.toOutBuffer(buffer);
 		}
-		else if(this.flag == 4)
+		/*else if(this.flag == 4)
 		{
 			// flag is all we need
-		}
+		}*/
 	}
 
 	@Override
@@ -145,10 +146,10 @@ public class PlayerUpdatePacket extends AbstractPacket
 				this.skillMap.put(name, lvl);
 			}
 		}
-		else if(this.flag == 4)
+		/*else if(this.flag == 4)
 		{
 			// flag is all we need
-		}
+		}*/
 	}
 
 	@Override
@@ -189,10 +190,10 @@ public class PlayerUpdatePacket extends AbstractPacket
 			}
 			skillMap.clear();
 		}
-		else if(this.flag == 4)
+		/*else if(this.flag == 4)
 		{
 			//NOOP on client
-		}
+		}*/
 	}
 
 	@Override
@@ -201,7 +202,7 @@ public class PlayerUpdatePacket extends AbstractPacket
 		if(this.flag == 4)
 		{
 			AbstractPacket pkt = new PlayerUpdatePacket(player, 3);
-			TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) player);
+			TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) player);
 		}
 	}
 

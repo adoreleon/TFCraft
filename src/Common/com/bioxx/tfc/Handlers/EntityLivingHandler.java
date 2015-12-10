@@ -2,52 +2,54 @@ package com.bioxx.tfc.Handlers;
 
 import java.util.ArrayList;
 
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Core.TFC_Achievements;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
-import com.bioxx.tfc.Core.Player.BodyTempStats;
-import com.bioxx.tfc.Core.Player.FoodStatsTFC;
-import com.bioxx.tfc.Core.Player.InventoryPlayerTFC;
-import com.bioxx.tfc.Core.Player.PlayerInfo;
-import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
-import com.bioxx.tfc.Core.Player.SkillStats;
+import com.bioxx.tfc.Core.Player.*;
 import com.bioxx.tfc.Entities.EntityProjectileTFC;
 import com.bioxx.tfc.Food.ItemFoodTFC;
 import com.bioxx.tfc.Food.ItemMeal;
 import com.bioxx.tfc.Handlers.Network.AbstractPacket;
 import com.bioxx.tfc.Handlers.Network.PlayerUpdatePacket;
 import com.bioxx.tfc.Items.ItemArrow;
-import com.bioxx.tfc.Items.ItemLooseRock;
+import com.bioxx.tfc.Items.ItemBloom;
 import com.bioxx.tfc.Items.ItemOreSmall;
 import com.bioxx.tfc.Items.ItemQuiver;
+import com.bioxx.tfc.Items.Tools.ItemCustomBow;
 import com.bioxx.tfc.Items.Tools.ItemJavelin;
 import com.bioxx.tfc.api.Food;
 import com.bioxx.tfc.api.TFCAttributes;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Interfaces.IEquipable;
+import com.bioxx.tfc.api.Interfaces.IEquipable.EquipType;
 import com.bioxx.tfc.api.Interfaces.IFood;
 import com.bioxx.tfc.api.Util.Helper;
-
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class EntityLivingHandler
 {
@@ -86,7 +88,7 @@ public class EntityLivingHandler
 				if(foodstats.shouldSendUpdate())
 				{
 					AbstractPacket pkt = new PlayerUpdatePacket(player, 0);
-					TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) player);
+					TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) player);
 				}
 				if(foodstats.waterLevel / foodstats.getMaxWater(player) <= 0.25f)
 				{
@@ -101,17 +103,25 @@ public class EntityLivingHandler
 				{
 					setThirsty(player, false);
 				}
+				if (foodstats.stomachLevel / foodstats.getMaxStomach(player) <= 0.25f)
+				{
+					player.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 20, 1));
+					player.addPotionEffect(new PotionEffect(Potion.weakness.id, 20, 1));
+				}
 
 				//Scan the players inventory for any items that are too heavy to carry normally
 				boolean isOverburdened = false;
-				for (int i = 0; i < player.inventory.mainInventory.length;i++)
+				if(!player.capabilities.isCreativeMode)
 				{
-					ItemStack is = player.inventory.getStackInSlot(i);
-					if(is != null && is.getItem() instanceof IEquipable)
+					for (int i = 0; i < player.inventory.mainInventory.length;i++)
 					{
-						isOverburdened = ((IEquipable)is.getItem()).getTooHeavyToCarry(is);
-						if(isOverburdened)
-							break;
+						ItemStack is = player.inventory.getStackInSlot(i);
+						if(is != null && is.getItem() instanceof IEquipable)
+						{
+							isOverburdened = ((IEquipable)is.getItem()).getTooHeavyToCarry(is);
+							if(isOverburdened)
+								break;
+						}
 					}
 				}
 
@@ -119,7 +129,7 @@ public class EntityLivingHandler
 
 				//Handle Spawn Protection
 				NBTTagCompound nbt = player.getEntityData();
-				long spawnProtectionTimer = nbt.hasKey("spawnProtectionTimer") ? nbt.getLong("spawnProtectionTimer") : TFC_Time.getTotalTicks() + TFC_Time.hourLength;
+				long spawnProtectionTimer = nbt.hasKey("spawnProtectionTimer") ? nbt.getLong("spawnProtectionTimer") : TFC_Time.getTotalTicks() + TFC_Time.HOUR_LENGTH;
 				if(spawnProtectionTimer < TFC_Time.getTotalTicks())
 				{
 					//Add protection time to the chunks
@@ -127,42 +137,44 @@ public class EntityLivingHandler
 					{
 						for(int k = -2; k < 3; k++)
 						{
-							int lastChunkX = (((int)Math.floor(player.posX)) >> 4);
-							int lastChunkZ = (((int)Math.floor(player.posZ)) >> 4);
+							int lastChunkX = ((int) Math.floor(player.posX)) >> 4;
+							int lastChunkZ = ((int) Math.floor(player.posZ)) >> 4;
 							TFC_Core.getCDM(player.worldObj).addProtection(lastChunkX + i, lastChunkZ + k, TFCOptions.protectionGain);
 						}
 					}
 
-					spawnProtectionTimer += TFC_Time.hourLength;
+					spawnProtectionTimer += TFC_Time.HOUR_LENGTH;
 					nbt.setLong("spawnProtectionTimer", spawnProtectionTimer);
 				}
 			}
 			else
 			{
 				PlayerInfo pi = PlayerManagerTFC.getInstance().getClientPlayer();
+				FoodStatsTFC foodstats = TFC_Core.getPlayerFoodStats(player);
+				foodstats.clientUpdate();
 				//onUpdate(player) still has a !worldObj.isRemote check, but this allows us to render drunkenness
-				if(pi != null && pi.PlayerUUID == player.getUniqueID())
+				if (pi != null && pi.playerUUID.equals(player.getUniqueID()))
 				{
-					FoodStatsTFC foodstats = TFC_Core.getPlayerFoodStats(player);
 					foodstats.onUpdate(player);
-					if(pi != null && player.inventory.getCurrentItem() != null)
+					if (player.inventory.getCurrentItem() != null)
 					{
 						if(player.inventory.getCurrentItem().getItem() instanceof ItemMeal)
 						{
 							pi.guishowFoodRestoreAmount = true;
-							pi.guiFoodRestoreAmount = ((ItemMeal)player.inventory.getCurrentItem().getItem()).getFoodWeight(player.inventory.getCurrentItem());
+							pi.guiFoodRestoreAmount = Food.getWeight(player.inventory.getCurrentItem());
 						}
 						else if(player.inventory.getCurrentItem().getItem() instanceof ItemFoodTFC)
 						{
 							pi.guishowFoodRestoreAmount = true;
-							pi.guiFoodRestoreAmount = ((ItemFoodTFC)player.inventory.getCurrentItem().getItem()).getFoodWeight(player.inventory.getCurrentItem());
+							pi.guiFoodRestoreAmount = Food.getWeight(player.inventory.getCurrentItem());
 						}
 						else
 							pi.guishowFoodRestoreAmount = false;
 					}
-					else if(pi != null)
+					else
 						pi.guishowFoodRestoreAmount = false;
 				}
+
 			}
 		}
 	}
@@ -171,14 +183,14 @@ public class EntityLivingHandler
 	{
 		IAttributeInstance iattributeinstance = player.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
 
-		if (iattributeinstance.getModifier(TFCAttributes.thirstyUUID) != null)
+		if (iattributeinstance.getModifier(TFCAttributes.THIRSTY_UUID) != null)
 		{
-			iattributeinstance.removeModifier(TFCAttributes.thirsty);
+			iattributeinstance.removeModifier(TFCAttributes.THIRSTY);
 		}
 
 		if (b)
 		{
-			iattributeinstance.applyModifier(TFCAttributes.thirsty);
+			iattributeinstance.applyModifier(TFCAttributes.THIRSTY);
 		}
 	}
 
@@ -186,14 +198,14 @@ public class EntityLivingHandler
 	{
 		IAttributeInstance iattributeinstance = player.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
 
-		if (iattributeinstance.getModifier(TFCAttributes.overburdenedUUID) != null)
+		if (iattributeinstance.getModifier(TFCAttributes.OVERBURDENED_UUID) != null)
 		{
-			iattributeinstance.removeModifier(TFCAttributes.overburdened);
+			iattributeinstance.removeModifier(TFCAttributes.OVERBURDENED);
 		}
 
 		if (b)
 		{
-			iattributeinstance.applyModifier(TFCAttributes.overburdened);
+			iattributeinstance.applyModifier(TFCAttributes.OVERBURDENED);
 		}
 	}
 
@@ -201,38 +213,72 @@ public class EntityLivingHandler
 	@SideOnly(Side.CLIENT)
 	public void handleFOV(FOVUpdateEvent event)
 	{
-		event.newfov = 1.0f;
+		EntityPlayer player = event.entity;
+
+		// Force FOV to 1.0f if the player is overburdened to prevent the screen from zooming in a lot.
+		IAttributeInstance iattributeinstance = player.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+		if (iattributeinstance.getModifier(TFCAttributes.OVERBURDENED_UUID) != null)
+		{
+			event.newfov = 1.0f;
+			return;
+		}
+
+		// Calculate FOV based on the variable draw speed of the bow depending on player armor.
+		if (player.isUsingItem() && player.getItemInUse().getItem() instanceof ItemCustomBow)
+		{
+			float fov = 1.0F;
+			int duration = player.getItemInUseDuration();
+			float speed = ItemCustomBow.getUseSpeed(player);
+			float force = duration / speed;
+
+			if (force > 1.0F)
+			{
+				force = 1.0F;
+			}
+			else
+			{
+				force *= force;
+			}
+
+			fov *= 1.0F - force * 0.15F;
+			event.newfov = fov;
+		}
 	}
 
 	@SubscribeEvent
 	public void handleItemPickup(EntityItemPickupEvent event)
 	{
 		EntityPlayer player = event.entityPlayer;
-		ItemStack quiver = null;
 		ItemStack item = event.item.getEntityItem();
-		boolean foundJav = false;
-		if(player.inventory instanceof InventoryPlayerTFC){
+		if (player.inventory instanceof InventoryPlayerTFC)
+		{
+			ItemStack backItem = ((InventoryPlayerTFC) player.inventory).extraEquipInventory[0];
 
-			quiver = ((InventoryPlayerTFC)player.inventory).extraEquipInventory[0];
-			if(quiver != null && !(quiver.getItem() instanceof ItemQuiver)){
-				quiver = null;
-			}
-			for(int i = 0; i < 9; i++)
+			// Back slot is empty, and the player is picking up an item that can be equipped in the back slot.
+			if (backItem == null && item.getItem() instanceof IEquipable)
 			{
-				if(player.inventory.getStackInSlot(i) != null && player.inventory.getStackInSlot(i).getItem() instanceof ItemJavelin)
-					foundJav = true;
+				IEquipable equipment = (IEquipable) item.getItem();
+				if (equipment.getEquipType(item) == EquipType.BACK && (equipment == TFCItems.quiver || equipment.getTooHeavyToCarry(item)))
+				{
+					player.inventory.setInventorySlotContents(36, item.copy());
+					item.stackSize = 0;
+					event.item.setEntityItemStack(item);
+				}
 			}
+			// Back slot contains a quiver, handle picking up arrows and javelins.
+			else if (backItem != null && backItem.getItem() instanceof ItemQuiver)
+			{
+				ItemQuiver quiver = (ItemQuiver) backItem.getItem();
 
-			if(quiver != null)
-			{
+				// Attempt to add arrows that are picked up to the quiver instead of standard inventory.
 				if(item.getItem() instanceof ItemArrow)
 				{
-					ItemStack is = ((ItemQuiver)quiver.getItem()).addItem(quiver, item);
+					ItemStack is = quiver.addItem(backItem, item);
 					if(is != null)
 						event.item.setEntityItemStack(is);
 					else
 					{
-						is = event.item.getEntityItem();
+						is = item;
 						is.stackSize = 0;
 						event.item.setEntityItemStack(is);
 						event.setResult(Result.DENY);
@@ -240,12 +286,21 @@ public class EntityLivingHandler
 				}
 				else if(item.getItem() instanceof ItemJavelin)
 				{
+					// Check to see if the player has at least 1 javelin on their hotbar.
+					boolean foundJav = false;
+					for (int i = 0; i < 9; i++)
+					{
+						if (player.inventory.getStackInSlot(i) != null && player.inventory.getStackInSlot(i).getItem() instanceof ItemJavelin)
+							foundJav = true;
+					}
+
+					// If there is already a javelin on the hotbar, attempt to put the picked up javelin into the quiver.
 					if(foundJav)
 					{
-						ItemStack is = ((ItemQuiver)quiver.getItem()).addItem(quiver, item);
+						ItemStack is = quiver.addItem(backItem, item);
 						if(is == null)
 						{
-							is = event.item.getEntityItem();
+							is = item;
 							is.stackSize = 0;
 							event.item.setEntityItemStack(is);
 							event.setResult(Result.DENY);
@@ -255,34 +310,48 @@ public class EntityLivingHandler
 			}
 		}
 
-		if(item.getItem() instanceof ItemLooseRock)
+		if (item.getItem() == TFCItems.looseRock)
 			player.triggerAchievement(TFC_Achievements.achLooseRock);
 		else if(item.getItem() instanceof ItemOreSmall)
 			player.triggerAchievement(TFC_Achievements.achSmallOre);
-		else if(item.getItem().equals(TFCItems.GemDiamond))
+		else if (item.getItem() instanceof ItemBloom)
+			player.triggerAchievement(TFC_Achievements.achIronAge);
+		else if(item.getItem().equals(TFCItems.gemDiamond))
 			player.triggerAchievement(TFC_Achievements.achDiamond);
-		else if(item.getItem().equals(TFCItems.Onion) && TFCOptions.iDontLikeOnions)
+		else if(item.getItem().equals(TFCItems.onion) && TFCOptions.onionsAreGross)
 			player.triggerAchievement(TFC_Achievements.achRutabaga);
-		else if(item.getItem().equals(TFCItems.OreChunk) && (item.getItemDamage() == 11 || item.getItemDamage()== 46 || item.getItemDamage() == 60))
+		else if(item.getItem().equals(TFCItems.oreChunk) && (item.getItemDamage() == 11 || item.getItemDamage()== 46 || item.getItemDamage() == 60))
 			player.triggerAchievement(TFC_Achievements.achLimonite);
 	}
 
 	@SubscribeEvent
 	public void onEntityDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving instanceof EntityPlayer)
+		EntityLivingBase entity = event.entityLiving;
+
+		if (entity instanceof EntityPlayer)
 		{
-			SkillStats skills = TFC_Core.getSkillStats((EntityPlayer) event.entityLiving);
-			PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer((EntityPlayer) event.entityLiving);
+			EntityPlayer player = (EntityPlayer) entity;
+			SkillStats skills = TFC_Core.getSkillStats(player);
+			PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(player);
 			pi.tempSkills = skills;
+
+			// Save the item in the back slot if keepInventory is set to true.
+			if (entity.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory") && player.inventory instanceof InventoryPlayerTFC)
+			{
+				pi.tempEquipment = ((InventoryPlayerTFC) player.inventory).extraEquipInventory.clone();
+			}
 		}
+
+		if (event.entity.dimension == 1)
+			event.entity.travelToDimension(0);
 	}
 
 	@SubscribeEvent
 	public void onLivingDrop(LivingDropsEvent event)
 	{
 		boolean processed = false;
-		if(!event.entity.worldObj.isRemote && event.recentlyHit && !(event.entity instanceof EntityPlayer))
+		if (!event.entity.worldObj.isRemote && event.recentlyHit && !(event.entity instanceof EntityPlayer) && !(event.entity instanceof EntityZombie))
 		{
 			if(event.source.getSourceOfDamage() instanceof EntityPlayer || event.source.isProjectile())
 			{
@@ -300,13 +369,21 @@ public class EntityLivingHandler
 				}
 				for(EntityItem ei : event.drops)
 				{
-					if(ei.getEntityItem().getItem() instanceof IFood)
+					ItemStack is = ei.getEntityItem();
+					if (is.getItem() instanceof IFood)
 					{
 						if(p == null)
 							continue;
 						foundFood = true;
-						float oldWeight = Food.getWeight(ei.getEntityItem());
-						Food.setWeight(ei.getEntityItem(), 0);
+
+						int sweetMod = Food.getSweetMod(is);
+						int sourMod = Food.getSourMod(is);
+						int saltyMod = Food.getSaltyMod(is);
+						int bitterMod = Food.getBitterMod(is);
+						int umamiMod = Food.getSavoryMod(is);
+
+						float oldWeight = Food.getWeight(is);
+						Food.setWeight(is, 0);
 						float newWeight = oldWeight * (TFC_Core.getSkillStats(p).getSkillMultiplier(Global.SKILL_BUTCHERING)+0.01f);
 						while (newWeight >= Global.FOOD_MIN_DROP_WEIGHT)
 						{
@@ -314,8 +391,21 @@ public class EntityLivingHandler
 							if (fw < Global.FOOD_MAX_WEIGHT)
 								newWeight = 0;
 							newWeight -= fw;
-							ItemStack is = ItemFoodTFC.createTag(new ItemStack(ei.getEntityItem().getItem(), 1), fw);
-							drop.add(new EntityItem(event.entity.worldObj, event.entity.posX, event.entity.posY, event.entity.posZ, is));
+
+							ItemStack result = ItemFoodTFC.createTag(new ItemStack(is.getItem(), 1), fw);
+
+							if (sweetMod != 0)
+								Food.setSweetMod(result, sweetMod);
+							if (sourMod != 0)
+								Food.setSourMod(result, sourMod);
+							if (saltyMod != 0)
+								Food.setSaltyMod(result, saltyMod);
+							if (bitterMod != 0)
+								Food.setBitterMod(result, bitterMod);
+							if (umamiMod != 0)
+								Food.setSavoryMod(result, umamiMod);
+
+							drop.add(new EntityItem(event.entity.worldObj, event.entity.posX, event.entity.posY, event.entity.posZ, result));
 						}
 					}
 					else
@@ -332,16 +422,12 @@ public class EntityLivingHandler
 			}
 		}
 
-		if(!processed && !(event.entity instanceof EntityPlayer))
+		if (!processed && !(event.entity instanceof EntityPlayer) && !(event.entity instanceof EntityZombie))
 		{
 			ArrayList<EntityItem> drop = new ArrayList<EntityItem>();
 			for(EntityItem ei : event.drops)
 			{
-				if(ei.getEntityItem().getItem() instanceof IFood)
-				{
-
-				}
-				else
+				if (!(ei.getEntityItem().getItem() instanceof IFood))
 				{
 					drop.add(ei);
 				}

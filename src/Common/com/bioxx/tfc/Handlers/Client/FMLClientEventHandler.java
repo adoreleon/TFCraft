@@ -10,20 +10,20 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.util.IIcon;
-import net.minecraft.world.World;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Food.ItemMeal;
-import com.bioxx.tfc.api.FoodRegistry;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Food.ItemMeal;
+import com.bioxx.tfc.api.Food;
+import com.bioxx.tfc.api.FoodRegistry;
 
 public class FMLClientEventHandler 
 {
@@ -32,7 +32,7 @@ public class FMLClientEventHandler
 	public void renderTick(TickEvent.RenderTickEvent event)
 	{
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		World world = mc.theWorld;
+		//World world = mc.theWorld;
 		if (event.phase != TickEvent.Phase.START)
 		{
 			GuiScreen gui = mc.currentScreen;
@@ -56,26 +56,26 @@ public class FMLClientEventHandler
 		GL11.glPushMatrix();
 		GL11.glPushAttrib(1048575);
 		//GL11.glDisable(GL11.GL_LIGHTING);
-		int xs = gui.width;
-		int ys = gui.height;
-		int shift = 0;
-		int shift2 = 0;
+		//int xs = gui.width;
+		//int ys = gui.height;
+		//int shift = 0;
+		//int shift2 = 0;
 		int shiftx = -8;
 		int shifty = 0;
 
 		Slot slot = gui.getSlotAtPosition(mouseX, mouseY);
-		if (slot != null)
+		if (slot != null && slot.func_111238_b())
 		{
-			if (slot.getStack() != null && slot.getStack().getItem() instanceof ItemMeal)
+			if (slot.getHasStack() && slot.getStack().getItem() instanceof ItemMeal && slot.getStack().hasTagCompound())
 			{
-				int[] fg = slot.getStack().getTagCompound().getIntArray("FG");
+				int[] fg = Food.getFoodGroups(slot.getStack());
 				TFC_Core.bindTexture(TextureMap.locationItemsTexture);
 				GL11.glColor4f(1, 1, 1, 1.0F);
 				for(int i = 0; i < fg.length; i++)
 				{
 					Item food = FoodRegistry.getInstance().getFood(fg[i]);
 					if(food == null)
-						break;
+						continue; // We need to continue the loop for when a middle slot was left empty
 					int x = mouseX + 19;
 					int y = mouseY + 11;
 					GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -110,8 +110,8 @@ public class FMLClientEventHandler
 		var9.draw();
 	}
 
-	private boolean isMouseOverSlot(Slot slot, int x, int y)
+	/*private boolean isMouseOverSlot(Slot slot, int x, int y)
 	{
 		return (x >= slot.xDisplayPosition - 1) && (x < slot.xDisplayPosition + 16 + 1) && (y >= slot.yDisplayPosition - 1) && (y < slot.yDisplayPosition + 16 + 1);
-	}
+	}*/
 }

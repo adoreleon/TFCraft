@@ -7,17 +7,17 @@ import net.minecraft.item.ItemStack;
 
 public class KilnCraftingManager
 {
-	private static final KilnCraftingManager instance = new KilnCraftingManager();
+	private static final KilnCraftingManager INSTANCE = new KilnCraftingManager();
 	public static final KilnCraftingManager getInstance()
 	{
-		return instance;
+		return INSTANCE;
 	}
 
-	private List recipes;
+	private List<KilnRecipe> recipes;
 
 	private KilnCraftingManager()
 	{
-		recipes = new ArrayList();
+		recipes = new ArrayList<KilnRecipe>();
 	}
 
 	public void addRecipe(KilnRecipe recipe)
@@ -29,7 +29,7 @@ public class KilnCraftingManager
 	{
 		for (int k = 0; k < recipes.size(); k++)
 		{
-			KilnRecipe irecipe = (KilnRecipe)recipes.get(k);
+			KilnRecipe irecipe = recipes.get(k);
 			if (irecipe.matches(recipe))
 			{
 				return irecipe;
@@ -38,22 +38,25 @@ public class KilnCraftingManager
 
 		return null;
 	}
-	
+
 	public ItemStack findCompleteRecipe(KilnRecipe recipe)
-    {
-        for (int k = 0; k < recipes.size(); k++)
-        {
-        	KilnRecipe irecipe = (KilnRecipe)recipes.get(k);
-            if (irecipe.isComplete(recipe))
-            {
-                return irecipe.getCraftingResult();
-            }
-        }
+	{
+		for (int k = 0; k < recipes.size(); k++)
+		{
+			KilnRecipe irecipe = recipes.get(k);
+			if (irecipe.isComplete(recipe))
+			{
+				ItemStack out = irecipe.getCraftingResult();
+				if(irecipe.getInheritsTag())
+					out.setTagCompound(recipe.input1.getTagCompound());
+				return out;
+			}
+		}
 
-        return recipe.input1;
-    }
+		return recipe.input1;
+	}
 
-	public List getRecipeList()
+	public List<KilnRecipe> getRecipeList()
 	{
 		return recipes;
 	}

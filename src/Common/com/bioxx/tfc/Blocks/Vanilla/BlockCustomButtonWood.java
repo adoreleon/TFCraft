@@ -1,17 +1,20 @@
 package com.bioxx.tfc.Blocks.Vanilla;
 
-import com.bioxx.tfc.TFCBlocks;
-
 import net.minecraft.block.BlockButtonWood;
 import net.minecraft.util.IIcon;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockCustomButtonWood extends BlockButtonWood
 {
 	public BlockCustomButtonWood()
 	{
 		super();
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 	}
 
 	/**
@@ -21,6 +24,6 @@ public class BlockCustomButtonWood extends BlockButtonWood
 	@Override
 	public IIcon getIcon(int par1, int par2)
 	{
-		return TFCBlocks.Planks.getBlockTextureFromSide(0);
+		return TFCBlocks.planks.getBlockTextureFromSide(0);
 	}
 }

@@ -9,12 +9,13 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Reference;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Reference;
 
 public class BlockSmoke extends BlockTerra
 {
@@ -29,12 +30,12 @@ public class BlockSmoke extends BlockTerra
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		this.blockIcon = iconRegisterer.registerIcon(Reference.ModID + ":" + "Smoke");
+		this.blockIcon = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "Smoke");
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public int colorMultiplier(IBlockAccess p_149720_1_, int p_149720_2_, int p_149720_3_, int p_149720_4_)
+	public int colorMultiplier(IBlockAccess access, int x, int y, int z)
 	{
 		return 0x666666;
 	}
@@ -142,50 +143,24 @@ public class BlockSmoke extends BlockTerra
 			if(thisMeta == 0)
 				return;
 			boolean hasBase = false;
-			if(world.getBlock(x, y-1, z) == this && world.getBlockMetadata(x, y-1, z) == thisMeta-1)
+			if (hasBase(world, x, y - 1, z, thisMeta - 1) || hasBase(world, x, y - 1, z - 1, thisMeta - 1) ||
+				hasBase(world, x, y - 1, z + 1, thisMeta - 1) || hasBase(world, x - 1, y - 1, z, thisMeta - 1) ||
+				hasBase(world, x - 1, y - 1, z - 1, thisMeta - 1) || hasBase(world, x - 1, y - 1, z + 1, thisMeta - 1) ||
+				hasBase(world, x + 1, y - 1, z, thisMeta - 1) || hasBase(world, x + 1, y - 1, z - 1, thisMeta - 1) ||
+				hasBase(world, x + 1, y - 1, z + 1, thisMeta - 1))
 			{
 				hasBase = true;
 			}
-			else if(world.getBlock(x, y-1, z-1) == this && world.getBlockMetadata(x, y-1, z-1) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x, y-1, z+1) == this && world.getBlockMetadata(x, y-1, z+1) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x-1, y-1, z) == this && world.getBlockMetadata(x-1, y-1, z) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x-1, y-1, z-1) == this && world.getBlockMetadata(x-1, y-1, z-1) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x-1, y-1, z+1) == this && world.getBlockMetadata(x-1, y-1, z+1) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x+1, y-1, z) == this && world.getBlockMetadata(x+1, y-1, z) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x+1, y-1, z-1) == this && world.getBlockMetadata(x+1, y-1, z-1) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-			else if(world.getBlock(x+1, y-1, z+1) == this && world.getBlockMetadata(x+1, y-1, z+1) == thisMeta-1)
-			{
-				hasBase = true;
-			}
-
 
 			if(!hasBase)
 				world.setBlockToAir(x, y, z);
 		}
 	}
 
-
+	private boolean hasBase(World world, int x, int y, int z, int meta)
+	{
+		return world.blockExists(x, y, z) && world.getBlock(x, y, z) == this && world.getBlockMetadata(x, y, z) == meta;
+	}
 
 	private boolean addSmoke(World world, int x, int y, int z, int meta)
 	{

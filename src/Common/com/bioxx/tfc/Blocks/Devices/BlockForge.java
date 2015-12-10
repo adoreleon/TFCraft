@@ -6,27 +6,35 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Items.Tools.ItemFirestarter;
 import com.bioxx.tfc.Items.Tools.ItemFlintSteel;
 import com.bioxx.tfc.TileEntities.TEForge;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockForge extends BlockTerraContainer
 {
-	IIcon textureOn;
-	IIcon textureOff;
+	private IIcon textureOn;
+	private IIcon textureOff;
 
 	public BlockForge()
 	{
@@ -37,10 +45,10 @@ public class BlockForge extends BlockTerraContainer
 	@Override
 	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int side, float hitX, float hitY, float hitZ)
 	{
-		int meta = world.getBlockMetadata(i, j, k);
-		int xCoord = i;
-		int yCoord = j;
-		int zCoord = k;
+		//int meta = world.getBlockMetadata(i, j, k);
+		//int xCoord = i;
+		//int yCoord = j;
+		//int zCoord = k;
 		ItemStack equippedItem = entityplayer.getCurrentEquippedItem();
 
 		if(world.isRemote)
@@ -52,7 +60,13 @@ public class BlockForge extends BlockTerraContainer
 			if((TEForge)world.getTileEntity(i, j, k) != null)
 			{
 				TEForge tef = (TEForge)world.getTileEntity(i, j, k);
-				if(tef.fireTemp <= 0 && tef.fireItemStacks[7] != null && tef.isSmokeStackValid)
+				if (!tef.isSmokeStackValid)
+				{
+					TFC_Core.sendInfoMessage(entityplayer, new ChatComponentTranslation("gui.forge.badChimney"));
+					return true;
+				}
+
+				if (tef.fireTemp <= 0 && tef.fireItemStacks[7] != null)
 				{
 					tef.fireTemp = 10;
 					tef.fuelBurnTemp = 20;
@@ -78,8 +92,9 @@ public class BlockForge extends BlockTerraContainer
 				if(tef.isSmokeStackValid)
 				{
 					entityplayer.openGui(TerraFirmaCraft.instance, 23, world, i, j, k);
-					//ModLoader.openGUI(entityplayer, new GuiTerraForge(entityplayer.inventory, TEForge));
 				}
+				else
+					TFC_Core.sendInfoMessage(entityplayer, new ChatComponentTranslation("gui.forge.badChimney"));
 			}
 			return true;
 		}
@@ -96,8 +111,8 @@ public class BlockForge extends BlockTerraContainer
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		textureOn = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Forge On");
-		textureOff = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Forge Off");
+		textureOn = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Forge On");
+		textureOff = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Forge Off");
 	}
 
 	public boolean getIsFireLit(int i)
@@ -108,7 +123,7 @@ public class BlockForge extends BlockTerraContainer
 	@Override
 	public int getRenderType()
 	{
-		return TFCBlocks.ForgeRenderId;
+		return TFCBlocks.forgeRenderId;
 	}
 
 	@Override
@@ -122,21 +137,21 @@ public class BlockForge extends BlockTerraContainer
 	{
 		if(!world.isRemote)
 		{
-			boolean surroundSolids = (world.getBlock(x+1, y, z).getMaterial() == Material.rock && world.getBlock(x-1, y, z).getMaterial() == Material.rock && 
+			/*boolean surroundSolids = (world.getBlock(x+1, y, z).getMaterial() == Material.rock && world.getBlock(x-1, y, z).getMaterial() == Material.rock && 
 					world.getBlock(x, y, z+1).getMaterial() == Material.rock && world.getBlock(x, y, z-1).getMaterial() == Material.rock &&
 					world.getBlock(x, y-1, z).isNormalCube() && (world.getBlock(x+1, y, z).isNormalCube() && world.getBlock(x-1, y, z).isNormalCube() && 
-							world.getBlock(x, y, z+1).isNormalCube() && world.getBlock(x, y, z-1).isNormalCube()));
+							world.getBlock(x, y, z+1).isNormalCube() && world.getBlock(x, y, z-1).isNormalCube()));*/
 
 			boolean rockXP = world.getBlock(x+1, y, z) == TFCBlocks.stoneSlabs || 
-					(world.getBlock(x+1, y, z).getMaterial() == Material.rock && world.getBlock(x+1, y, z).isNormalCube());
+					world.getBlock(x+1, y, z).getMaterial() == Material.rock && world.getBlock(x+1, y, z).isNormalCube();
 			boolean rockXN = world.getBlock(x-1, y, z) == TFCBlocks.stoneSlabs || 
-					(world.getBlock(x-1, y, z).getMaterial() == Material.rock && world.getBlock(x-1, y, z).isNormalCube());
+					world.getBlock(x-1, y, z).getMaterial() == Material.rock && world.getBlock(x-1, y, z).isNormalCube();
 			boolean rockZP = world.getBlock(x, y, z+1) == TFCBlocks.stoneSlabs || 
-					(world.getBlock(x, y, z+1).getMaterial() == Material.rock && world.getBlock(x, y, z+1).isNormalCube());
+					world.getBlock(x, y, z+1).getMaterial() == Material.rock && world.getBlock(x, y, z+1).isNormalCube();
 			boolean rockZN = world.getBlock(x, y, z-1) == TFCBlocks.stoneSlabs || 
-					(world.getBlock(x, y, z-1).getMaterial() == Material.rock && world.getBlock(x, y, z-1).isNormalCube());
+					world.getBlock(x, y, z-1).getMaterial() == Material.rock && world.getBlock(x, y, z-1).isNormalCube();
 			boolean rockYN = world.getBlock(x, y-1,  z ) == TFCBlocks.stoneSlabs ||
-					(world.getBlock(x, y-1, z).getMaterial() == Material.rock && world.getBlock(x, y-1,z).isNormalCube());
+					world.getBlock(x, y-1, z).getMaterial() == Material.rock && world.getBlock(x, y-1,z).isNormalCube();
 
 			boolean validSlabs = world.isSideSolid(x, y, z + 1, ForgeDirection.NORTH) && world.isSideSolid(x, y, z - 1, ForgeDirection.SOUTH) &&
 					world.isSideSolid(x - 1, y, z, ForgeDirection.EAST) && world.isSideSolid(x + 1, y, z, ForgeDirection.WEST);
@@ -146,27 +161,26 @@ public class BlockForge extends BlockTerraContainer
 				((TEForge)world.getTileEntity(x, y, z)).ejectContents();
 				world.setBlockToAir(x, y, z);
 			}
-			else
+			/*else
 			{
 				if(world.getTileEntity(x, y, z) != null)
 				{
 					//((TEForge)world.getBlockTileEntity(x, y, z)).isValid = false;
 				}
-			}
+			}*/
 		}
 	}
 
 	@Override
 	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
 	{
-		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		return ret;
+		return new ArrayList<ItemStack>();
 	}
 
 	@Override
 	public void randomDisplayTick(World world, int i, int j, int k, Random random)
 	{
-		if (this == TFCBlocks.Forge)
+		if (this == TFCBlocks.forge)
 		{
 			return;
 		}
@@ -175,7 +189,7 @@ public class BlockForge extends BlockTerraContainer
 			float f = i + 0.5F;
 			float f1 = j + 0.9F + random.nextFloat() * 6F / 16F;
 			float f2 = k + 0.5F;
-			float f3 = 0.52F;
+			//float f3 = 0.52F;
 			float f4 = random.nextFloat() * 0.6F;
 			float f5 = random.nextFloat() * -0.6F;
 			float f6 = random.nextFloat() * -0.6F;
@@ -215,13 +229,13 @@ public class BlockForge extends BlockTerraContainer
 	{
 		if(!world.isRemote)
 		{
-			TEForge te = (TEForge)world.getTileEntity(x, y, z);
-
-			if (te != null)
+			if (world.getTileEntity(x, y, z) instanceof TEForge)
 			{
-				te.removeSmoke();
+				((TEForge) world.getTileEntity(x, y, z)).removeSmoke();
 			}
 		}
+
+		super.breakBlock(world, x, y, z, block, meta);
 	}
 
 	/**
@@ -247,5 +261,29 @@ public class BlockForge extends BlockTerraContainer
 	public TileEntity createNewTileEntity(World var1, int var2)
 	{
 		return new TEForge();
+	}
+
+	/**
+	 * Displays a flat icon image for an ItemStack containing the block, instead of a render. Using primarily for WAILA HUD.
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getItemIconName()
+	{
+		return Reference.MOD_ID + ":" + "devices/forge";
+	}
+
+	/**
+	 * Triggered whenever an entity collides with this block (enters into the block). Args: world, x, y, z, entity
+	 */
+	@Override
+	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
+	{
+		// We'll be nice and do EntityLivingBase so it won't burn up dropped items.
+		if (world.getBlockMetadata(x, y, z) >= 1 && !entity.isImmuneToFire() && entity instanceof EntityLivingBase)
+		{
+			// Five ticks of fire damage will deal 250 HP of damage.
+			entity.setFire(5);
+		}
 	}
 }

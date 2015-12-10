@@ -3,11 +3,7 @@ package com.bioxx.tfc.Handlers;
 import java.util.Random;
 
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityMultiPart;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.EntityDragonPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -19,9 +15,12 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.util.MathHelper;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_MobData;
@@ -32,8 +31,6 @@ import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Events.EntityArmorCalcEvent;
 import com.bioxx.tfc.api.Interfaces.ICausesDamage;
 import com.bioxx.tfc.api.Interfaces.IInnateArmor;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class EntityDamageHandler
 {
@@ -69,17 +66,19 @@ public class EntityDamageHandler
 			event.ammount = 100;
 		else if(event.source.isExplosion())
 			event.ammount *= 30;
-		else if(event.source.damageType == "player" || event.source.damageType == "mob" || event.source.damageType == "arrow")
+		else if ("player".equals(event.source.damageType) || "mob".equals(event.source.damageType) || "arrow".equals(event.source.damageType))
 		{
 			event.ammount = applyArmorCalculations(entity, event.source, event.ammount);
-			if(event.source.damageType == "arrow")
+			if ("arrow".equals(event.source.damageType))
 			{
 				Entity e = ((EntityDamageSourceIndirect)event.source).getSourceOfDamage();
 				if(e instanceof EntityJavelin)
 				{
 					((EntityJavelin)e).setDamageTaken((short) (((EntityJavelin) e).damageTaken+10));
-					if(((EntityJavelin)e).damageTaken >= ((EntityJavelin)e).getDamage())
+					if (((EntityJavelin) e).damageTaken >= ((EntityJavelin) e).pickupItem.getMaxDamage())
+					{
 						e.setDead();
+					}
 				}
 			}
 		}
@@ -104,14 +103,14 @@ public class EntityDamageHandler
 			//2. Get Armor Rating for armor in hit Location
 			if(armor[location] != null && armor[location].getItem() instanceof ItemTFCArmor)
 			{
-				pierceRating = ((ItemTFCArmor)armor[location].getItem()).ArmorType.getPiercingAR();
-				slashRating = ((ItemTFCArmor)armor[location].getItem()).ArmorType.getSlashingAR();
-				crushRating = ((ItemTFCArmor)armor[location].getItem()).ArmorType.getCrushingAR();
+				pierceRating = ((ItemTFCArmor)armor[location].getItem()).armorTypeTFC.getPiercingAR();
+				slashRating = ((ItemTFCArmor)armor[location].getItem()).armorTypeTFC.getSlashingAR();
+				crushRating = ((ItemTFCArmor)armor[location].getItem()).armorTypeTFC.getCrushingAR();
 				if(entity instanceof IInnateArmor)
 				{
-					pierceRating += ((IInnateArmor)entity).GetPierceArmor();
-					slashRating += ((IInnateArmor)entity).GetSlashArmor();
-					crushRating += ((IInnateArmor)entity).GetCrushArmor();
+					pierceRating += ((IInnateArmor)entity).getPierceArmor();
+					slashRating += ((IInnateArmor)entity).getSlashArmor();
+					crushRating += ((IInnateArmor) entity).getCrushArmor();
 				}
 
 				//3. Convert the armor rating to % damage reduction
@@ -126,13 +125,13 @@ public class EntityDamageHandler
 				//5. Damage the armor that was hit
 				armor[location].damageItem((int) processArmorDamage(armor[location], damage), entity);
 			}
-			else if(armor[location] == null || (armor[location] != null && !(armor[location].getItem() instanceof ItemTFCArmor)))
+			else if (armor[location] == null || armor[location] != null && !(armor[location].getItem() instanceof ItemTFCArmor))
 			{
 				if(entity instanceof IInnateArmor)
 				{
-					pierceRating += ((IInnateArmor)entity).GetPierceArmor();
-					slashRating += ((IInnateArmor)entity).GetSlashArmor();
-					crushRating += ((IInnateArmor)entity).GetCrushArmor();
+					pierceRating += ((IInnateArmor)entity).getPierceArmor();
+					slashRating += ((IInnateArmor)entity).getSlashArmor();
+					crushRating += ((IInnateArmor) entity).getCrushArmor();
 				}
 				//1. Convert the armor rating to % damage reduction
 				float pierceMult = getDamageReduction(pierceRating);
@@ -151,8 +150,10 @@ public class EntityDamageHandler
 			//6. Apply the damage to the player
 			EntityArmorCalcEvent eventPost = new EntityArmorCalcEvent(entity, damage, EntityArmorCalcEvent.EventType.POST);
 			MinecraftForge.EVENT_BUS.post(eventPost);
-			//System.out.println(entity.getClass()+", "+eventPre.incomingDamage+", "+eventPost.incomingDamage);
+			//TerraFirmaCraft.log.info(entity.getClass()+", "+eventPre.incomingDamage+", "+eventPost.incomingDamage);
+			float hasHealth = entity.getHealth();
 			entity.setHealth(entity.getHealth()-eventPost.incomingDamage);
+			entity.func_110142_aN().func_94547_a(source, hasHealth, eventPost.incomingDamage);
 		}
 		return 0;
 	}
@@ -176,7 +177,7 @@ public class EntityDamageHandler
 		}
 		else if(damageType == EnumDamageType.GENERIC)
 		{
-			damage *= (((crushMult+slashMult+pierceMult)/3)-0.25);
+			damage *= (crushMult + slashMult + pierceMult) / 3 - 0.25;
 		}
 		return Math.max(0, damage);
 	}
@@ -189,7 +190,7 @@ public class EntityDamageHandler
 			EntityPlayer player = (EntityPlayer)source.getSourceOfDamage();
 			if(player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof ICausesDamage)
 			{
-				return ((ICausesDamage)player.getCurrentEquippedItem().getItem()).GetDamageType();
+				return ((ICausesDamage)player.getCurrentEquippedItem().getItem()).getDamageType();
 			}
 		}
 
@@ -198,13 +199,13 @@ public class EntityDamageHandler
 			EntityLiving el = (EntityLiving)source.getSourceOfDamage();
 			if(el.getHeldItem() != null && el.getHeldItem().getItem() instanceof ICausesDamage)
 			{
-				return ((ICausesDamage)el.getHeldItem().getItem()).GetDamageType();
+				return ((ICausesDamage)el.getHeldItem().getItem()).getDamageType();
 			}
 		}
 
 		if(source.getSourceOfDamage() instanceof ICausesDamage)
 		{
-			return ((ICausesDamage)source.getSourceOfDamage()).GetDamageType();
+			return ((ICausesDamage)source.getSourceOfDamage()).getDamageType();
 		}
 
 		return EnumDamageType.GENERIC;
@@ -238,14 +239,14 @@ public class EntityDamageHandler
 	}
 
 	/**
-	 * @param AR Armor Rating supplied by the armor
+	 * @param armorRating Armor Rating supplied by the armor
 	 * @return Multiplier for damage reduction e.g. damage * multiplier = final damage
 	 */
-	protected float getDamageReduction(int AR)
+	protected float getDamageReduction(int armorRating)
 	{
-		if(AR == -1000)
-			AR=-999;
-		return (1000f / (1000f + AR));
+		if(armorRating == -1000)
+			armorRating=-999;
+		return 1000f / (1000f + armorRating);
 	}
 
 	@SubscribeEvent
@@ -265,83 +266,82 @@ public class EntityDamageHandler
 		{
 			if (!target.hitByEntity(target))
 			{
-				float i = TFC_MobData.SteveDamage;
+				float damageAmount = TFC_MobData.STEVE_DAMAGE;
 				if(stack != null)
 				{
-					i = (float)player.getEntityAttribute(SharedMonsterAttributes.attackDamage).getAttributeValue();
+					damageAmount = (float)player.getEntityAttribute(SharedMonsterAttributes.attackDamage).getAttributeValue();
 					//player.addChatMessage("Damage: " + i);
-					if(i == 1.0f)
+					if(damageAmount == 1.0f)
 					{
-						i = TFC_MobData.SteveDamage;
+						damageAmount = TFC_MobData.STEVE_DAMAGE;
 						//i = player.inventory.getCurrentItem().getItem().getDamageVsEntity(target, player.inventory.getCurrentItem());
 					}
 				}
 
 				if (player.isPotionActive(Potion.damageBoost))
-					i += 3 << player.getActivePotionEffect(Potion.damageBoost).getAmplifier();
+					damageAmount += 3 << player.getActivePotionEffect(Potion.damageBoost).getAmplifier();
 
 				if (player.isPotionActive(Potion.weakness))
-					i -= 2 << player.getActivePotionEffect(Potion.weakness).getAmplifier();
+					damageAmount -= 2 << player.getActivePotionEffect(Potion.weakness).getAmplifier();
 
-				int j = 0;
-				float k = 0;
+				int knockback = 0;
+				float enchantmentDamage = 0;
 
 				if (target instanceof EntityLiving)
 				{
-					k = EnchantmentHelper.getEnchantmentModifierLiving(player, (EntityLiving) target);
-					j += EnchantmentHelper.getKnockbackModifier(player, (EntityLiving) target);
+					enchantmentDamage = EnchantmentHelper.getEnchantmentModifierLiving(player, (EntityLiving) target);
+					knockback += EnchantmentHelper.getKnockbackModifier(player, (EntityLiving) target);
 				}
 
 				if (player.isSprinting())
-					++j;
+					++knockback;
 
-				if (i > 0 || k > 0)
+				if (damageAmount > 0 || enchantmentDamage > 0)
 				{
-					boolean flag = player.fallDistance > 0.0F && !player.onGround && 
+					boolean criticalHit = player.fallDistance > 0.0F && !player.onGround && 
 							!player.isOnLadder() && !player.isInWater() && 
 							!player.isPotionActive(Potion.blindness) && player.ridingEntity == null && 
 							target instanceof EntityLiving;
 
-					if (flag && i > 0)
-						i += event.entity.worldObj.rand.nextInt((int) (i / 2 + 2));
+					if (criticalHit && damageAmount > 0)
+						damageAmount += event.entity.worldObj.rand.nextInt((int) (damageAmount / 2 + 2));
 
-					i += k;
-					boolean flag1 = false;
-					int l = EnchantmentHelper.getFireAspectModifier(player);
+					damageAmount += enchantmentDamage;
+					boolean onFire = false;
+					int fireAspect = EnchantmentHelper.getFireAspectModifier(player);
 
-					if (target instanceof EntityLiving && l > 0 && !target.isBurning())
+					if (target instanceof EntityLiving && fireAspect > 0 && !target.isBurning())
 					{
-						flag1 = true;
+						onFire = true;
 						target.setFire(1);
 					}
 
-					boolean flag2 = target.attackEntityFrom(DamageSource.causePlayerDamage(player), i);
+					boolean entityAttacked = target.attackEntityFrom(DamageSource.causePlayerDamage(player), damageAmount);
 
-					if (flag2)
+					if (entityAttacked)
 					{
-						if (j > 0)
+						if (knockback > 0)
 						{
-							target.addVelocity(-MathHelper.sin(player.rotationYaw * (float)Math.PI / 180.0F) * j * 0.5F, 0.1D, 
-									MathHelper.cos(player.rotationYaw * (float)Math.PI / 180.0F) * j * 0.5F);
+							target.addVelocity(-MathHelper.sin(player.rotationYaw * (float)Math.PI / 180.0F) * knockback * 0.5F, 0.1D, 
+									MathHelper.cos(player.rotationYaw * (float)Math.PI / 180.0F) * knockback * 0.5F);
 							player.motionX *= 0.6D;
 							player.motionZ *= 0.6D;
 							player.setSprinting(false);
 						}
 
-						if (flag)
+						if (criticalHit)
 							player.onCriticalHit(target);
 
-						if (k > 0)
+						if (enchantmentDamage > 0)
 							player.onEnchantmentCritical(target);
 
-						if (i >= 18)
+						if (damageAmount >= 18)
 							player.triggerAchievement(AchievementList.overkill);
 
 						player.setLastAttacker(target);
 
 						if (target instanceof EntityLiving)
-							// EnchantmentThorns.func_151367_b(attacker, target, (int)i);
-							target.attackEntityFrom(DamageSource.causeThornsDamage(attacker), i);
+							target.attackEntityFrom(DamageSource.causeThornsDamage(attacker), damageAmount);
 					}
 
 					ItemStack itemstack = player.getCurrentEquippedItem();
@@ -350,7 +350,7 @@ public class EntityDamageHandler
 					if (target instanceof EntityDragonPart)
 					{
 						IEntityMultiPart ientitymultipart = ((EntityDragonPart)target).entityDragonObj;
-						if (ientitymultipart != null && ientitymultipart instanceof EntityLiving)
+						if (ientitymultipart instanceof EntityLiving)
 							object = ientitymultipart;
 					}
 
@@ -363,10 +363,10 @@ public class EntityDamageHandler
 
 					if (target instanceof EntityLivingBase)
 					{
-						player.addStat(StatList.damageDealtStat,Math.round(i * 10.0f));
-						if (l > 0 && flag2)
-							target.setFire(l * 4);
-						else if (flag1)
+						player.addStat(StatList.damageDealtStat,Math.round(damageAmount * 10.0f));
+						if (fireAspect > 0 && entityAttacked)
+							target.setFire(fireAspect * 4);
+						else if (onFire)
 							target.extinguish();
 					}
 

@@ -4,7 +4,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import org.lwjgl.opengl.GL11;
@@ -23,7 +22,7 @@ public class GuiChestTFC extends GuiContainer
 	/**
 	 * window height is calculated with this values, the more rows, the heigher
 	 */
-	private int inventoryRows = 0;
+	private int inventoryRows;
 
 	public GuiChestTFC(IInventory par1IInventory, IInventory chestInv, World world, int x, int y, int z)
 	{
@@ -66,8 +65,8 @@ public class GuiChestTFC extends GuiContainer
 	 */
 	protected void drawGuiContainerForegroundLayer()
 	{
-		this.fontRendererObj.drawString(StatCollector.translateToLocal(this.lowerChestInventory.getInventoryName()), 8, 6, 4210752);
-		this.fontRendererObj.drawString(StatCollector.translateToLocal(this.upperChestInventory.getInventoryName()), 8, this.ySize - 96 + 2, 4210752);
+		this.fontRendererObj.drawString(TFC_Core.translate(this.lowerChestInventory.getInventoryName()), 8, 6, 4210752);
+		this.fontRendererObj.drawString(TFC_Core.translate(this.upperChestInventory.getInventoryName()), 8, this.ySize - 96 + 2, 4210752);
 	}
 
 	/**
@@ -76,7 +75,7 @@ public class GuiChestTFC extends GuiContainer
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
 	{
-		TFC_Core.bindTexture(new ResourceLocation(Reference.ModID, Reference.AssetPathGui + "gui_chest.png"));
+		TFC_Core.bindTexture(new ResourceLocation(Reference.MOD_ID, Reference.ASSET_PATH_GUI + "gui_chest.png"));
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		int var5 = (this.width - this.xSize) / 2;
 		int var6 = (this.height - this.ySize) / 2;

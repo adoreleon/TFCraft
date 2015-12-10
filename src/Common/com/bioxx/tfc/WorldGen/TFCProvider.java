@@ -9,17 +9,20 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFC_Climate;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Core.TFC_Time;
-import com.bioxx.tfc.api.Constant.Global;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFC_Time;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
+
 public class TFCProvider extends WorldProvider
 {
+	private int moonPhase;
+	private int moonPhaseLastCalculated;
+	
 	@Override
 	protected void registerWorldChunkManager()
 	{
@@ -46,14 +49,30 @@ public class TFCProvider extends WorldProvider
 		int y = worldObj.getTopSolidOrLiquidBlock(x, z)-1;
 		if(y < Global.SEALEVEL || y > Global.SEALEVEL + 25) return false;
 		Block b = worldObj.getBlock(x, y, z);
-		return (TFC_Core.isSand(b) || TFC_Core.isGrass(b));
+		return TFC_Core.isSand(b) || TFC_Core.isGrass(b);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getMoonPhase(long par1)
 	{
-		return (int)(par1 / TFC_Time.dayLength) % 8;
+		//Only calculate if we haven't already calculated today
+		//so we don't needlessly recalculate
+		if(TFC_Time.getDayFromTotalHours(TFC_Time.getTotalHours()) != moonPhaseLastCalculated)
+		{
+			int daysPassed = (int)(par1 / TFC_Time.DAY_LENGTH);
+			int dayOfMonth = daysPassed % TFC_Time.daysInMonth;
+			float dayToLunarDayMultiplier = (float)8/TFC_Time.daysInMonth;
+			//Round rather than just cast to ensure that the full moon
+			//only lasts one night
+			int lunarDay = Math.round(dayOfMonth*dayToLunarDayMultiplier);
+			
+			moonPhase = lunarDay % 8;
+			
+			moonPhaseLastCalculated = TFC_Time.getDayFromTotalHours(TFC_Time.getTotalHours());
+		}
+		
+		return moonPhase;
 	}
 
 	@Override
@@ -62,25 +81,25 @@ public class TFCProvider extends WorldProvider
 		return 256.0F;
 	}
 
-	@Override
+	/*@Override
 	public ChunkCoordinates getSpawnPoint()
 	{
 		return super.getSpawnPoint();
-	}
+	}*/
 
 	private boolean isNextToShoreOrIce(int x, int y, int z)
 	{
 		if(worldObj.checkChunksExist(x+1, y, z, x+1, y, z))
-			if(worldObj.getBlock(x+1, y, z) == TFCBlocks.Ice || TFC_Core.isGround(worldObj.getBlock(x+1, y, z)))
+			if(worldObj.getBlock(x+1, y, z) == TFCBlocks.ice || TFC_Core.isGround(worldObj.getBlock(x+1, y, z)))
 				return true;
 		if(worldObj.checkChunksExist(x-1, y, z, x-1, y, z))
-			if(worldObj.getBlock(x-1, y, z) == TFCBlocks.Ice || TFC_Core.isGround(worldObj.getBlock(x-1, y, z)))
+			if(worldObj.getBlock(x-1, y, z) == TFCBlocks.ice || TFC_Core.isGround(worldObj.getBlock(x-1, y, z)))
 				return true;
 		if(worldObj.checkChunksExist(x, y, z+1, x, y, z+1))
-			if(worldObj.getBlock(x, y, z+1) == TFCBlocks.Ice || TFC_Core.isGround(worldObj.getBlock(x, y, z+1)))
+			if(worldObj.getBlock(x, y, z+1) == TFCBlocks.ice || TFC_Core.isGround(worldObj.getBlock(x, y, z+1)))
 				return true;
 		if(worldObj.checkChunksExist(x, y, z-1, x, y, z-1))
-			if(worldObj.getBlock(x, y, z-1) == TFCBlocks.Ice || TFC_Core.isGround(worldObj.getBlock(x, y, z-1)))
+			if(worldObj.getBlock(x, y, z-1) == TFCBlocks.ice || TFC_Core.isGround(worldObj.getBlock(x, y, z-1)))
 				return true;
 		return false;
 	}
@@ -93,7 +112,7 @@ public class TFCProvider extends WorldProvider
 		float temp = TFC_Climate.getHeightAdjustedTemp(worldObj, x, y, z);
 		BiomeGenBase biome = worldObj.getBiomeGenForCoords(x, z);
 
-		if (temp <= 0 && biome != TFCBiome.DeepOcean)
+		if (temp <= 0 && biome != TFCBiome.DEEP_OCEAN)
 		{
 			if (worldObj.isAirBlock(x, y+1, z) && TFC_Core.isWater(id) && worldObj.rand.nextInt(4) == 0 && isNextToShoreOrIce(x,y,z))
 			{
@@ -105,13 +124,13 @@ public class TFCProvider extends WorldProvider
 
 				if((mat == Material.water || mat == Material.ice) && !salty)
 				{
-					if(id == TFCBlocks.FreshWaterStationary && meta == 0/* || id == TFCBlocks.FreshWaterFlowing.blockID*/)
+					if(id == TFCBlocks.freshWaterStationary && meta == 0/* || id == TFCBlocks.FreshWaterFlowing.blockID*/)
 					{
-						worldObj.setBlock(x, y, z, TFCBlocks.Ice, 1, 2);
+						worldObj.setBlock(x, y, z, TFCBlocks.ice, 1, 2);
 					}
-					else if(id == TFCBlocks.SaltWaterStationary && meta == 0/* || id == Block.waterMoving.blockID*/)
+					else if(id == TFCBlocks.saltWaterStationary && meta == 0/* || id == Block.waterMoving.blockID*/)
 					{
-						worldObj.setBlock(x, y, z, TFCBlocks.Ice, 0, 2);
+						worldObj.setBlock(x, y, z, TFCBlocks.ice, 0, 2);
 					}
 				}
 				return false;//(mat == Material.water) && !salty;
@@ -119,10 +138,10 @@ public class TFCProvider extends WorldProvider
 		}
 		else
 		{
-			if(id == TFCBlocks.Ice)
+			if(id == TFCBlocks.ice)
 			{
 				int chance = (int)Math.floor(Math.max(1, 6f-temp));
-				if(id == TFCBlocks.Ice && worldObj.rand.nextInt(chance) == 0)
+				if(id == TFCBlocks.ice && worldObj.rand.nextInt(chance) == 0)
 				{
 					if (worldObj.getBlock(x, y + 1, z) == Blocks.snow)
 					{
@@ -145,11 +164,11 @@ public class TFCProvider extends WorldProvider
 
 						if((meta & 1) == 0)
 						{
-							worldObj.setBlock(x, y, z, TFCBlocks.SaltWaterStationary, 0, flag);
+							worldObj.setBlock(x, y, z, TFCBlocks.saltWaterStationary, 0, flag);
 						}
 						else if((meta & 1) == 1)
 						{
-							worldObj.setBlock(x, y, z, TFCBlocks.FreshWaterStationary, 0, flag);
+							worldObj.setBlock(x, y, z, TFCBlocks.freshWaterStationary, 0, flag);
 						}
 					}
 				}
@@ -167,14 +186,13 @@ public class TFCProvider extends WorldProvider
 	@Override
 	public boolean canSnowAt(int x, int y, int z, boolean checkLight)
 	{
-		if(TFC_Climate.getHeightAdjustedTemp(worldObj,x, y, z) <= 0 &&
-				TFCBlocks.Snow.canPlaceBlockAt(worldObj, x, y, z) &&
-				worldObj.getBlock(x, y, z).getMaterial().isReplaceable())
-		{
-			return true;
-			//worldObj.setBlock(x, y, z, TFCBlocks.Snow);
-		}
-		return false;
+		if (TFC_Climate.getHeightAdjustedTemp(worldObj,x, y, z) > 0)
+			return false;
+		Material material = worldObj.getBlock(x, y, z).getMaterial();
+		if (material == Material.snow)  // avoid vanilla MC to replace snow
+			return false;
+		else
+			return TFCBlocks.snow.canPlaceBlockAt(worldObj, x, y, z) && material.isReplaceable();
 	}
 
 	/*private boolean canSnowAtTemp(int x, int y, int z)
@@ -188,6 +206,15 @@ public class TFCProvider extends WorldProvider
 	public String getDimensionName()
 	{
 		return "DEFAULT";
+	}
+
+	/**
+	 * Gets the hard-coded portal location to use when entering this dimension.
+	 */
+	@Override
+	public ChunkCoordinates getEntrancePortalLocation()
+	{
+		return getSpawnPoint();
 	}
 
 	/*@Override

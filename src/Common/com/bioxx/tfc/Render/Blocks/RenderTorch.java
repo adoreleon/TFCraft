@@ -4,14 +4,15 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
+
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class RenderTorch  implements ISimpleBlockRenderingHandler 
 {
-	static float pixel3 = 3f/16f;
-	static float pixel5 = 5f/16f;
-	static float pixel12 = 12f/16f;
-	static float pixel14 = 14f/16f;
+	/*private static float pixel3 = 3f / 16f;
+	private static float pixel5 = 5f / 16f;
+	private static float pixel12 = 12f / 16f;
+	private static float pixel14 = 14f / 16f;*/
 
 	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
@@ -26,23 +27,23 @@ public class RenderTorch  implements ISimpleBlockRenderingHandler
 
 		if ((meta & 7) == 1)
 		{
-			renderer.renderTorchAtAngle(block, (double)x - d1, (double)y + d2, (double)z, -d0, 0.0D, meta);
+			renderer.renderTorchAtAngle(block, x - d1, y + d2, z, -d0, 0.0D, meta);
 		}
 		else if ((meta & 7) == 2)
 		{
-			renderer.renderTorchAtAngle(block, (double)x + d1, (double)y + d2, (double)z, d0, 0.0D, meta);
+			renderer.renderTorchAtAngle(block, x + d1, y + d2, z, d0, 0.0D, meta);
 		}
 		else if ((meta & 7) == 3)
 		{
-			renderer.renderTorchAtAngle(block, (double)x, (double)y + d2, (double)z - d1, 0.0D, -d0, meta);
+			renderer.renderTorchAtAngle(block, x, y + d2, z - d1, 0.0D, -d0, meta);
 		}
 		else if ((meta & 7) == 4)
 		{
-			renderer.renderTorchAtAngle(block, (double)x, (double)y + d2, (double)z + d1, 0.0D, d0, meta);
+			renderer.renderTorchAtAngle(block, x, y + d2, z + d1, 0.0D, d0, meta);
 		}
 		else
 		{
-			renderer.renderTorchAtAngle(block, (double)x, (double)y, (double)z, 0.0D, 0.0D, meta);
+			renderer.renderTorchAtAngle(block, x, y, z, 0.0D, 0.0D, meta);
 		}
 
 		return true;

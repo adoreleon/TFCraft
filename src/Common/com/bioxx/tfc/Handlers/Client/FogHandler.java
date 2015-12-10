@@ -1,38 +1,47 @@
 package com.bioxx.tfc.Handlers.Client;
 
 import net.minecraft.client.Minecraft;
+
 import net.minecraftforge.client.event.EntityViewRenderEvent.RenderFogEvent;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import org.lwjgl.opengl.GL11;
 
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.WeatherManager;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-
 public class FogHandler 
 {
-	double lerpTime = 14f;
-	double lerpTimer = 0f;
-	float mult = 0.0f;
-	boolean rainLast = false;
-	boolean snowLast = false;
-	boolean shouldLerp = false;
-	float fogEnd = 0;
-	float fogStart = 0;	
-	float fogDensity = 0.1f;
-	float fogEndBegin = 0;
-	float fogStartBegin = 0;	
-	float fogDensityBegin = 0.1f;
-	float fogEndFinish = 0;
-	float fogStartFinish = 0;	
-	float fogDensityFinish = 0.1f;
-	float localWorldFog = 0;
-	float snowStrength = 0;
-	int renderRange = 17;
+	private double lerpTime = 14f;
+	private double lerpTimer;
+	//private float mult;
+	private boolean rainLast;
+	private boolean snowLast;
+	private boolean shouldLerp;
+	private float fogEnd;
+	private float fogStart;
+	private float fogDensity;
+	private float fogEndBegin;
+	private float fogStartBegin;
+	private float fogDensityBegin;
+	private float fogEndFinish;
+	private float fogStartFinish;
+	private float fogDensityFinish;
+	private float localWorldFog;
+	private float snowStrength;
+	private int renderRange = 17;
+
+	public FogHandler()
+	{
+		// PMD Optimization - Initialize floats in constructors.
+		this.fogDensity = 0.1f;
+		this.fogDensityBegin = 0.1f;
+		this.fogDensityFinish = 0.1f;
+	}
 
 	@SubscribeEvent
-	public void RenderFogHandler(RenderFogEvent event)
+	public void renderFogHandler(RenderFogEvent event)
 	{
 
 		if(event.fogMode >= 0)
@@ -41,8 +50,8 @@ public class FogHandler
 			if(renderRange != Minecraft.getMinecraft().gameSettings.renderDistanceChunks || fogEnd < 16)
 			{
 				renderRange = Minecraft.getMinecraft().gameSettings.renderDistanceChunks;
-				boolean rainLast = false;
-				boolean snowLast = false;
+				//boolean rainLast = false;
+				//boolean snowLast = false;
 				fogStart = event.farPlaneDistance * 0.75f;
 				fogEnd = event.farPlaneDistance;
 			}
@@ -51,11 +60,11 @@ public class FogHandler
 			if(shouldLerp)
 			{
 				lerpTimer += event.renderPartialTicks;
-				//System.out.println(event.renderPartialTicks + " | " +(lerpTime - lerpTimer)/20 + ": " + fogStartBegin + " of " + fogStartFinish + " | " + fogEndBegin + " of " + fogEndFinish);
+				//TerraFirmaCraft.log.info(event.renderPartialTicks + " | " +(lerpTime - lerpTimer)/20 + ": " + fogStartBegin + " of " + fogStartFinish + " | " + fogEndBegin + " of " + fogEndFinish);
 				if(lerpTimer >= lerpTime)
 					shouldLerp = false;
 
-				double lerpMult = lerpTimer/lerpTime;
+				//double lerpMult = lerpTimer/lerpTime;
 
 				fogStart = lerp(fogStartBegin, fogStartFinish, lerpTime, lerpTimer);
 				fogEnd = lerp(fogEndBegin, fogEndFinish, lerpTime, lerpTimer);
@@ -126,7 +135,7 @@ public class FogHandler
 		}
 		else if(!raining)
 		{
-			if(rainLast || (localWorldFog != 0 && localFog == 0)) 
+			if (rainLast || localWorldFog != 0 && localFog == 0)
 			{
 				startLerp(600);
 				localWorldFog = 0;

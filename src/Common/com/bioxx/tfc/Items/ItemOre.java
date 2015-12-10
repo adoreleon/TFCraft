@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFCTabs;
@@ -25,7 +24,7 @@ public class ItemOre extends ItemTerra implements ISmeltable
 		super();
 		setMaxDamage(0);
 		setHasSubtypes(true);
-		MetaNames = new String[]{
+		metaNames = new String[]{
 				"Native Copper", "Native Gold", "Native Platinum", "Hematite", "Native Silver", "Cassiterite", "Galena", "Bismuthinite", "Garnierite", 
 				"Malachite", "Magnetite", "Limonite", "Sphalerite", "Tetrahedrite", 
 				"Bituminous Coal", "Lignite", "Kaolinite", "Gypsum", "Satinspar", "Selenite", "Graphite", "Kimberlite", 
@@ -37,7 +36,7 @@ public class ItemOre extends ItemTerra implements ISmeltable
 				"Poor Native Silver", "Poor Cassiterite", "Poor Galena", "Poor Bismuthinite", "Poor Garnierite", "Poor Malachite", 
 				"Poor Magnetite", "Poor Limonite", "Poor Sphalerite", "Poor Tetrahedrite"};
 		setFolder("ore/");
-		setCreativeTab(TFCTabs.TFCMaterials);
+		setCreativeTab(TFCTabs.TFC_MATERIALS);
 	}
 
 	@Override
@@ -55,31 +54,31 @@ public class ItemOre extends ItemTerra implements ISmeltable
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		MetaIcons = new IIcon[MetaNames.length];
-		for(int i = 0; i < MetaNames.length; i++)
+		metaIcons = new IIcon[metaNames.length];
+		for(int i = 0; i < metaNames.length; i++)
 		{
-			MetaIcons[i] = registerer.registerIcon(Reference.ModID + ":" + textureFolder + MetaNames[i] + " Ore");
+			metaIcons[i] = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder + metaNames[i] + " Ore");
 		}
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
-		if(GetMetalType(is) != null)
+		if(getMetalType(is) != null)
 		{
 			if (TFC_Core.showShiftInformation())
 			{
-				arraylist.add(StatCollector.translateToLocal("gui.units") + ": " + GetMetalReturnAmount(is));
+				arraylist.add(TFC_Core.translate("gui.units") + ": " + getMetalReturnAmount(is));
 			}
 			else
 			{
-				arraylist.add(StatCollector.translateToLocal("gui.ShowHelp"));
+				arraylist.add(TFC_Core.translate("gui.ShowHelp"));
 			}
 		}
 	}
 
 	@Override
-	public Metal GetMetalType(ItemStack is)
+	public Metal getMetalType(ItemStack is)
 	{
 		int dam = is.getItemDamage();
 		switch(dam)
@@ -133,7 +132,7 @@ public class ItemOre extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public short GetMetalReturnAmount(ItemStack is)
+	public short getMetalReturnAmount(ItemStack is)
 	{
 		int dam = is.getItemDamage();
 		switch(dam)
@@ -238,7 +237,7 @@ public class ItemOre extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public EnumTier GetSmeltTier(ItemStack is)
+	public EnumTier getSmeltTier(ItemStack is)
 	{
 		int dam = is.getItemDamage();
 		switch(dam)

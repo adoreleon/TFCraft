@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.api.TFCOptions;
 
 public class RemoveAreaCommand extends CommandBase
@@ -22,17 +23,19 @@ public class RemoveAreaCommand extends CommandBase
 	@Override
 	public void processCommand(ICommandSender sender, String[] params)
 	{
+		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
+
 		if(!TFCOptions.enableDebugMode)
 		{
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Debug Mode Required"));
 			return;
 		}
-		MinecraftServer server = MinecraftServer.getServer();
-		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
-		WorldServer world = server.worldServerForDimension(player.getEntityWorld().provider.dimensionId);
 
+		MinecraftServer server = MinecraftServer.getServer();
+		WorldServer world = server.worldServerForDimension(player.getEntityWorld().provider.dimensionId);
 		if(params.length == 0)
 		{
-			player.addChatMessage(new ChatComponentText("Removing 16 blocks up and +/- x, z"));
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Removing 16 blocks up and +/- x, z"));
 			for(int x = -15; x < 16; x++)
 			{
 				for(int z = -15; z < 16; z++)
@@ -45,12 +48,14 @@ public class RemoveAreaCommand extends CommandBase
 					}
 				}
 			}
+
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Removing Area Complete"));
 		}
 		else if(params.length == 3)
 		{
-			player.addChatMessage(new ChatComponentText("Removing Area"));
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Removing Area"));
 			int radius = Integer.parseInt(params[0]);
-			for(int x = -Integer.parseInt(params[0]); x <= Integer.parseInt(params[0]); x++)
+			for (int x = -radius; x <= Integer.parseInt(params[0]); x++)
 			{
 				for(int z = -Integer.parseInt(params[2]); z <= Integer.parseInt(params[2]); z++)
 				{
@@ -62,6 +67,8 @@ public class RemoveAreaCommand extends CommandBase
 					}
 				}
 			}
+
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Removing Area Complete"));
 		}
 	}
 

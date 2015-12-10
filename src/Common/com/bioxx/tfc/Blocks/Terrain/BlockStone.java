@@ -1,5 +1,6 @@
 package com.bioxx.tfc.Blocks.Terrain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -15,16 +16,16 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Items.Tools.ItemHammer;
-import com.bioxx.tfc.api.Tools.IToolChisel;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockStone extends BlockCollapsable
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Items.Tools.ItemHammer;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.Tools.IToolChisel;
+
+public class BlockStone extends BlockCollapsible
 {
 	public BlockStone(Material material)
 	{
@@ -33,8 +34,8 @@ public class BlockStone extends BlockCollapsable
 
 	protected String[] names;
 	public IIcon[] icons;
-	protected int looseStart = 0;
-	protected int gemChance = 0;
+	protected int looseStart;
+	protected int gemChance;
 
 	@SideOnly(Side.CLIENT)
 	@Override
@@ -53,7 +54,7 @@ public class BlockStone extends BlockCollapsable
 	@Override
 	public int damageDropped(int i)
 	{
-		return i+looseStart;
+		return i;
 	}
 
 	@Override
@@ -68,13 +69,45 @@ public class BlockStone extends BlockCollapsable
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
 		for(int i = 0; i < names.length; i++)
-			icons[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "rocks/"+names[i]+" Raw");
+			icons[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "rocks/"+names[i]+" Raw");
 	}
 
 	@Override
 	public Item getItemDropped(int i, Random random, int j)
 	{
-		return TFCItems.LooseRock;
+		return TFCItems.looseRock;
+	}
+
+	/**
+	 * Returns the quantity of items to drop on block destruction.
+	 */
+	@Override
+	public int quantityDropped(Random rand)
+	{
+		return rand.nextInt(2) + 1;
+	}
+
+	@Override
+	public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
+	{
+		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+		int meta = looseStart + metadata;
+
+		int count = this.quantityDropped(world.rand);
+		for (int i = 0; i < count; i++)
+		{
+			Item item = getItemDropped(meta, world.rand, fortune);
+			if (item != null)
+			{
+				ret.add(new ItemStack(item, 1, damageDropped(meta)));
+			}
+		}
+
+		ItemStack gemStack = TFC_Core.randomGem(world.rand, gemChance);
+		if (gemStack != null)
+			ret.add(gemStack);
+
+		return ret;
 	}
 
 	@Override
@@ -87,7 +120,7 @@ public class BlockStone extends BlockCollapsable
 
 			ItemStack is = null;
 
-			is = TFC_Core.RandomGem(random, 0);
+			is = TFC_Core.randomGem(random, 0);
 
 			if(is != null)
 			{
@@ -98,9 +131,24 @@ public class BlockStone extends BlockCollapsable
 	}
 
 	@Override
+	public void onBlockExploded(World world, int x, int y, int z, Explosion explosion)
+	{
+		// 30% chance to turn to cobble instead of being completely destroyed.
+		if (world.rand.nextInt(100) < 30)
+		{
+			// +8 Metadata for natural cobblestone that drops rocks instead of the block
+			world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z) + 8, 0x2);
+		}
+		else
+		{
+			super.onBlockExploded(world, x, y, z, explosion);
+		}
+	}
+
+	@Override
 	public void onNeighborBlockChange(World world, int i, int j, int k, Block l)
 	{
-		DropCarvedStone(world, i, j, k);
+		dropCarvedStone(world, i, j, k);
 	}
 
 	@Override
@@ -124,8 +172,7 @@ public class BlockStone extends BlockCollapsable
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int i, int j, int k, int l)
 	{
-		Random R = new Random();
-		dropBlockAsItem(world, i, j, k, new ItemStack(TFCItems.LooseRock, R.nextInt(2) + 1, l + looseStart));
+		dropBlockAsItem(world, i, j, k, new ItemStack(TFCItems.looseRock, world.rand.nextInt(2) + 1, l + looseStart));
 
 		super.harvestBlock(world, entityplayer, i, j, k, l);
 	}
@@ -138,7 +185,7 @@ public class BlockStone extends BlockCollapsable
 			Random random = new Random();
 			ItemStack is = null;
 
-			is = TFC_Core.RandomGem(random, gemChance);
+			is = TFC_Core.randomGem(random, gemChance);
 
 			if(is != null)
 			{

@@ -41,7 +41,7 @@ public class GSPVisualCommand extends CommandBase{
 			for(int x = 0; x < 16; x++)
 			{
 				for(int z = 0; z < 16; z++)
-					world.setBlock(x+(chunk.xPosition*16), (int)player.posY-1, z+(chunk.zPosition*16), Blocks.wool, getColor(d.spawnProtection), 2);
+					world.setBlock(x+(chunk.xPosition*16), (int)player.posY-1, z+(chunk.zPosition*16), Blocks.wool, getColor(d.getSpawnProtectionWithUpdate()), 2);
 			}
 		}
 		else if(params.length == 1)
@@ -51,18 +51,18 @@ public class GSPVisualCommand extends CommandBase{
 			{
 				for(int k = -radius; k <= radius;k++)
 				{
-					Chunk chunk = world.getChunkFromBlockCoords((int)player.posX + (i * 16), (int)player.posZ + (k * 16));
+					Chunk chunk = world.getChunkFromBlockCoords((int) player.posX + i * 16, (int) player.posZ + k * 16);
 					for(int x = 0; x < 16; x++)
 					{
 						for(int z = 0; z < 16; z++)
-							world.setBlock(x + (chunk.xPosition * 16), (int)player.posY - 1, z + (chunk.zPosition * 16), Blocks.wool, getColor(d.spawnProtection), 2);
+							world.setBlock(x + (chunk.xPosition * 16), (int)player.posY - 1, z + (chunk.zPosition * 16), Blocks.wool, getColor(d.getSpawnProtectionWithUpdate()), 2);
 					}
 				}
 			}
 		}
 	}
 
-	int getColor(int val)
+	private int getColor(int val)
 	{
 		return val/ (4320 / 16);
 	}

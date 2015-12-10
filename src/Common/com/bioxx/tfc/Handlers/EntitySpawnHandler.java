@@ -3,16 +3,18 @@ package com.bioxx.tfc.Handlers;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Containers.ContainerPlayerTFC;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.Player.InventoryPlayerTFC;
-
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class EntitySpawnHandler
 {
@@ -21,12 +23,20 @@ public class EntitySpawnHandler
 	{
 		EntityLivingBase entity = event.entityLiving;
 
-		int x = (int)entity.posX >> 4;
-		int z = (int)entity.posZ >> 4;
+		int chunkX = (int)Math.floor(entity.posX) >> 4;
+		int chunkZ = (int)Math.floor(entity.posZ) >> 4;
 
-		ChunkData data = TFC_Core.getCDM(event.world).getData(x, z);
-		if(!(data == null || data.getSpawnProtectionWithUpdate() <= 0))
+		if(event.world.getBlock((int)Math.floor(entity.posX), (int)Math.floor(entity.posY), (int)Math.floor(entity.posZ)) == TFCBlocks.thatch)
+		{
 			event.setResult(Result.DENY);
+		}
+
+		if (TFC_Core.getCDM(event.world) != null)
+		{
+			ChunkData data = TFC_Core.getCDM(event.world).getData(chunkX, chunkZ);
+			if ( !(data == null || data.getSpawnProtectionWithUpdate() <= 0))
+				event.setResult(Result.DENY);
+		}
 	}
 
 	@SubscribeEvent

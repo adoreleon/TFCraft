@@ -3,6 +3,10 @@ package com.bioxx.tfc.Handlers.Client;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.settings.KeyBinding;
 
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.InputEvent;
+
 import org.lwjgl.input.Keyboard;
 
 import com.bioxx.tfc.Reference;
@@ -15,15 +19,11 @@ import com.bioxx.tfc.Handlers.Network.KeyPressPacket;
 import com.bioxx.tfc.Items.Tools.ItemChisel;
 import com.bioxx.tfc.Items.Tools.ItemCustomHoe;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
-
 public class KeyBindingHandler
 {
 	//public static KeyBinding Key_Calendar = new KeyBinding("key.Calendar", Keyboard.KEY_N/*49*/, Reference.ModName);
-	public static KeyBinding Key_ToolMode = new KeyBinding("key.ToolMode", Keyboard.KEY_M/*50*/, Reference.ModName);
-	public static KeyBinding Key_LockTool = new KeyBinding("key.LockTool", Keyboard.KEY_L/*38*/, Reference.ModName);
+	public static KeyBinding keyToolMode = new KeyBinding("key.ToolMode", Keyboard.KEY_M/*50*/, Reference.MOD_NAME);
+	public static KeyBinding keyLockTool = new KeyBinding("key.LockTool", Keyboard.KEY_L/*38*/, Reference.MOD_NAME);
 
 	@SubscribeEvent
 	public void onKeyInput(InputEvent.KeyInputEvent event)
@@ -35,20 +35,22 @@ public class KeyBindingHandler
 				FMLClientHandler.instance().getClient().thePlayer.getCurrentEquippedItem() != null &&
 				FMLClientHandler.instance().getClient().currentScreen == null)
 		{
-			if(Key_ToolMode.isPressed())
+			if(keyToolMode.isPressed())
 			{
 				if(player.getCurrentEquippedItem().getItem() instanceof ItemChisel)
 				{
 					pi.switchChiselMode();
-					AbstractPacket pkt = new KeyPressPacket(0);
-					TerraFirmaCraft.packetPipeline.sendToServer(pkt);
+					//Let's send the actual ChiselMode so the server/client does not
+					//come out of sync.
+					AbstractPacket pkt = new KeyPressPacket(pi.chiselMode);
+					TerraFirmaCraft.PACKET_PIPELINE.sendToServer(pkt);
 				}
 				else if(player.getCurrentEquippedItem().getItem() instanceof ItemCustomHoe)
 				{
 					pi.switchHoeMode(player);
 				}
 			}
-			else if(Key_LockTool.isPressed())
+			else if (keyLockTool.isPressed() && pi != null)
 			{
 				if(pi.lockX == -9999999)
 				{

@@ -6,11 +6,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Items.ItemCustomNameTag;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Constant.Global;
-import com.bioxx.tfc.api.Entities.IAnimal.InteractionEnum;
 
 public class EntitySquidTFC extends EntitySquid
 {
@@ -46,10 +45,10 @@ public class EntitySquidTFC extends EntitySquid
 		ItemStack itemstack = player.getHeldItem();
 		if(itemstack != null && itemstack.getItem() instanceof ItemCustomNameTag && itemstack.hasTagCompound() && itemstack.stackTagCompound.hasKey("ItemName")){
 			String name = itemstack.stackTagCompound.getString("ItemName");
-			if(!this.hasCustomNameTag()){
-				this.setCustomNameTag(name);
-				itemstack.stackSize--;
-			}
+
+			this.setCustomNameTag(name);
+			itemstack.stackSize--;
+
 			return true;
 		}
 		return true;
@@ -64,7 +63,7 @@ public class EntitySquidTFC extends EntitySquid
 	{
 		int j = this.rand.nextInt(3 + par2) + 1;
 		for (int k = 0; k < j; ++k)
-			this.entityDropItem(new ItemStack(TFCItems.Dye, 1, 0), 0.0F);
+			this.entityDropItem(new ItemStack(TFCItems.dye, 1, 0), 0.0F);
 		//this.dropItem(TFCItems.CalamariRaw.itemID,((2+rand.nextInt(5))));
 		TFC_Core.animalDropMeat(this, TFCItems.calamariRaw, 0.5f+(1*this.rand.nextFloat()));
 	}

@@ -4,7 +4,7 @@ import com.bioxx.tfc.Reference;
 
 public class TFC_Sounds
 {
-	private static final String LOCATION = Reference.ModID + ":";
+	private static final String LOCATION = Reference.MOD_ID + ":";
 	
 	public static final String FALLININGROCKSHORT = LOCATION + "rock.slide.short";
 	public static final String FALLININGROCKLONG = LOCATION + "rock.slide.long";
@@ -14,6 +14,8 @@ public class TFC_Sounds
 	public static final String ROOSTERCROW = LOCATION + "mob.rooster.cry";
 	public static final String BELLOWS = LOCATION + "bellows.blow.air";
 	public static final String CERAMICBREAK = LOCATION + "item.ceramicbreak";
+	public static final String FIRESTARTER = LOCATION + "item.firestarter";
+	public static final String JUGBLOW = LOCATION + "item.jug.blow";
 	public static final String DEERSAY = LOCATION + "mob.deer.say";
 	public static final String DEERCRY = LOCATION + "mob.deer.cry";
 	public static final String DEERHURT = LOCATION + "mob.deer.hurt";

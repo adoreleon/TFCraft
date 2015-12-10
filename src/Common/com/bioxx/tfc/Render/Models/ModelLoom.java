@@ -1,53 +1,48 @@
 package com.bioxx.tfc.Render.Models;
 
-import org.lwjgl.opengl.GL11;
-
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Core.TFC_Time;
-import com.bioxx.tfc.TileEntities.TELoom;
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
+
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.TileEntities.TELoom;
 
 public class ModelLoom extends ModelBase {
 
-	ModelRenderer loomPole1;
-	ModelRenderer loomPole2;
-	ModelRenderer loomPoleBase;
+	private ModelRenderer loomPole1;
+	private ModelRenderer loomPole2;
+	//private ModelRenderer loomPoleBase;
 
-	TexturedQuad[] initialString;
-	TexturedQuad[] finalString;
+	private TexturedQuad[] initialString;
+	private TexturedQuad[] finalString;
 
-	TexturedQuad clothRender;
+	private TexturedQuad clothRender;
 
-	PositionTextureVertex vert0;
-	PositionTextureVertex vert1;
-	PositionTextureVertex vert2;
-	PositionTextureVertex vert3;
+	private PositionTextureVertex vert0;
+	private PositionTextureVertex vert1;
+	private PositionTextureVertex vert2;
+	private PositionTextureVertex vert3;
 
-	float[] stringLength = new float[16];
+	//private float[] stringLength = new float[16];
 
-	public int cloth = 0;
-	float pole1String_y = 14.5F;
-	float pole2String_y = 14.5F;
+	public int cloth;
+	private float pole1StringY = 14.5F;
+	private float pole2StringY = 14.5F;
 
-	int lastIncreaseTick_1;
-	int lastIncreaseTick_2;
+	/*private int lastIncreaseTick_1;
+	private int lastIncreaseTick_2;*/
 	
-	public int tempNum = 0;
-	public long tempTime = 0;
-	public boolean clothIncrease = false;
+	public int tempNum;
+	public long tempTime;
+	public boolean clothIncrease;
 	public int mod = 40;
-	public int lastClothIncrease = 0;
-	public boolean stillWeaving = false;
+	public int lastClothIncrease;
+	public boolean stillWeaving;
 
 	public ModelLoom(){
 		super();
@@ -92,36 +87,40 @@ public class ModelLoom extends ModelBase {
 		initialString = new TexturedQuad[numMaxStrings];
 		finalString = new TexturedQuad[numMaxStrings];
 
-		float string1_z,string2_z;
+		float string1Z,string2Z;
 
-		float stringStart_z = 11.9F;
+		float stringStartZ = 11.9F;
 
 		float stringWidth = 9.5F/numMaxStrings;
-		float stringStart_x = 3.25F;
+		float stringStartX = 3.25F;
 
-		float pole2_height = 2.15F;
-		float pole1_height = 5.35F;
+		float pole2Height = 2.15F;
+		float pole1Height = 5.35F;
 		
 		if(cloth == 0){
-			pole1String_y = 14.5F;
-			pole2String_y = 14.5F;
+			pole1StringY = 14.5F;
+			pole2StringY = 14.5F;
 		}
 		
 		if(shouldClothIncrease){
 			cloth++;
 		}
 
-		if(shouldClothIncrease && tick >= ((tickMod/4)-1) && tick < (((3*tickMod)/4)-1)){
-			pole1String_y = pole2String_y - stringWidth;
+		if (shouldClothIncrease && tick >= (tickMod / 4) - 1 && tick < ((3 * tickMod) / 4) - 1)
+		{
+			pole1StringY = pole2StringY - stringWidth;
 		}
-		else if(shouldClothIncrease && (tick >= (((3*tickMod)/4)-1) || tick < ((tickMod/4)-1))){
-			pole2String_y = pole1String_y - stringWidth;
+		else if (shouldClothIncrease && (tick >= ((3 * tickMod) / 4) - 1 || tick < (tickMod / 4) - 1))
+		{
+			pole2StringY = pole1StringY - stringWidth;
 		}
 		
-		if(tick >=(tickMod/2) &&(isWeaving || (stillWeaving && renderOffsetPole1 != 9) ) ){
+		if (tick >= tickMod / 2 && (isWeaving || stillWeaving && renderOffsetPole1 != 9))
+		{
 			renderOffsetPole1 = 7f + (float)(2f * Math.cos(((tick)/(float)(tickMod/4))* Math.PI));
 		}
-		else if(isWeaving || (stillWeaving && renderOffsetPole2 != 9)){
+		else if (isWeaving || stillWeaving && renderOffsetPole2 != 9)
+		{
 			renderOffsetPole2 = 7f + (float)(2f * Math.cos(((tick)/(float)(tickMod/4))* Math.PI));
 		}
 		
@@ -146,14 +145,14 @@ public class ModelLoom extends ModelBase {
 
 		TFC_Core.bindTexture(stringTex); //texture
 
-		string1_z = Math.min(renderOffsetPole1+4.25F,12F);
-		string2_z = Math.min(renderOffsetPole2+4.25F,12F);
+		string1Z = Math.min(renderOffsetPole1+4.25F,12F);
+		string2Z = Math.min(renderOffsetPole2+4.25F,12F);
 
-		float string1_i_length = (float)Math.sqrt(Math.pow(stringStart_z - string1_z, 2) + Math.pow(pole1String_y - pole1_height, 1));
-		float string2_i_length = (float)Math.sqrt(Math.pow(stringStart_z - string2_z, 2) + Math.pow(pole2String_y - pole2_height, 1));
+		float string1Length = (float)Math.sqrt(Math.pow(stringStartZ - string1Z, 2) + Math.pow(pole1StringY - pole1Height, 1));
+		float string2Length = (float)Math.sqrt(Math.pow(stringStartZ - string2Z, 2) + Math.pow(pole2StringY - pole2Height, 1));
 
-		float string1_f_length = (float)Math.sqrt(Math.pow(stringStart_z - string1_z, 2) + Math.pow(pole1_height, 1));
-		float string2_f_length = (float)Math.sqrt(Math.pow(stringStart_z - string2_z, 2) + Math.pow(pole2_height, 1));
+		float string1FinalLength = (float)Math.sqrt(Math.pow(stringStartZ - string1Z, 2) + Math.pow(pole1Height, 1));
+		float string2FinalLength = (float)Math.sqrt(Math.pow(stringStartZ - string2Z, 2) + Math.pow(pole2Height, 1));
 		
 		for(int i = 0; i < numStrings; i+=2){
 
@@ -161,126 +160,126 @@ public class ModelLoom extends ModelBase {
 
 			//initial
 			vert0 = new PositionTextureVertex(
-					stringStart_x + (i*stringWidth),
-					pole2String_y,
-					stringStart_z,
+					stringStartX + (i*stringWidth),
+					pole2StringY,
+					stringStartZ,
 					0,0);
 			vert1 = new PositionTextureVertex(
-					stringStart_x + stringWidth + (i*stringWidth),
-					pole2String_y,
-					stringStart_z,
+					stringStartX + stringWidth + (i*stringWidth),
+					pole2StringY,
+					stringStartZ,
 					0,8);
 			vert2 = new PositionTextureVertex(
-					stringStart_x +(i*stringWidth),
-					pole2_height,
-					string2_z,
+					stringStartX +(i*stringWidth),
+					pole2Height,
+					string2Z,
 					8,0);
 			vert3 = new PositionTextureVertex(
-					stringStart_x + stringWidth + (i*stringWidth),
-					pole2_height,
-					string2_z,
+					stringStartX + stringWidth + (i*stringWidth),
+					pole2Height,
+					string2Z,
 					8,8);
 
 			initialString[i] = new TexturedQuad(new PositionTextureVertex[] {vert2, vert3, vert1, vert0}, 
-					0, 0, 1, (int)string2_i_length, 16, 16);
+					0, 0, 1, (int)string2Length, 16, 16);
 
 			//final
 			vert0 = new PositionTextureVertex(
-					stringStart_x + (i*stringWidth),
-					pole2_height,
-					string2_z,
+					stringStartX + (i*stringWidth),
+					pole2Height,
+					string2Z,
 					0,0);
 			vert1 = new PositionTextureVertex(
-					stringStart_x + stringWidth + (i*stringWidth),
-					pole2_height,
-					string2_z,
+					stringStartX + stringWidth + (i*stringWidth),
+					pole2Height,
+					string2Z,
 					0,8);
 			vert2 = new PositionTextureVertex(
-					stringStart_x +(i*stringWidth),
+					stringStartX +(i*stringWidth),
 					0,
-					stringStart_z,
+					stringStartZ,
 					8,0);
 			vert3 = new PositionTextureVertex(
-					stringStart_x + stringWidth + (i*stringWidth),
+					stringStartX + stringWidth + (i*stringWidth),
 					0,
-					stringStart_z,
+					stringStartZ,
 					8,8);
 
 			finalString[i] = new TexturedQuad(new PositionTextureVertex[] {vert2, vert3, vert1, vert0}, 
-					0, 0, 1, (int)string2_f_length, 16, 16);
+					0, 0, 1, (int)string2FinalLength, 16, 16);
 
 
 
 			//pole1 strings
 			//initial
 			vert0 = new PositionTextureVertex(
-					stringStart_x + ((i+1)*stringWidth),
-					pole1String_y,
-					stringStart_z,
+					stringStartX + ((i+1)*stringWidth),
+					pole1StringY,
+					stringStartZ,
 					0,0);
 			vert1 = new PositionTextureVertex(
-					stringStart_x + stringWidth + ((i+1)*stringWidth),
-					pole1String_y,
-					stringStart_z,
+					stringStartX + stringWidth + ((i+1)*stringWidth),
+					pole1StringY,
+					stringStartZ,
 					0,8);
 			vert2 = new PositionTextureVertex(
-					stringStart_x + ((i+1)*stringWidth),
-					pole1_height,
-					string1_z,
+					stringStartX + ((i+1)*stringWidth),
+					pole1Height,
+					string1Z,
 					8,0);
 			vert3 = new PositionTextureVertex(
-					stringStart_x + stringWidth + ((i+1)*stringWidth),
-					pole1_height,
-					string1_z,
+					stringStartX + stringWidth + ((i+1)*stringWidth),
+					pole1Height,
+					string1Z,
 					8,8);
 			if(i+1 < numStrings){
 				initialString[i+1] = new TexturedQuad(new PositionTextureVertex[] {vert2, vert3, vert1, vert0}, 
-						0, 0, 1, (int)string1_i_length, 16, 16);
+						0, 0, 1, (int)string1Length, 16, 16);
 				//final
 				vert0 = new PositionTextureVertex(
-						stringStart_x + ((i+1)*stringWidth),
-						pole1_height,
-						string1_z,
+						stringStartX + ((i+1)*stringWidth),
+						pole1Height,
+						string1Z,
 						0,0);
 				vert1 = new PositionTextureVertex(
-						stringStart_x + stringWidth + ((i+1)*stringWidth),
-						pole1_height,
-						string1_z,
+						stringStartX + stringWidth + ((i+1)*stringWidth),
+						pole1Height,
+						string1Z,
 						0,8);
 				vert2 = new PositionTextureVertex(
-						stringStart_x + ((i+1)*stringWidth),
+						stringStartX + ((i+1)*stringWidth),
 						0,
-						stringStart_z,
+						stringStartZ,
 						8,0);
 				vert3 = new PositionTextureVertex(
-						stringStart_x + stringWidth + ((i+1)*stringWidth),
+						stringStartX + stringWidth + ((i+1)*stringWidth),
 						0,
-						stringStart_z,
+						stringStartZ,
 						8,8);
 
 				finalString[i+1] = new TexturedQuad(new PositionTextureVertex[] {vert2, vert3, vert1, vert0}, 
-						0, 0, 1, (int)string1_f_length, 16, 16);
+						0, 0, 1, (int)string1FinalLength, 16, 16);
 			}
 		}
 		vert0 = new PositionTextureVertex(
-				stringStart_x,
+				stringStartX,
 				14.5F,
-				stringStart_z,
+				stringStartZ,
 				0,0);
 		vert1 = new PositionTextureVertex(
-				stringStart_x + (numStrings*stringWidth),
+				stringStartX + (numStrings*stringWidth),
 				14.5F,
-				stringStart_z,
+				stringStartZ,
 				0,8);
 		vert2 = new PositionTextureVertex(
-				stringStart_x,
+				stringStartX,
 				14.5F - (cloth*stringWidth),
-				stringStart_z,
+				stringStartZ,
 				8,0);
 		vert3 = new PositionTextureVertex(
-				stringStart_x + (numStrings*stringWidth),
+				stringStartX + (numStrings*stringWidth),
 				14.5F - (cloth*stringWidth),
-				stringStart_z,
+				stringStartZ,
 				8,8);
 
 		clothRender = new TexturedQuad(new PositionTextureVertex[] {vert0, vert1, vert3, vert2}, 

@@ -13,19 +13,20 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Blocks.Terrain.BlockCollapsable;
+import com.bioxx.tfc.Blocks.Terrain.BlockCollapsible;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Food.ItemFoodMeat;
 import com.bioxx.tfc.TileEntities.TESmokeRack;
 import com.bioxx.tfc.api.Food;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 
 public class BlockSmokeRack extends BlockTerraContainer
 {
@@ -62,7 +63,7 @@ public class BlockSmokeRack extends BlockTerraContainer
 	@Override
 	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
 	{
-		return new ItemStack(TFCItems.WoolYarn);
+		return new ItemStack(TFCItems.woolYarn);
 	}
 
 	@Override
@@ -73,14 +74,14 @@ public class BlockSmokeRack extends BlockTerraContainer
 		{
 			int meta = world.getBlockMetadata(x, y, z);
 			TESmokeRack te = (TESmokeRack) world.getTileEntity(x, y, z);
-			ItemStack yarn = TFC_Core.getItemInInventory(TFCItems.WoolYarn, entityplayer.inventory);
+			ItemStack yarn = TFC_Core.getItemInInventory(TFCItems.woolYarn, entityplayer.inventory);
 			if((meta & 1) == 0 && hitZ < 0.5)
 			{
 				if(te.getStackInSlot(0) == null && yarn != null && isItemValid(entityplayer.inventory.getCurrentItem()))
 				{
 					te.setInventorySlotContents(0, entityplayer.inventory.getCurrentItem().copy());
 					entityplayer.inventory.getCurrentItem().stackSize--;
-					entityplayer.inventory.consumeInventoryItem(TFCItems.WoolYarn);
+					entityplayer.inventory.consumeInventoryItem(TFCItems.woolYarn);
 					flag = true;
 				}
 				else if(te.getStackInSlot(0) != null)
@@ -95,7 +96,7 @@ public class BlockSmokeRack extends BlockTerraContainer
 				{
 					te.setInventorySlotContents(1, entityplayer.inventory.getCurrentItem().copy());
 					entityplayer.inventory.getCurrentItem().stackSize--;
-					entityplayer.inventory.consumeInventoryItem(TFCItems.WoolYarn);
+					entityplayer.inventory.consumeInventoryItem(TFCItems.woolYarn);
 					flag = true;
 				}
 				else if(te.getStackInSlot(1) != null)
@@ -110,7 +111,7 @@ public class BlockSmokeRack extends BlockTerraContainer
 				{
 					te.setInventorySlotContents(0, entityplayer.inventory.getCurrentItem().copy());
 					entityplayer.inventory.getCurrentItem().stackSize--;
-					entityplayer.inventory.consumeInventoryItem(TFCItems.WoolYarn);
+					entityplayer.inventory.consumeInventoryItem(TFCItems.woolYarn);
 					flag = true;
 				}
 				else if(te.getStackInSlot(0) != null)
@@ -125,7 +126,7 @@ public class BlockSmokeRack extends BlockTerraContainer
 				{
 					te.setInventorySlotContents(1, entityplayer.inventory.getCurrentItem().copy());
 					entityplayer.inventory.getCurrentItem().stackSize--;
-					entityplayer.inventory.consumeInventoryItem(TFCItems.WoolYarn);
+					entityplayer.inventory.consumeInventoryItem(TFCItems.woolYarn);
 					return true;
 				}
 				else if(te.getStackInSlot(1) != null)
@@ -145,6 +146,11 @@ public class BlockSmokeRack extends BlockTerraContainer
 		if(is.getItem() instanceof ItemFoodMeat)
 		{
 			if(!Food.isCooked(is) && Food.isBrined(is))
+				return true;
+		}
+		else if(is.getItem() == TFCItems.cheese)
+		{
+			if(!Food.isCooked(is))
 				return true;
 		}
 
@@ -173,20 +179,20 @@ public class BlockSmokeRack extends BlockTerraContainer
 			{
 				if(!isValidNeighbor(world, x, y, z-1, ForgeDirection.NORTH) || !isValidNeighbor(world, x, y, z+1, ForgeDirection.SOUTH))
 				{
-					TFC_Core.DestroyBlock(world, x, y, z);
+					TFC_Core.destroyBlock(world, x, y, z);
 				}
 			}
 			else
 			{
 				if(!isValidNeighbor(world, x-1, y, z, ForgeDirection.WEST) || !isValidNeighbor(world, x+1, y, z, ForgeDirection.EAST))
 				{
-					TFC_Core.DestroyBlock(world, x, y, z);
+					TFC_Core.destroyBlock(world, x, y, z);
 				}
 			}
 
-			if(world.getBlock(x, y+1, z) instanceof BlockCollapsable)
+			if(world.getBlock(x, y+1, z) instanceof BlockCollapsible)
 			{
-				TFC_Core.DestroyBlock(world, x, y, z);
+				TFC_Core.destroyBlock(world, x, y, z);
 			}
 		}
 	}
@@ -194,9 +200,7 @@ public class BlockSmokeRack extends BlockTerraContainer
 	private boolean isValidNeighbor(World world, int x, int y, int z, ForgeDirection dir)
 	{
 		Block b = world.getBlock(x, y, z);
-		if((b == this || b.isSideSolid(world, x, y, z, dir.getOpposite())))
-			return true;
-		return false;
+		return b == this || b.isSideSolid(world, x, y, z, dir.getOpposite());
 	}
 
 	@Override
@@ -225,16 +229,16 @@ public class BlockSmokeRack extends BlockTerraContainer
 	}
 
 	@Override
-	public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_)
+	public Item getItemDropped(int i, Random rand, int j)
 	{
-		return TFCItems.WoolYarn;
+		return TFCItems.woolYarn;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister reg)
 	{
-		this.blockIcon = reg.registerIcon(Reference.ModID + ":String"); // This gets registered in BlockGrass
+		this.blockIcon = reg.registerIcon(Reference.MOD_ID + ":String"); // This gets registered in BlockGrass
 	}
 
 	@Override

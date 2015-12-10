@@ -1,12 +1,12 @@
 package com.bioxx.tfc.Entities;
 
-import com.bioxx.tfc.TFCBlocks;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityMinecartChest;
 import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
+
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class EntityCustomMinecart extends EntityMinecartChest
 {
@@ -24,7 +24,7 @@ public class EntityCustomMinecart extends EntityMinecartChest
 	public void killMinecart(DamageSource par1DamageSource)
 	{
 		super.killMinecart(par1DamageSource);
-		this.func_145778_a(Item.getItemFromBlock(TFCBlocks.Chest), 1, 0.0F);
+		this.func_145778_a(Item.getItemFromBlock(TFCBlocks.chest), 1, 0.0F);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class EntityCustomMinecart extends EntityMinecartChest
 	@Override
 	public Block func_145817_o()/*getDefaultDisplayTile*/
 	{
-		return TFCBlocks.Chest;
+		return TFCBlocks.chest;
 	}
 
 	@Override

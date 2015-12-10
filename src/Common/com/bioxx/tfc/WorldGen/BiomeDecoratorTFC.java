@@ -7,16 +7,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraft.world.biome.BiomeGenBase;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Food.CropIndex;
 import com.bioxx.tfc.Food.CropManager;
-import com.bioxx.tfc.WorldGen.Generators.WorldGenCustomCactus;
-import com.bioxx.tfc.WorldGen.Generators.WorldGenCustomPumpkin;
-import com.bioxx.tfc.WorldGen.Generators.WorldGenCustomReed;
-import com.bioxx.tfc.WorldGen.Generators.WorldGenCustomSand;
-import com.bioxx.tfc.WorldGen.Generators.WorldGenGrowCrops;
-import com.bioxx.tfc.WorldGen.Generators.WorldGenWaterPlants;
+import com.bioxx.tfc.WorldGen.Generators.*;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BiomeDecoratorTFC extends BiomeDecorator
 {
@@ -99,6 +95,7 @@ public class BiomeDecoratorTFC extends BiomeDecorator
 			xCoord = this.chunk_X + this.randomGenerator.nextInt(16) + 8;
 			zCoord = this.chunk_Z + this.randomGenerator.nextInt(16) + 8;
 			yCoord = this.currentWorld.getHeightValue(xCoord, zCoord);
+
 			generateLilyPads(this.currentWorld, this.randomGenerator, xCoord, yCoord, zCoord);
 		}
 
@@ -139,7 +136,7 @@ public class BiomeDecoratorTFC extends BiomeDecorator
 			zCoord = this.chunk_Z + this.randomGenerator.nextInt(16) + 8;
 			yCoord = this.currentWorld.getPrecipitationHeight(xCoord, zCoord)-1;
 			if (TFC_Climate.getBioTemperatureHeight(currentWorld, xCoord, yCoord, zCoord) >= 7)
-				new WorldGenWaterPlants(TFCBlocks.WaterPlant).generate(this.currentWorld, this.randomGenerator, xCoord, yCoord, zCoord);
+				new WorldGenWaterPlants(TFCBlocks.waterPlant).generate(this.currentWorld, this.randomGenerator, xCoord, yCoord, zCoord);
 		}
 	}
 
@@ -151,9 +148,10 @@ public class BiomeDecoratorTFC extends BiomeDecorator
 			int j1 = y + random.nextInt(4) - random.nextInt(4);
 			int k1 = z + random.nextInt(8) - random.nextInt(8);
 
-			if (world.isAirBlock(i1, j1, k1) && TFCBlocks.LilyPad.canPlaceBlockAt(world, i1, j1, k1))
+			if (world.isAirBlock(i1, j1, k1) && TFCBlocks.lilyPad.canPlaceBlockAt(world, i1, j1, k1) &&
+					TFC_Core.isFreshWater(world.getBlock(i1, j1 - 1, k1)) && !TFC_Core.isFreshWater(world.getBlock(i1, j1 - 2, k1))) // Only 1 deep water
 			{
-				world.setBlock(i1, j1, k1, TFCBlocks.LilyPad, 0, 2);
+				world.setBlock(i1, j1, k1, TFCBlocks.lilyPad, 0, 2);
 			}
 		}
 
@@ -167,11 +165,7 @@ public class BiomeDecoratorTFC extends BiomeDecorator
 	@Override
 	public void decorateChunk(World par1World, Random par2Random, BiomeGenBase bgb, int par3, int par4)
 	{
-		if (this.currentWorld != null)
-		{
-			// throw new RuntimeException("Already decorating!!");
-		}
-		else
+		if (this.currentWorld == null)
 		{
 			this.currentWorld = par1World;
 			this.randomGenerator = par2Random;

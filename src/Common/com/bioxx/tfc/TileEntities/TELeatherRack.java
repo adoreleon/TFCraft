@@ -3,7 +3,7 @@ package com.bioxx.tfc.TileEntities;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.api.TFCItems;
 
 public class TELeatherRack extends NetworkTileEntity
 {
@@ -19,11 +19,11 @@ public class TELeatherRack extends NetworkTileEntity
 
 	public void workArea(int coord)
 	{
-		workedArea |= (1 << coord);
+		workedArea |= 1 << coord;
 		if(workedArea == -1 && leatherItem != null)
 		{
 			int meta = leatherItem.getItemDamage();
-			leatherItem = new ItemStack(TFCItems.ScrapedHide, 1, meta);
+			leatherItem = new ItemStack(TFCItems.scrapedHide, 1, meta);
 		}
 	}
 

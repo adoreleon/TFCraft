@@ -14,7 +14,7 @@ public enum AnvilReq
     BLACKBRONZE("Black Bronze", 2),
     ROSEGOLD("Rose Gold", 2);
     
-    public static final AnvilReq rules[] = new AnvilReq[]{STONE, COPPER, BRONZE, WROUGHTIRON, STEEL, BLACKSTEEL, REDSTEEL, BLUESTEEL, BISMUTHBRONZE, BLACKBRONZE, ROSEGOLD};
+    public static final AnvilReq RULES[] = new AnvilReq[]{STONE, COPPER, BRONZE, WROUGHTIRON, STEEL, BLACKSTEEL, REDSTEEL, BLUESTEEL, BISMUTHBRONZE, BLACKBRONZE, ROSEGOLD};
     
     public final int Tier;
 
@@ -28,24 +28,15 @@ public enum AnvilReq
     
     public boolean matches(int tier)
     {
-        if(tier >= Tier)
-           return true;
-        
-        return false;
+		return tier >= Tier;
     }
-    public boolean matches(AnvilReq A)
+    public boolean matches(AnvilReq req)
     {
-        if(A.Tier >= Tier)
-           return true;
-        
-        return false;
+		return req.Tier >= Tier;
     }
     public static boolean matches(int i, int j)
     {
-        if(j >= i)
-           return true;
-        
-        return false;
+		return j >= i;
     }
     
     public static AnvilReq getReqFromInt(int i)

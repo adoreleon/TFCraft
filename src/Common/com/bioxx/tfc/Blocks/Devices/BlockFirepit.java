@@ -6,7 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,18 +18,20 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Blocks.BlockTerraContainer;
-import com.bioxx.tfc.Items.ItemLogs;
 import com.bioxx.tfc.TileEntities.TEFirepit;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 
 public class BlockFirepit extends BlockTerraContainer
 {
-	IIcon textureOn;
-	IIcon textureOff;
+	private IIcon textureOn;
+	private IIcon textureOff;
 
 	public BlockFirepit()
 	{
@@ -51,7 +53,7 @@ public class BlockFirepit extends BlockTerraContainer
 		{
 			return true;
 		}
-		else if(item == TFCItems.FireStarter || item == TFCItems.FlintSteel)
+		else if(item == TFCItems.fireStarter || item == TFCItems.flintSteel)
 		{
 			if((TEFirepit)world.getTileEntity(x, y, z) != null)
 			{
@@ -85,30 +87,9 @@ public class BlockFirepit extends BlockTerraContainer
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
-	{
-		if(entity instanceof EntityItem && ((EntityItem)entity).getEntityItem().getItem() instanceof ItemLogs)
-		{
-			if((TEFirepit)world.getTileEntity(x, y, z) != null)
-			{
-				ItemStack is = ((EntityItem)entity).getEntityItem();
-				TEFirepit te = (TEFirepit)world.getTileEntity(x, y, z);
-				if(te.fireItemStacks[0] == null)
-				{
-					if(is.stackSize == 1)
-					{
-						te.fireItemStacks[0] = is;
-						entity.setDead();
-					}
-				}
-			}
-		}
-	}
-
-	@Override
 	public int getRenderType()
 	{
-		return TFCBlocks.FirepitRenderId;
+		return TFCBlocks.firepitRenderId;
 	}
 
 	@Override
@@ -146,7 +127,7 @@ public class BlockFirepit extends BlockTerraContainer
 			float f = x + 0.5F;
 			float f1 = y + 0.1F + rand.nextFloat() * 6F / 16F;
 			float f2 = z + 0.5F;
-			float f3 = 0.52F;
+			//float f3 = 0.52F;
 			float f4 = rand.nextFloat() * 0.6F;
 			float f5 = rand.nextFloat() * -0.6F;
 			float f6 = rand.nextFloat() * -0.6F;
@@ -193,26 +174,26 @@ public class BlockFirepit extends BlockTerraContainer
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int x, int y, int z, int meta)
 	{
-		Eject(world, x, y, z);
+		eject(world, x, y, z);
 	}
 
 	@Override
 	public void onBlockDestroyedByExplosion(World world, int x, int y, int z, Explosion exp)
 	{
-		Eject(world, x, y, z);
+		eject(world, x, y, z);
 	}
 
 	@Override
 	public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int meta)
 	{
-		Eject(world, x, y, z);
+		eject(world, x, y, z);
 	}
 
 	//public void onBlockRemoval(World world, int x, int y, int z) {Eject(world, x, y, z);}
 
-	public void Eject(World world, int x, int y, int z)
+	public void eject(World world, int x, int y, int z)
 	{
-		if((TEFirepit)world.getTileEntity(x, y, z) != null)
+		if (world.getTileEntity(x, y, z) instanceof TEFirepit)
 		{
 			TEFirepit te = (TEFirepit)world.getTileEntity(x, y, z);
 			te.ejectContents();
@@ -235,8 +216,8 @@ public class BlockFirepit extends BlockTerraContainer
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		textureOn = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Firepit On");
-		textureOff = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Firepit Off");
+		textureOn = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Firepit On");
+		textureOff = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Firepit Off");
 	}
 
 	@Override
@@ -244,4 +225,28 @@ public class BlockFirepit extends BlockTerraContainer
 	{
 		return null;
 	}
+
+	/**
+	 * Displays a flat icon image for an ItemStack containing the block, instead of a render. Using primarily for WAILA HUD.
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public String getItemIconName()
+	{
+		return Reference.MOD_ID + ":" + "devices/firepit";
+	}
+	
+	/**
+     * Triggered whenever an entity collides with this block (enters into the block). Args: world, x, y, z, entity
+     */
+    @Override
+	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) 
+    {
+		// We'll be nice and do EntityLivingBase so it won't burn up dropped items.
+		if (world.getBlockMetadata(x, y, z) >= 1 && !entity.isImmuneToFire() && entity instanceof EntityLivingBase)
+		{
+			// Two ticks of fire damage will deal 100 HP of damage.
+			entity.setFire(2);
+		}
+    }
 }

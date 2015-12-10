@@ -2,11 +2,13 @@ package com.bioxx.tfc.Food;
 
 import java.util.List;
 
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 
 import com.bioxx.tfc.Core.Player.FoodStatsTFC;
+import com.bioxx.tfc.api.Food;
 
 public class ItemSandwich extends ItemMeal
 {
@@ -15,28 +17,21 @@ public class ItemSandwich extends ItemMeal
 	{
 		super();
 		this.hasSubtypes = true;
-		this.MetaNames = new String[]{"Sandwich Wheat","Sandwich Oat","Sandwich Barley","Sandwich Rye","Sandwich Corn","Sandwich Rice"};
-		this.MetaIcons = new IIcon[6];
+		this.metaNames = new String[]{"Sandwich Wheat","Sandwich Oat","Sandwich Barley","Sandwich Rye","Sandwich Corn","Sandwich Rice"};
+		this.metaIcons = new IIcon[6];
 		this.setFolder("food/");
 	}
 
 	@Override
-	protected void addFGInformation(ItemStack is, List arraylist)
+	protected void addFGInformation(ItemStack is, List<String> arraylist)
 	{
-		if (is.hasTagCompound())
+		int[] fg = Food.getFoodGroups(is);
+		for (int i = 0; i < fg.length; i++)
 		{
-			NBTTagCompound nbt = is.getTagCompound();
-			if(nbt.hasKey("FG"))
-			{
-				int[] fg = nbt.getIntArray("FG");
-				for(int i = 0; i < fg.length; i++)
-				{
-					if(i == 5 && fg[5] == fg[0])
-						return;
-					if(fg[i] != -1)
-						arraylist.add(localize(fg[i]));
-				}
-			}
+			if (i == 5 && fg[5] == fg[0])
+				return;
+			if (fg[i] != -1)
+				arraylist.add(localize(fg[i]));
 		}
 	}
 
@@ -75,5 +70,20 @@ public class ItemSandwich extends ItemMeal
 	@Override
 	public boolean renderWeight() {
 		return false;
+	}
+
+	@Override
+	public void getSubItems(Item item, CreativeTabs tabs, List list)
+	{
+		list.add(createTag(new ItemStack(this, 1)));
+	}
+
+	//Creates empty food to prevent NBT errors when food is loaded in NEI
+	public static ItemStack createTag(ItemStack is)
+	{
+		ItemMeal.createTag(is);
+		int[] foodGroups = new int[] { -1, -1, -1, -1 };
+		Food.setFoodGroups(is, foodGroups);
+		return is;
 	}
 }

@@ -12,9 +12,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Items.ItemTFCArmor;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class EntityStand extends EntityLiving
 {
@@ -22,7 +22,7 @@ public class EntityStand extends EntityLiving
 	private static int defaultEquipableLength = TFC_Core.getExtraEquipInventorySize();
 	private ItemStack[] armor;
 	private ItemStack[] equipable;
-	private float rotation = 0F;
+	private float rotation;
 	public int woodType;
 
 	public EntityStand(World par1World)
@@ -74,13 +74,18 @@ public class EntityStand extends EntityLiving
 		for(int i = 0; i < defaultEquipableLength;i++){
 			this.dataWatcher.addObjectByDataType(start+i+defaultArmorLength,5);
 		}
-		this.dataWatcher.addObject(start + this.defaultEquipableLength + this.defaultArmorLength, new Float(1));
-		this.dataWatcher.addObject(start + this.defaultEquipableLength + this.defaultArmorLength + 1, new Integer(0));
+		this.dataWatcher.addObject(start + EntityStand.defaultEquipableLength + EntityStand.defaultArmorLength, new Float(1));
+		this.dataWatcher.addObject(start + EntityStand.defaultEquipableLength + EntityStand.defaultArmorLength + 1, Integer.valueOf(0));
 	}
 
 	@Override
 	public boolean canBePushed(){
 		return true;
+	}
+	
+	@Override
+	public boolean canDespawn(){
+		return false;
 	}
 
 	@Override
@@ -102,8 +107,8 @@ public class EntityStand extends EntityLiving
 				for(int i = 0; i < defaultEquipableLength;i++){
 					equipable[i] = this.dataWatcher.getWatchableObjectItemStack(start+i+defaultArmorLength);
 				}
-				rotation = this.dataWatcher.getWatchableObjectFloat(start + this.defaultEquipableLength + this.defaultArmorLength);
-				woodType = this.dataWatcher.getWatchableObjectInt(start + this.defaultEquipableLength + this.defaultArmorLength + 1);
+				rotation = this.dataWatcher.getWatchableObjectFloat(start + EntityStand.defaultEquipableLength + EntityStand.defaultArmorLength);
+				woodType = this.dataWatcher.getWatchableObjectInt(start + EntityStand.defaultEquipableLength + EntityStand.defaultArmorLength + 1);
 			}
 			else
 			{
@@ -116,8 +121,8 @@ public class EntityStand extends EntityLiving
 					this.dataWatcher.updateObject(start+i+defaultArmorLength, equipable[i]);
 				}
 
-				this.dataWatcher.updateObject(start + this.defaultEquipableLength + this.defaultArmorLength, rotation);
-				this.dataWatcher.updateObject(start + this.defaultEquipableLength + this.defaultArmorLength + 1, woodType);
+				this.dataWatcher.updateObject(start + EntityStand.defaultEquipableLength + EntityStand.defaultArmorLength, rotation);
+				this.dataWatcher.updateObject(start + EntityStand.defaultEquipableLength + EntityStand.defaultArmorLength + 1, woodType);
 			}
 		}
 	}
@@ -129,17 +134,17 @@ public class EntityStand extends EntityLiving
 			this.setDead();
 		}
 
-		double t_x, t_z; 	//temp x,y,z
-		t_x = this.posX;
+		double tempX, tempZ; 	//temp x,y,z
+		tempX = this.posX;
 		//t_y = this.posY;
-		t_z = this.posZ;
+		tempZ = this.posZ;
 		super.onUpdate();
 		if(this.worldObj.isRemote)
 			setSize(0.125f,2f);
 		else
 			setSize(0.1F,2);
 
-		this.setLocationAndAngles(t_x, this.posY, t_z, this.rotation, 0F);
+		this.setLocationAndAngles(tempX, this.posY, tempZ, this.rotation, 0F);
 		//this.setPositionAndRotation(t_x, this.posY, t_z, this.rotation, 0F);
 		this.setRotation(rotation, 0);
 		this.renderYawOffset = rotation;
@@ -162,46 +167,48 @@ public class EntityStand extends EntityLiving
 		if(!worldObj.isRemote){
 			for(int i = 0; i < armor.length; i++){
 				if(armor[i]!=null){
-					this.entityDropItem(armor[i], 0);
+					ItemStack is = new ItemStack(armor[i].getItem(), 1, armor[i].getItemDamage());
+					this.entityDropItem(is, 0);
 				}
 			}
 			for(int i = 0; i < equipable.length; i++){
 				if(equipable[i]!=null){
-					this.entityDropItem(equipable[i], 0);
+					ItemStack is = new ItemStack(equipable[i].getItem(), 1, equipable[i].getItemDamage());
+					this.entityDropItem(is, 0);
 				}
 			}
-			Block blockToDrop = woodType < 16? TFCBlocks.ArmourStand : TFCBlocks.ArmourStand2;
+			Block blockToDrop = woodType < 16? TFCBlocks.armorStand : TFCBlocks.armorStand2;
 			this.entityDropItem(new ItemStack(blockToDrop,1,woodType%16), 0);
 		}
 	}
 
 	/**
-	 * Imported from EntityLivingBNase because this does not exist on the server apparently
+	 * Imported from EntityLivingBase because this does not exist on the server apparently
 	 */
-	private Vec3 getPlayerLook(EntityLivingBase entity, float p_70676_1_)
+	private Vec3 getPlayerLook(EntityLivingBase entity, float mult)
 	{
 		float f1;
 		float f2;
 		float f3;
 		float f4;
 
-		if (p_70676_1_ == 1.0F)
+		if (mult == 1.0F)
 		{
 			f1 = MathHelper.cos(-entity.rotationYaw * 0.017453292F - (float)Math.PI);
 			f2 = MathHelper.sin(-entity.rotationYaw * 0.017453292F - (float)Math.PI);
 			f3 = -MathHelper.cos(-entity.rotationPitch * 0.017453292F);
 			f4 = MathHelper.sin(-entity.rotationPitch * 0.017453292F);
-			return Vec3.createVectorHelper((double)(f2 * f3), (double)f4, (double)(f1 * f3));
+			return Vec3.createVectorHelper(f2 * f3, f4, f1 * f3);
 		}
 		else
 		{
-			f1 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * p_70676_1_;
-			f2 = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * p_70676_1_;
+			f1 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * mult;
+			f2 = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * mult;
 			f3 = MathHelper.cos(-f2 * 0.017453292F - (float)Math.PI);
 			f4 = MathHelper.sin(-f2 * 0.017453292F - (float)Math.PI);
 			float f5 = -MathHelper.cos(-f1 * 0.017453292F);
 			float f6 = MathHelper.sin(-f1 * 0.017453292F);
-			return Vec3.createVectorHelper((double)(f4 * f5), (double)f6, (double)(f3 * f5));
+			return Vec3.createVectorHelper(f4 * f5, f6, f3 * f5);
 		}
 	}
 
@@ -225,8 +232,8 @@ public class EntityStand extends EntityLiving
 				double angleTan = hitVec.yCoord / Math.sqrt(hitVec.xCoord * hitVec.xCoord + hitVec.zCoord * hitVec.zCoord);
 
 				double xzDist = Math.sqrt(Math.pow(ep.posX - this.posX,2) + Math.pow(ep.posZ - this.posZ, 2));
-				double y_level = (angleTan * xzDist) + ep.eyeHeight + ep.posY;
-				double y = y_level - this.posY;
+				double yLevel = angleTan * xzDist + ep.eyeHeight + ep.posY;
+				double y = yLevel - this.posY;
 
 				int slot = -1;
 				if(y >= 0 && y < 0.3){
@@ -278,7 +285,7 @@ public class EntityStand extends EntityLiving
 		{
 			nbttaglist = nbttagcompound.getTagList("Armor",10);
 
-			for (i = 0; i < this.defaultArmorLength; ++i)
+			for (i = 0; i < EntityStand.defaultArmorLength; ++i)
 			{
 				this.armor[i] = ItemStack.loadItemStackFromNBT(nbttaglist.getCompoundTagAt(i));
 			}
@@ -313,7 +320,7 @@ public class EntityStand extends EntityLiving
 		NBTTagList nbttaglist = new NBTTagList();
 		NBTTagCompound nbttagcompound1;
 
-		for (int i = 0; i < this.defaultArmorLength; ++i)
+		for (int i = 0; i < EntityStand.defaultArmorLength; ++i)
 		{
 			nbttagcompound1 = new NBTTagCompound();
 

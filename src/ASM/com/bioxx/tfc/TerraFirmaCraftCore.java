@@ -5,10 +5,6 @@ package com.bioxx.tfc;
 
 import java.util.Arrays;
 
-import com.bioxx.tfc.CommonProxy;
-import com.bioxx.tfc.Reference;
-import com.google.common.eventbus.EventBus;
-
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.LoadController;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -21,7 +17,9 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 
-@MCVersion(value = "1.7.2")
+import com.google.common.eventbus.EventBus;
+
+@MCVersion(value = "1.7.10")
 public class TerraFirmaCraftCore extends DummyModContainer
 {
 	@Instance("tfc_coremod")
@@ -30,14 +28,14 @@ public class TerraFirmaCraftCore extends DummyModContainer
 	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS)
 	public static CommonProxy proxy;
 
-	
+
 	public TerraFirmaCraftCore()
 	{
 		super(new ModMetadata());
 		ModMetadata meta = getMetadata();
 		meta.modId = "tfc_coremod";
 		meta.name = "TFC[coremod]";
-		meta.version = Reference.ModVersion;
+		meta.version = Reference.MOD_VERSION;
 		meta.credits = "";
 		meta.authorList = Arrays.asList("Bioxx", "Dunkleosteus");
 		meta.description = "";

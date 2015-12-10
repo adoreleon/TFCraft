@@ -7,13 +7,14 @@ import net.minecraft.block.BlockStairs;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCustomStairs extends BlockStairs
 {
 	/** The block that is used as model for the stair. */
-	private Block modelBlock;
+	//private Block modelBlock;
 
 	public BlockCustomStairs(Block par2Block, int meta)
 	{

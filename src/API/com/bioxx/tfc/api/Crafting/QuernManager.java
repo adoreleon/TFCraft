@@ -7,19 +7,19 @@ import net.minecraft.item.ItemStack;
 
 public class QuernManager
 {
-	private static final QuernManager instance = new QuernManager();
+	private static final QuernManager INSTANCE = new QuernManager();
 	public static final QuernManager getInstance()
 	{
-		return instance;
+		return INSTANCE;
 	}
 
-	private List recipes;
-	private List validItems;
+	private List<QuernRecipe> recipes;
+	private List<ItemStack> validItems;
 
 	private QuernManager()
 	{
-		recipes = new ArrayList();
-		validItems = new ArrayList();
+		recipes = new ArrayList<QuernRecipe>();
+		validItems = new ArrayList<ItemStack>();
 	}
 
 	public void addRecipe(QuernRecipe recipe)
@@ -49,4 +49,14 @@ public class QuernManager
 		}
 		return null;
 	}
+
+	public List<QuernRecipe> getRecipes()
+    {
+        return recipes;
+    }
+
+	public List<ItemStack> getValidItems()
+    {
+        return validItems;
+    }
 }

@@ -13,12 +13,12 @@ import com.bioxx.tfc.Core.TFC_Core;
 
 public class GuiInventoryButton extends GuiButton 
 {
-	private static ResourceLocation texture = new ResourceLocation(Reference.ModID+":textures/gui/inventory.png");
+	private static ResourceLocation texture = new ResourceLocation(Reference.MOD_ID+":textures/gui/inventory.png");
 	public IIcon icon;
-	public int bX = 0;
-	public int bY = 0;
-	public int bW = 0;
-	public int bH = 0;
+	public int bX;
+	public int bY;
+	public int bW;
+	public int bH;
 
 	public GuiInventoryButton(int index, int xPos, int yPos, int width, int height, 
 			int buttonX, int buttonY, int buttonW, int buttonH, String s, IIcon ico)
@@ -59,14 +59,14 @@ public class GuiInventoryButton extends GuiButton
 		}
 	}
 
-	private boolean isPointInRegion(int mouseX, int mouseY)
+	/*private boolean isPointInRegion(int mouseX, int mouseY)
 	{
 		int k1 = 0;//screen.getGuiLeft();
 		int l1 = 0;//screen.getGuiTop();
 		mouseX -= k1;
 		mouseY -= l1;
 		return mouseX >= xPosition - 1 && mouseX < xPosition + width + 1 && mouseY >= yPosition - 1 && mouseY < yPosition + height + 1;
-	}
+	}*/
 
 	/*public void drawTooltip(int mx, int my, String text) {
 		List list = new ArrayList();

@@ -1,9 +1,5 @@
 package com.bioxx.tfc.Containers;
 
-import com.bioxx.tfc.Containers.Slots.SlotSluice;
-import com.bioxx.tfc.Core.Player.PlayerInventory;
-import com.bioxx.tfc.TileEntities.TESluice;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ICrafting;
@@ -11,26 +7,30 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
+import com.bioxx.tfc.Containers.Slots.SlotSluice;
+import com.bioxx.tfc.Core.Player.PlayerInventory;
+import com.bioxx.tfc.TileEntities.TESluice;
+
 public class ContainerSluice extends ContainerTFC
 {
 	private TESluice sluice;
 	private EntityPlayer player;
-	private int soilamt = 0;
-	private int progress = 0;
+	private int soilamt;
+	private int progress;
 
 	public ContainerSluice(InventoryPlayer inventoryplayer, TESluice tileentitysluice, World world, int x, int y, int z)
 	{
 		sluice = tileentitysluice;
 		player = inventoryplayer.player;
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 0, 116, 16));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 1, 134, 16));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 2, 152, 16));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 3, 116, 34));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 4, 134, 34));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 5, 152, 34));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 6, 116, 52));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 7, 134, 52));
-		addSlotToContainer(new SlotSluice(inventoryplayer.player, tileentitysluice, 8, 152, 52));
+		addSlotToContainer(new SlotSluice(player, sluice, 0, 116, 16));
+		addSlotToContainer(new SlotSluice(player, sluice, 1, 134, 16));
+		addSlotToContainer(new SlotSluice(player, sluice, 2, 152, 16));
+		addSlotToContainer(new SlotSluice(player, sluice, 3, 116, 34));
+		addSlotToContainer(new SlotSluice(player, sluice, 4, 134, 34));
+		addSlotToContainer(new SlotSluice(player, sluice, 5, 152, 34));
+		addSlotToContainer(new SlotSluice(player, sluice, 6, 116, 52));
+		addSlotToContainer(new SlotSluice(player, sluice, 7, 134, 52));
+		addSlotToContainer(new SlotSluice(player, sluice, 8, 152, 52));
 		PlayerInventory.buildInventoryLayout(this, inventoryplayer, 8, 90, false, true);
 	}
 
@@ -41,25 +41,35 @@ public class ContainerSluice extends ContainerTFC
 	}
 
 	@Override
-	public ItemStack transferStackInSlotTFC(EntityPlayer player, int i)
+	public ItemStack transferStackInSlotTFC(EntityPlayer player, int slotNum)
 	{
-		Slot slot = (Slot)inventorySlots.get(i);
-		Slot slotpaper = (Slot)inventorySlots.get(1);
+		ItemStack origStack = null;
+		Slot slot = (Slot) inventorySlots.get(slotNum);
+
 		if(slot != null && slot.getHasStack())
 		{
-			ItemStack itemstack1 = slot.getStack();
-			if(i <= 8)
+			ItemStack slotStack = slot.getStack();
+			origStack = slotStack.copy();
+
+			// Slots are output only, so there's no need to do input logic.
+			if (slotNum < 9)
 			{
-				if(!this.mergeItemStack(itemstack1, 9, this.inventorySlots.size(), true))
+				if (!this.mergeItemStack(slotStack, 9, this.inventorySlots.size(), true))
 					return null;
 			}
 
-			if(itemstack1.stackSize == 0)
+			if (slotStack.stackSize <= 0)
 				slot.putStack(null);
 			else
 				slot.onSlotChanged();
+
+			if (slotStack.stackSize == origStack.stackSize)
+				return null;
+
+			slot.onPickupFromSlot(player, slotStack);
 		}
-		return null;
+
+		return origStack;
 	}
 
 	@Override

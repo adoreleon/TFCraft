@@ -12,23 +12,23 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.TileEntities.TEVessel;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.TileEntities.TEVessel;
+import com.bioxx.tfc.api.TFCBlocks;
+
 public class BlockLargeVessel extends BlockBarrel
 {
-	IIcon[] clayIcons;
-	IIcon[] ceramicIcons;
+	private IIcon[] clayIcons;
+	private IIcon[] ceramicIcons;
 	public BlockLargeVessel()
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCDevices);
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
 		this.setBlockBounds(0.2f, 0, 0.2f, 0.8f, 0.7f, 0.8f);
 
 	}
@@ -46,12 +46,12 @@ public class BlockLargeVessel extends BlockBarrel
 	{
 		ceramicIcons = new IIcon[3];
 		clayIcons = new IIcon[3];
-		ceramicIcons[0] = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Ceramic Vessel Top");
-		ceramicIcons[1] = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Ceramic Vessel Side");
-		ceramicIcons[2] = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Ceramic Vessel Bottom");
-		clayIcons[0] = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Clay Vessel Top");
-		clayIcons[1] = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Clay Vessel Side");
-		clayIcons[2] = iconRegisterer.registerIcon(Reference.ModID + ":" + "clay/Clay Vessel Bottom");
+		ceramicIcons[0] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Ceramic Vessel Top");
+		ceramicIcons[1] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Ceramic Vessel Side");
+		ceramicIcons[2] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Ceramic Vessel Bottom");
+		clayIcons[0] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Clay Vessel Top");
+		clayIcons[1] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Clay Vessel Side");
+		clayIcons[2] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "clay/Clay Vessel Bottom");
 	}
 
 	@Override

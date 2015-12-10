@@ -10,17 +10,16 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Items.Tools.ItemTerraTool;
 import com.bioxx.tfc.api.Armor;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
@@ -29,34 +28,31 @@ import com.bioxx.tfc.api.Enums.EnumWeight;
 import com.bioxx.tfc.api.Interfaces.IClothing;
 import com.bioxx.tfc.api.Interfaces.ISize;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class ItemTFCArmor extends ItemArmor implements ISize, IClothing
 {
-	private static final String[] leatherNames = new String[] {"leather_helmet_overlay", "leather_chestplate_overlay", "leather_leggings_overlay", "leather_boots_overlay"};
-	public Armor ArmorType;
+	private static final String[] LEATHER_NAMES = new String[] {"leather_helmet_overlay", "leather_chestplate_overlay", "leather_leggings_overlay", "leather_boots_overlay"};
+	public Armor armorTypeTFC;
 	public IIcon overlayIcon;
-	private int thermal = 0;
-	private int type = 0;
-	private int trueType = 0;
+	private int thermal;
+	//private int type;
+	private int trueType;
 
 	public ItemTFCArmor(Armor armor, int renderIndex, int armorSlot, int thermal, int type)
 	{
 		super(ArmorMaterial.IRON, renderIndex, armorSlot%4);
-		ArmorType = armor;
+		armorTypeTFC = armor;
 		this.trueType = armorSlot;
-		this.setCreativeTab(TFCTabs.TFCArmor);
-		this.setMaxDamage(ArmorType.getDurability(armorSlot));
+		this.setCreativeTab(TFCTabs.TFC_ARMOR);
+		this.setMaxDamage(armorTypeTFC.getDurability(armorSlot));
 	}
 
 	public ItemTFCArmor(Armor armor, int renderIndex, int armorSlot, ArmorMaterial m, int thermal, int type)
 	{
 		super(m, renderIndex, armorSlot%4);
-		ArmorType = armor;
+		armorTypeTFC = armor;
 		this.trueType = armorSlot;
-		this.setCreativeTab(TFCTabs.TFCArmor);
-		this.setMaxDamage(ArmorType.getDurability(armorSlot));
+		this.setCreativeTab(TFCTabs.TFC_ARMOR);
+		this.setMaxDamage(armorTypeTFC.getDurability(armorSlot));
 	}
 
 	@Override
@@ -85,10 +81,10 @@ public class ItemTFCArmor extends ItemArmor implements ISize, IClothing
 		if (this.getArmorMaterial() == ArmorMaterial.CLOTH)
 		{
 			this.itemIcon = registerer.registerIcon("minecraft:" + getIconString());
-			overlayIcon = registerer.registerIcon("minecraft:" + leatherNames[this.armorType]);
+			overlayIcon = registerer.registerIcon("minecraft:" + LEATHER_NAMES[this.armorType]);
 		}
 		else
-			this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + "armor/"+this.getUnlocalizedName().replace("item.", ""));
+			this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + "armor/"+this.getUnlocalizedName().replace("item.", ""));
 	}
 
 	@Override
@@ -126,27 +122,26 @@ public class ItemTFCArmor extends ItemArmor implements ISize, IClothing
 	{
 		ItemTerra.addSizeInformation(is, arraylist);
 		ItemTerra.addHeatInformation(is, arraylist);
+		ItemTerraTool.addSmithingBonusInformation(is, arraylist);
 
 		if (TFC_Core.showShiftInformation()) 
 		{
-			arraylist.add(EnumChatFormatting.WHITE + StatCollector.translateToLocal("gui.Armor.Advanced") + ":");
-			arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.Pierce") + ": " + EnumChatFormatting.AQUA + ArmorType.getPiercingAR());
-			arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.Slash") + ": " + EnumChatFormatting.AQUA + ArmorType.getSlashingAR());
-			arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.Crush") + ": " + EnumChatFormatting.AQUA + ArmorType.getCrushingAR());
+			arraylist.add(EnumChatFormatting.WHITE + TFC_Core.translate("gui.Advanced") + ":");
+			arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.Pierce") + ": " + EnumChatFormatting.AQUA + armorTypeTFC.getPiercingAR());
+			arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.Slash") + ": " + EnumChatFormatting.AQUA + armorTypeTFC.getSlashingAR());
+			arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.Crush") + ": " + EnumChatFormatting.AQUA + armorTypeTFC.getCrushingAR());
 			arraylist.add("");
 			if (is.hasTagCompound())
 			{
 				NBTTagCompound stackTagCompound = is.getTagCompound();
 
 				if(stackTagCompound.hasKey("creator"))
-					arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.ForgedBy") + " " + stackTagCompound.getString("creator"));
+					arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.ForgedBy") + " " + stackTagCompound.getString("creator"));
 			}
 		}
 		else
-			arraylist.add(EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("gui.Armor.Advanced") + ": (" + StatCollector.translateToLocal("gui.Armor.Hold") + " " + 
-					EnumChatFormatting.GRAY + StatCollector.translateToLocal("gui.Armor.Shift") + 
+			arraylist.add(EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.Advanced") + ": (" + TFC_Core.translate("gui.Hold") + " " + EnumChatFormatting.GRAY + TFC_Core.translate("gui.Shift") +
 					EnumChatFormatting.DARK_GRAY + ")");
-
 	}
 
 	/**
@@ -158,9 +153,9 @@ public class ItemTFCArmor extends ItemArmor implements ISize, IClothing
 		float f = 1.0F;
 		float f1 = par2EntityPlayer.prevRotationPitch + (par2EntityPlayer.rotationPitch - par2EntityPlayer.prevRotationPitch) * f;
 		float f2 = par2EntityPlayer.prevRotationYaw + (par2EntityPlayer.rotationYaw - par2EntityPlayer.prevRotationYaw) * f;
-		double d0 = par2EntityPlayer.prevPosX + (par2EntityPlayer.posX - par2EntityPlayer.prevPosX) * (double)f;
-		double d1 = par2EntityPlayer.prevPosY + (par2EntityPlayer.posY - par2EntityPlayer.prevPosY) * (double)f + (double)(par1World.isRemote ? par2EntityPlayer.getEyeHeight() - par2EntityPlayer.getDefaultEyeHeight() : par2EntityPlayer.getEyeHeight()); // isRemote check to revert changes to ray trace position due to adding the eye height clientside and player yOffset differences
-		double d2 = par2EntityPlayer.prevPosZ + (par2EntityPlayer.posZ - par2EntityPlayer.prevPosZ) * (double)f;
+		double d0 = par2EntityPlayer.prevPosX + (par2EntityPlayer.posX - par2EntityPlayer.prevPosX) * f;
+		double d1 = par2EntityPlayer.prevPosY + (par2EntityPlayer.posY - par2EntityPlayer.prevPosY) * f + (par1World.isRemote ? par2EntityPlayer.getEyeHeight() - par2EntityPlayer.getDefaultEyeHeight() : par2EntityPlayer.getEyeHeight()); // isRemote check to revert changes to ray trace position due to adding the eye height clientside and player yOffset differences
+		double d2 = par2EntityPlayer.prevPosZ + (par2EntityPlayer.posZ - par2EntityPlayer.prevPosZ) * f;
 		Vec3 vec3 = Vec3.createVectorHelper(d0, d1, d2);
 		float f3 = MathHelper.cos(-f2 * 0.017453292F - (float)Math.PI);
 		float f4 = MathHelper.sin(-f2 * 0.017453292F - (float)Math.PI);
@@ -174,7 +169,7 @@ public class ItemTFCArmor extends ItemArmor implements ISize, IClothing
 			d3 = ((EntityPlayerMP)par2EntityPlayer).theItemInWorldManager.getBlockReachDistance();
 		}
 		d3 *= getReach(null).multiplier;
-		Vec3 vec31 = vec3.addVector((double)f7 * d3, (double)f6 * d3, (double)f8 * d3);
+		Vec3 vec31 = vec3.addVector(f7 * d3, f6 * d3, f8 * d3);
 		return par1World.rayTraceBlocks(vec3, vec31, par3);
 	}
 
@@ -195,8 +190,8 @@ public class ItemTFCArmor extends ItemArmor implements ISize, IClothing
 	@Override
 	public String getArmorTexture(ItemStack stack, Entity entity, int slot, String type)
 	{
-		String m = ArmorType.metaltype.replace(" ", "").toLowerCase();
-		return Reference.ModID + String.format(":textures/models/armor/%s_%d%s.png",
+		String m = armorTypeTFC.metaltype.replace(" ", "").toLowerCase();
+		return Reference.MOD_ID + String.format(":textures/models/armor/%s_%d%s.png",
 				m, (slot == 2 ? 2 : 1), type == null ? "" : String.format("_%s", type));
 	}
 

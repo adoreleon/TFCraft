@@ -19,9 +19,10 @@ public class ServerOverrides
 		return false;
 	}
 
+	@SuppressWarnings("null")
 	public static int isValidSurface(Block b)
 	{
-		if(TFC_Core.isFence(b) || (b != null && b.getRenderType() == 11))
+		if (TFC_Core.isFence(b) || b != null && b.getRenderType() == 11)
 			return 11;
 		return b.getRenderType();
 	}

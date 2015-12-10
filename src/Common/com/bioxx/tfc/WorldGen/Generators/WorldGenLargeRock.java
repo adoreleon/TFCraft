@@ -6,11 +6,11 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
+import cpw.mods.fml.common.IWorldGenerator;
+
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.DataLayer;
-
-import cpw.mods.fml.common.IWorldGenerator;
 
 public class WorldGenLargeRock implements IWorldGenerator
 {
@@ -18,7 +18,7 @@ public class WorldGenLargeRock implements IWorldGenerator
 	private int xWidth2;
 	private int zWidth;
 	private int zWidth2;
-	private int height = 3;
+	private static final int HEIGHT = 3;
 
 	public WorldGenLargeRock()
 	{
@@ -64,7 +64,7 @@ public class WorldGenLargeRock implements IWorldGenerator
 		{
 			for (int zCoord = k - zWidth; zCoord <= k + zWidth2; ++zCoord)
 			{
-				for (int yCoord = j + yOffset - height; yCoord <= j + yOffset + height; ++yCoord)
+				for (int yCoord = j + yOffset - HEIGHT; yCoord <= j + yOffset + HEIGHT; ++yCoord)
 				{
 					Vec3 point = Vec3.createVectorHelper(xCoord, yCoord, zCoord);
 					double distance = center.squareDistanceTo(point);

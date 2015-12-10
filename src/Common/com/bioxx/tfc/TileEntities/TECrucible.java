@@ -1,9 +1,6 @@
 package com.bioxx.tfc.TileEntities;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -12,31 +9,25 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.Core.Metal.Alloy;
-import com.bioxx.tfc.Core.Metal.AlloyManager;
-import com.bioxx.tfc.Core.Metal.AlloyMetal;
-import com.bioxx.tfc.Core.Metal.MetalPair;
-import com.bioxx.tfc.Core.Metal.MetalRegistry;
+import com.bioxx.tfc.Core.Metal.*;
 import com.bioxx.tfc.Items.ItemMeltedMetal;
-import com.bioxx.tfc.api.Metal;
-import com.bioxx.tfc.api.TFC_ItemHeat;
+import com.bioxx.tfc.api.*;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Interfaces.ISmeltable;
 
 public class TECrucible extends NetworkTileEntity implements IInventory
 {
-	public HashMap metals = new HashMap();
+	public Map<String, MetalPair> metals = new HashMap<String, MetalPair>();
 	public Alloy currentAlloy;
-	public int temperature = 0;
+	public int temperature;
 	public ItemStack[] storage;
-	public byte inputTick = 0;
-	public byte outputTick = 0;
-	public byte tempTick = 0;
-	private int cookDelay = 0;
+	public byte inputTick;
+	public byte outputTick;
+	public byte tempTick;
+	private int cookDelay;
+	public static final int MAX_UNITS = 3000;
 
 	public TECrucible()
 	{
@@ -52,14 +43,14 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 		nbt.setInteger("temp", temperature);
 
 		NBTTagList nbttaglist = new NBTTagList();
-		Iterator iter = metals.values().iterator();
+		Iterator<MetalPair> iter = metals.values().iterator();
 		while(iter.hasNext())
 		{
-			MetalPair m = (MetalPair) iter.next();
+			MetalPair m = iter.next();
 			if(m != null)
 			{
 				NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-				nbttagcompound1.setInteger("ID", Item.getIdFromItem(m.type.Ingot));
+				nbttagcompound1.setInteger("ID", Item.getIdFromItem(m.type.ingot));
 				nbttagcompound1.setFloat("AmountF", m.amount);
 				nbttaglist.appendTag(nbttagcompound1);
 			}
@@ -126,10 +117,12 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 				cookDelay--;
 
 			/*Heat the crucible based on the Forge beneath it*/
-			if(worldObj.getBlock(xCoord, yCoord - 1, zCoord) == TFCBlocks.Forge)
+			if(worldObj.getBlock(xCoord, yCoord - 1, zCoord) == TFCBlocks.forge)
 			{
 				TEForge te = (TEForge) worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
-				if(te.fireTemp > temperature)
+				if (te.fireTemp >= 1 && TFCOptions.enableDebugMode)
+					temperature = 2000;
+				else if (te.fireTemp > temperature)
 					temperature++;
 			}
 			if(tempTick > 22)
@@ -145,13 +138,13 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 				Item itemToSmelt = stackToSmelt.getItem();
 				if(itemToSmelt instanceof ItemMeltedMetal && TFC_ItemHeat.getIsLiquid(storage[0]))
 				{
-					if(inputTick > 5)
+					if(inputTick > 10)
 					{
-						if(currentAlloy != null && currentAlloy.outputType != null && itemToSmelt == currentAlloy.outputType.MeltedItem)
+						if(currentAlloy != null && currentAlloy.outputType != null && itemToSmelt == currentAlloy.outputType.meltedItem)
 						{
 							this.addMetal(MetalRegistry.instance.getMetalFromItem(itemToSmelt), (short) 1);
 							if(stackToSmelt.getItemDamage()+1 >= storage[0].getMaxDamage())
-								storage[0] = new ItemStack(TFCItems.CeramicMold,1,1);
+								storage[0] = new ItemStack(TFCItems.ceramicMold,1,1);
 							else
 								stackToSmelt.setItemDamage(stackToSmelt.getItemDamage() + 1);
 						}
@@ -159,7 +152,7 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 						{
 							this.addMetal(MetalRegistry.instance.getMetalFromItem(itemToSmelt), (short) 1);
 							if(stackToSmelt.getItemDamage()+1 >= stackToSmelt.getMaxDamage())
-								storage[0] = new ItemStack(TFCItems.CeramicMold,1,1);
+								storage[0] = new ItemStack(TFCItems.ceramicMold,1,1);
 							else
 								stackToSmelt.setItemDamage(stackToSmelt.getItemDamage() + 1);
 						}
@@ -170,10 +163,10 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 				else if(itemToSmelt instanceof ISmeltable && (
 						(ISmeltable)itemToSmelt).isSmeltable(stackToSmelt) &&
 						!TFC_Core.isOreIron(stackToSmelt) &&
-						temperature >= TFC_ItemHeat.IsCookable(stackToSmelt) && cookDelay == 0)
+						temperature >= TFC_ItemHeat.isCookable(stackToSmelt) && cookDelay == 0)
 				{
-					Metal mType =((ISmeltable)itemToSmelt).GetMetalType(stackToSmelt);
-					if(addMetal(mType, ((ISmeltable)itemToSmelt).GetMetalReturnAmount(stackToSmelt)))
+					Metal mType =((ISmeltable)itemToSmelt).getMetalType(stackToSmelt);
+					if(addMetal(mType, ((ISmeltable)itemToSmelt).getMetalReturnAmount(stackToSmelt)))
 					{
 						temperature *= 0.9f;
 						cookDelay = 40;
@@ -189,24 +182,24 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 			if(currentAlloy != null &&
 					storage[1] != null &&
 					currentAlloy.outputType != null &&
-					outputTick >= 3 &&
-					temperature >= TFC_ItemHeat.IsCookable(currentAlloy.outputType))
+					outputTick >= 2 &&
+					temperature >= TFC_ItemHeat.isCookable(currentAlloy.outputType))
 			{
-				if(storage[1].getItem() == TFCItems.CeramicMold)
+				if(storage[1].getItem() == TFCItems.ceramicMold)
 				{
-					storage[1] = new ItemStack(currentAlloy.outputType.MeltedItem, 1, 99);
-					TFC_ItemHeat.SetTemp(storage[1], temperature);
+					storage[1] = new ItemStack(currentAlloy.outputType.meltedItem, 1, 99);
+					TFC_ItemHeat.setTemp(storage[1], temperature);
 					//currentAlloy.outputAmount--;
 					drainOutput(1.0f);
 					updateGui((byte) 1);
 				}
-				else if(storage[1].getItem() == currentAlloy.outputType.MeltedItem && storage[1].getItemDamage() > 0)
+				else if(storage[1].getItem() == currentAlloy.outputType.meltedItem && storage[1].getItemDamage() > 0)
 				{
 					storage[1].setItemDamage(storage[1].getItemDamage()-1);
-					float inTemp = TFC_ItemHeat.GetTemp(storage[1]);
+					float inTemp = TFC_ItemHeat.getTemp(storage[1]);
 					float temp = (temperature - inTemp) / 2;
-					TFC_ItemHeat.SetTemp(storage[1], inTemp+temp);
-					//System.out.println(temperature +", "+inTemp+", "+temp);
+					TFC_ItemHeat.setTemp(storage[1], inTemp+temp);
+					//TerraFirmaCraft.log.info(temperature +", "+inTemp+", "+temp);
 					drainOutput(1.0f);
 					storage[1].stackSize = 1;
 					updateGui((byte) 1);
@@ -216,7 +209,7 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 
 			if(currentAlloy != null && this.getTotalMetal() < 1)
 			{
-				metals = new HashMap();
+				metals = new HashMap<String, MetalPair>();
 				updateCurrentAlloy();
 				this.updateGui((byte) 2);
 				currentAlloy = null;
@@ -224,9 +217,9 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 
 			if(storage[1] != null && storage[1].stackSize <= 0)
 				storage[1].stackSize = 1;
-			if(inputTick > 5)
+			if (inputTick > 10)
 				inputTick = 0;
-			if(outputTick >= 3)
+			if (outputTick >= 2)
 				outputTick = 0;
 		}
 	}
@@ -247,12 +240,12 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 
 	public boolean addMetal(Metal m, float amt)
 	{
-		if(getTotalMetal() + amt <= 3000 && m.Name != "Unknown")
+		if (getTotalMetal() + amt <= MAX_UNITS && m.name != null && !"Unknown".equals(m.name))
 		{
-			if(metals.containsKey(m.Name))
-				((MetalPair)metals.get(m.Name)).amount += amt;
+			if(metals.containsKey(m.name))
+				metals.get(m.name).amount += amt;
 			else
-				metals.put(m.Name, new MetalPair(m, amt));
+				metals.put(m.name, new MetalPair(m, amt));
 
 			updateCurrentAlloy();
 			return true;
@@ -262,11 +255,11 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 
 	public float getTotalMetal()
 	{
-		Iterator iter = metals.values().iterator();
+		Iterator<MetalPair> iter = metals.values().iterator();
 		float totalAmount = 0;
 		while(iter.hasNext())
 		{
-			MetalPair m = (MetalPair) iter.next();
+			MetalPair m = iter.next();
 			if(m != null)
 				totalAmount += m.amount;
 		}
@@ -276,26 +269,26 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 	private void updateCurrentAlloy()
 	{
 		List<AlloyMetal> a = new ArrayList<AlloyMetal>();
-		Iterator iter = metals.values().iterator();
+		Iterator<MetalPair> iter = metals.values().iterator();
 		float totalAmount = getTotalMetal();
 		iter = metals.values().iterator();
 		while(iter.hasNext())
 		{
-			MetalPair m = (MetalPair) iter.next();
+			MetalPair m = iter.next();
 			if(m != null)
 				a.add(new AlloyMetal(m.type, (m.amount / totalAmount) * 100f));
 		}
 
-		Metal match = AlloyManager.instance.matchesAlloy(a, Alloy.EnumTier.TierV);
+		Metal match = AlloyManager.INSTANCE.matchesAlloy(a, Alloy.EnumTier.TierV);
 		if(match != null)
 		{
 			currentAlloy = new Alloy(match, totalAmount); 
-			currentAlloy.AlloyIngred = a;
+			currentAlloy.alloyIngred = a;
 		}
 		else
 		{
 			currentAlloy = new Alloy(Global.UNKNOWN, totalAmount);
-			currentAlloy.AlloyIngred = a;
+			currentAlloy.alloyIngred = a;
 		}
 	}
 
@@ -388,7 +381,7 @@ public class TECrucible extends NetworkTileEntity implements IInventory
 	public int getOutCountScaled(int length)
 	{
 		if(currentAlloy != null)
-			return ((int)this.currentAlloy.outputAmount * length)/3000;
+			return ((int) this.currentAlloy.outputAmount * length) / MAX_UNITS;
 		else
 			return 0;
 	}

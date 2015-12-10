@@ -5,28 +5,27 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-
-import org.lwjgl.opengl.GL11;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.Player.PlayerInfo;
-import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
-import com.bioxx.tfc.TileEntities.TEStand;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
+import org.lwjgl.opengl.GL11;
+
+import com.bioxx.tfc.TileEntities.TEStand;
+import com.bioxx.tfc.api.TFCBlocks;
+
 public class ArmourStandHighlightHandler
 {
-	AxisAlignedBB boxToRender;
+	private AxisAlignedBB boxToRender;
 	@SubscribeEvent
-	public void DrawBlockHighlightEvent(DrawBlockHighlightEvent evt)
+	public void drawBlockHighlightEvent(DrawBlockHighlightEvent evt)
 	{
 		World world = evt.player.worldObj;
 		if(evt.currentItem == null && TFCBlocks.isArmourStand(world.getBlock(evt.target.blockX,evt.target.blockY,evt.target.blockZ))
 				&& (Math.sqrt(evt.target.hitVec.squareDistanceTo(evt.player.posX, evt.player.posY, evt.player.posZ))) < 2.5)
 		{
-			PlayerInfo pi = PlayerManagerTFC.getInstance().getClientPlayer();
+			//PlayerInfo pi = PlayerManagerTFC.getInstance().getClientPlayer();
 			EntityPlayer player = evt.player;
 			Vec3 vectorTerm = player.getLookVec();
 			vectorTerm.xCoord*=0.5;
@@ -38,10 +37,10 @@ public class ArmourStandHighlightHandler
 
 			if(isTop)
 				stand = (TEStand) world.getTileEntity(evt.target.blockX, evt.target.blockY-1, evt.target.blockZ);
-			boolean NS = stand.yaw%360 == 0 || stand.yaw%360  == 180 ;
-			double var8 = evt.player.lastTickPosX + (evt.player.posX - evt.player.lastTickPosX) * (double)evt.partialTicks;
-			double var10 = evt.player.lastTickPosY + (evt.player.posY - evt.player.lastTickPosY) * (double)evt.partialTicks;
-			double var12 = evt.player.lastTickPosZ + (evt.player.posZ - evt.player.lastTickPosZ) * (double)evt.partialTicks;
+			boolean ns = stand.yaw%360 == 0 || stand.yaw%360  == 180 ;
+			double var8 = player.lastTickPosX + (player.posX - player.lastTickPosX) * evt.partialTicks;
+			double var10 = player.lastTickPosY + (player.posY - player.lastTickPosY) * evt.partialTicks;
+			double var12 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * evt.partialTicks;
 
 			//Head box
 			AxisAlignedBB head = AxisAlignedBB.getBoundingBox(
@@ -51,7 +50,7 @@ public class ArmourStandHighlightHandler
 			AxisAlignedBB body = AxisAlignedBB.getBoundingBox(
 					evt.target.blockX+0.5 - (0.55*1), evt.target.blockY+(0.75)+(isTop?-1:0), evt.target.blockZ+0.5 - (0.17*1),
 					evt.target.blockX+0.5 + (0.55*1), evt.target.blockY+(1.5)+(isTop?-1:0), evt.target.blockZ+0.5 + (0.17*1));
-			if(!NS)
+			if(!ns)
 				body = AxisAlignedBB.getBoundingBox(
 						evt.target.blockX+0.5 - (0.17*1), evt.target.blockY+(0.75)+(isTop?-1:0), evt.target.blockZ+0.5 - (0.55*1),
 						evt.target.blockX+0.5 + (0.17*1), evt.target.blockY+(1.5)+(isTop?-1:0), evt.target.blockZ+0.5 + (0.55*1));
@@ -59,7 +58,7 @@ public class ArmourStandHighlightHandler
 			AxisAlignedBB legs = AxisAlignedBB.getBoundingBox(
 					evt.target.blockX+0.5 - (0.35*0.9), evt.target.blockY+(1.8-(1.6))+(isTop?-1:0), evt.target.blockZ+0.5 - (0.155*0.9),
 					evt.target.blockX+0.5 + (0.35*0.9), evt.target.blockY+(1.8-(1*0.9))+(isTop?-1:0), evt.target.blockZ+0.5 + (0.155*0.9));
-			if(!NS)
+			if(!ns)
 				legs = AxisAlignedBB.getBoundingBox(
 						evt.target.blockX+0.5 - (0.155*0.9), evt.target.blockY+(1.8-(1.6))+(isTop?-1:0), evt.target.blockZ+0.5 - (0.35*0.9),
 						evt.target.blockX+0.5 + (0.155*0.9), evt.target.blockY+(1.8-(1*0.9))+(isTop?-1:0), evt.target.blockZ+0.5 + (0.35*0.9));
@@ -67,7 +66,7 @@ public class ArmourStandHighlightHandler
 			AxisAlignedBB feet = AxisAlignedBB.getBoundingBox(
 					evt.target.blockX+0.5 - (0.35*1), evt.target.blockY+0.15+(isTop?-1:0), evt.target.blockZ+0.5 - (0.17*1),
 					evt.target.blockX+0.5 + (0.35*1), evt.target.blockY+(1.8-(1.4))+(isTop?-1:0), evt.target.blockZ+0.5 + (0.17*1));
-			if(!NS)
+			if(!ns)
 				feet = AxisAlignedBB.getBoundingBox(
 						evt.target.blockX+0.5 - (0.17*1), evt.target.blockY+0.15+(isTop?-1:0), evt.target.blockZ+0.5 - (0.35*1),
 						evt.target.blockX+0.5 + (0.17*1), evt.target.blockY+(1.8-(1.4))+(isTop?-1:0), evt.target.blockZ+0.5 + (0.35*1));
@@ -94,10 +93,10 @@ public class ArmourStandHighlightHandler
 				boxToRender = feet;
 				//TerraFirmaCraft.proxy.sendCustomPacket(stand.createHighlightPacket(1));
 			}
-			else
+			/*else
 			{
 				//TerraFirmaCraft.proxy.sendCustomPacket(stand.createHighlightPacket(-1));
-			}
+			}*/
 
 			if(boxToRender != null)
 			{
@@ -122,25 +121,25 @@ public class ArmourStandHighlightHandler
 		}
 	}
 
-	boolean isVecInsideBox(AxisAlignedBB aabb, EntityPlayer player, Vec3 unit,double xOffset,double yOffset,double zOffset)
+	public boolean isVecInsideBox(AxisAlignedBB aabb, EntityPlayer player, Vec3 unit, double xOffset, double yOffset, double zOffset)
 	{
 		unit = player.getLookVec();
 		aabb.minY+=0.1;
 		aabb.maxY+=0.1;
 		Vec3 playerVec = Vec3.createVectorHelper(player.posX, player.posY + player.eyeHeight, player.posZ);
-		Vec3 negPlayerVec = Vec3.createVectorHelper(-player.lastTickPosX, -(player.lastTickPosY + player.eyeHeight), -player.lastTickPosZ);
-		Vec3 zeroVec = Vec3.createVectorHelper(0,0,0);
-		Vec3 distBlockxyz = (playerVec.subtract(Vec3.createVectorHelper(aabb.minX,aabb.minY,aabb.minZ))).normalize();
-		Vec3 distBlockXYZ = (playerVec.subtract(Vec3.createVectorHelper(aabb.maxX,aabb.maxY,aabb.maxZ))).normalize();
+		//Vec3 negPlayerVec = Vec3.createVectorHelper(-player.lastTickPosX, -(player.lastTickPosY + player.eyeHeight), -player.lastTickPosZ);
+		//Vec3 zeroVec = Vec3.createVectorHelper(0,0,0);
+		Vec3 distBlockxyz = playerVec.subtract(Vec3.createVectorHelper(aabb.minX, aabb.minY, aabb.minZ)).normalize();
+		Vec3 distBlockXYZ = playerVec.subtract(Vec3.createVectorHelper(aabb.maxX, aabb.maxY, aabb.maxZ)).normalize();
 
-		Vec3 distBlockxyZ = (playerVec.subtract(Vec3.createVectorHelper(aabb.minX,aabb.minY,aabb.maxZ))).normalize();
-		Vec3 distBlockXYz = (playerVec.subtract(Vec3.createVectorHelper(aabb.maxX,aabb.maxY,aabb.minZ))).normalize();
+		Vec3 distBlockxyZ = playerVec.subtract(Vec3.createVectorHelper(aabb.minX, aabb.minY, aabb.maxZ)).normalize();
+		Vec3 distBlockXYz = playerVec.subtract(Vec3.createVectorHelper(aabb.maxX, aabb.maxY, aabb.minZ)).normalize();
 
-		Vec3 distBlockxYZ = (playerVec.subtract(Vec3.createVectorHelper(aabb.minX,aabb.maxY,aabb.maxZ))).normalize();
-		Vec3 distBlockXyz = (playerVec.subtract(Vec3.createVectorHelper(aabb.maxX,aabb.minY,aabb.minZ))).normalize();
+		Vec3 distBlockxYZ = playerVec.subtract(Vec3.createVectorHelper(aabb.minX, aabb.maxY, aabb.maxZ)).normalize();
+		Vec3 distBlockXyz = playerVec.subtract(Vec3.createVectorHelper(aabb.maxX, aabb.minY, aabb.minZ)).normalize();
 
-		Vec3 distBlockxYz = (playerVec.subtract(Vec3.createVectorHelper(aabb.minX,aabb.maxY,aabb.minZ))).normalize();
-		Vec3 distBlockXyZ = (playerVec.subtract(Vec3.createVectorHelper(aabb.maxX,aabb.minY,aabb.maxZ))).normalize();
+		Vec3 distBlockxYz = playerVec.subtract(Vec3.createVectorHelper(aabb.minX, aabb.maxY, aabb.minZ)).normalize();
+		Vec3 distBlockXyZ = playerVec.subtract(Vec3.createVectorHelper(aabb.maxX, aabb.minY, aabb.maxZ)).normalize();
 			//To ensure that the unit vector is actually within the space, we project the vectors onto it, and make the total length that length
 			double currentLongestProj = 0;
 			currentLongestProj = Math.max(currentLongestProj, unit.dotProduct(distBlockxyz));
@@ -162,20 +161,20 @@ public class ArmourStandHighlightHandler
 		//print(distBlockXyZ);
 		//print(distBlockxyZ);
 		//print(distBlockXYz);
-		boolean insideBoxX = ((unit.xCoord >= distBlockxyz.xCoord)&&(unit.xCoord <= distBlockXYZ.xCoord))||
-				((unit.xCoord >= distBlockxyZ.xCoord)&&(unit.xCoord <= distBlockXYz.xCoord))||
-				((unit.xCoord >= distBlockxYZ.xCoord)&&(unit.xCoord <= distBlockXyz.xCoord))||
-				((unit.xCoord >= distBlockxYz.xCoord)&&(unit.xCoord <= distBlockXyZ.xCoord));
+		boolean insideBoxX = unit.xCoord >= distBlockxyz.xCoord && unit.xCoord <= distBlockXYZ.xCoord ||
+								unit.xCoord >= distBlockxyZ.xCoord && unit.xCoord <= distBlockXYz.xCoord ||
+								unit.xCoord >= distBlockxYZ.xCoord && unit.xCoord <= distBlockXyz.xCoord ||
+								unit.xCoord >= distBlockxYz.xCoord && unit.xCoord <= distBlockXyZ.xCoord;
 
-		boolean insideBoxY = ((unit.yCoord >= distBlockxyz.yCoord)&&(unit.yCoord <= distBlockXYZ.yCoord))||
-				((unit.yCoord >= distBlockxyZ.yCoord)&&(unit.yCoord <= distBlockXYz.yCoord))||
-				((unit.yCoord >= distBlockXyz.yCoord)&&(unit.yCoord <= distBlockxYZ.yCoord))||
-				((unit.yCoord >= distBlockXyZ.yCoord)&&(unit.yCoord <= distBlockxYz.yCoord));
+		boolean insideBoxY = unit.yCoord >= distBlockxyz.yCoord && unit.yCoord <= distBlockXYZ.yCoord ||
+								unit.yCoord >= distBlockxyZ.yCoord && unit.yCoord <= distBlockXYz.yCoord ||
+								unit.yCoord >= distBlockXyz.yCoord && unit.yCoord <= distBlockxYZ.yCoord ||
+								unit.yCoord >= distBlockXyZ.yCoord && unit.yCoord <= distBlockxYz.yCoord;
 
-		boolean insideBoxZ = ((unit.zCoord >= distBlockxyz.zCoord)&&(unit.zCoord <= distBlockXYZ.zCoord))||
-				((unit.zCoord >= distBlockXYz.zCoord)&&(unit.zCoord <= distBlockxyZ.zCoord))||
-				((unit.zCoord >= distBlockXyz.zCoord)&&(unit.zCoord <= distBlockxYZ.zCoord))||
-				((unit.zCoord >= distBlockxYz.zCoord)&&(unit.zCoord <= distBlockXyZ.zCoord));
+		boolean insideBoxZ = unit.zCoord >= distBlockxyz.zCoord && unit.zCoord <= distBlockXYZ.zCoord ||
+								unit.zCoord >= distBlockXYz.zCoord && unit.zCoord <= distBlockxyZ.zCoord ||
+								unit.zCoord >= distBlockXyz.zCoord && unit.zCoord <= distBlockxYZ.zCoord ||
+								unit.zCoord >= distBlockxYz.zCoord && unit.zCoord <= distBlockXyZ.zCoord;
 		//print(playerVec);
 		//print(playerVec.addVector(unit.xCoord, unit.yCoord, unit.zCoord));
 		/*GL11.glEnable(GL11.GL_BLEND);
@@ -211,7 +210,7 @@ public class ArmourStandHighlightHandler
 		return insideBoxX && insideBoxY && insideBoxZ;
 	}
 
-	void drawLine(Vec3 origin, Vec3 vector)
+	public void drawLine(Vec3 origin, Vec3 vector)
 	{
 		Tessellator var2 = Tessellator.instance;
 		var2.startDrawing(3);
@@ -222,7 +221,7 @@ public class ArmourStandHighlightHandler
 		var2.draw();
 	}
 
-	void drawOutlinedBoundingBox(AxisAlignedBB par1AxisAlignedBB)
+	public void drawOutlinedBoundingBox(AxisAlignedBB par1AxisAlignedBB)
 	{
 		Tessellator var2 = Tessellator.instance;
 		var2.startDrawing(3);

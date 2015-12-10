@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 
 import net.minecraft.world.WorldType;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.WorldGen.DataLayer;
 import com.bioxx.tfc.WorldGen.GenLayers.GenLayerFuzzyZoomTFC;
 import com.bioxx.tfc.WorldGen.GenLayers.GenLayerSmoothTFC;
@@ -17,8 +18,8 @@ import com.bioxx.tfc.WorldGen.GenLayers.GenLayerZoomTFC;
 
 public abstract class GenDrainageLayer extends GenLayerTFC
 {
-	public static int MIN = DataLayer.DrainageNone.ID;
-	public static int MAX = DataLayer.DrainageVeryGood.ID;
+	public static final int MIN = DataLayer.DRAINAGE_NONE.layerID;
+	public static final int MAX = DataLayer.DRAINAGE_VERY_GOOD.layerID;
 	public static GenLayerTFC initialize(long seed, WorldType worldType)
 	{
 		GenLayerTFC continent = genContinent(0);
@@ -71,7 +72,7 @@ public abstract class GenDrainageLayer extends GenLayerTFC
 		return continent;
 	}
 
-	static boolean shouldDraw = false;
+	private static boolean shouldDraw;
 	public static void drawImage(int size, GenLayerTFC genlayer, String name)
 	{
 		if(!shouldDraw)
@@ -85,7 +86,7 @@ public abstract class GenDrainageLayer extends GenLayerTFC
 			BufferedImage outBitmap = new BufferedImage(size,size,BufferedImage.TYPE_INT_RGB);
 			Graphics2D graDrainageics = (Graphics2D) outBitmap.getGraphics();
 			graDrainageics.clearRect(0, 0, size, size);
-			System.out.println("Starting "+name+".bmp");
+			TerraFirmaCraft.LOG.info("Starting " + name + ".bmp");
 			for(int x = 0; x < size; x++)
 			{
 				for(int z = 0; z < size; z++)
@@ -100,12 +101,12 @@ public abstract class GenDrainageLayer extends GenLayerTFC
 					graDrainageics.drawRect(x, z, 1, 1);
 				}
 			}
-			System.out.println("Finished "+name+".bmp");
+			TerraFirmaCraft.LOG.info("Finished " + name + ".bmp");
 			ImageIO.write(outBitmap, "BMP", outFile);
 		}
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			TerraFirmaCraft.LOG.catching(e);
 		}
 	}
 

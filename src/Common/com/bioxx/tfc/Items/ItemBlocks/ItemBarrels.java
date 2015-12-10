@@ -12,16 +12,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
 
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.Core.TFCFluid;
+import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.TileEntities.TEBarrel;
 import com.bioxx.tfc.api.Constant.Global;
@@ -37,8 +38,8 @@ public class ItemBarrels extends ItemTerraBlock implements IEquipable
 		super(par1);
 		setMaxDamage(0);
 		setHasSubtypes(true);
-		this.setCreativeTab(CreativeTabs.tabMaterials);
-		this.MetaNames = Global.WOOD_ALL;
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
+		this.metaNames = Global.WOOD_ALL;
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class ItemBarrels extends ItemTerraBlock implements IEquipable
 		return super.getItemStackLimit(is);
 	}
 
-	public void readFromItemNBT(NBTTagCompound nbt, List arraylist)
+	public void readFromItemNBT(NBTTagCompound nbt, List<String> arraylist)
 	{
 		if(nbt != null)
 		{
@@ -102,7 +103,7 @@ public class ItemBarrels extends ItemTerraBlock implements IEquipable
 					}
 					if( showMoreText )
 					{
-						arraylist.add(StatCollector.translateToLocal("gui.Barrel.MoreItems"));
+						arraylist.add(TFC_Core.translate("gui.Barrel.MoreItems"));
 					}
 				}
 			}
@@ -144,14 +145,14 @@ public class ItemBarrels extends ItemTerraBlock implements IEquipable
 
 				if (is.stackSize == 1)
 				{
-					TFCFluid.fillItemBarrel(is, new FluidStack(fluid, 10000), 10000);	
+					ItemBarrels.fillItemBarrel(is, new FluidStack(fluid, 10000), 10000);	
 				}	
 				else
 				{
 					is.stackSize--;
 					ItemStack outIS = is.copy();
 					outIS.stackSize = 1;
-					TFCFluid.fillItemBarrel(outIS, new FluidStack(fluid, 10000), 10000);
+					ItemBarrels.fillItemBarrel(outIS, new FluidStack(fluid, 10000), 10000);
 					if (!player.inventory.addItemStackToInventory(outIS))
 					{
 						player.entityDropItem(outIS, 0);
@@ -190,7 +191,7 @@ public class ItemBarrels extends ItemTerraBlock implements IEquipable
 	@Override
 	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List list)
 	{
-		for(int i = 0; i < MetaNames.length; i++) {
+		for(int i = 0; i < metaNames.length; i++) {
 			list.add(new ItemStack(this,1,i));
 		}
 	}
@@ -211,6 +212,43 @@ public class ItemBarrels extends ItemTerraBlock implements IEquipable
 	public boolean getTooHeavyToCarry(ItemStack is)
 	{
 		return is.hasTagCompound() && is.getTagCompound().hasKey("Sealed");
+	}
+
+	public static ItemStack fillItemBarrel(ItemStack is, FluidStack fs, int maxFluid)
+	{
+		NBTTagCompound nbt = new NBTTagCompound();
+		if(is.hasTagCompound())
+		{
+			nbt = is.getTagCompound();
+		}
+
+		if(nbt.hasKey("Sealed"))
+			return is;
+
+		//Attempt to merge fluidstacks first
+		if(nbt.hasKey("fluidNBT"))
+		{
+			FluidStack ifs = FluidStack.loadFluidStackFromNBT(nbt.getCompoundTag("fluidNBT"));
+			if(ifs.isFluidEqual(fs) && ifs.amount < maxFluid)
+			{
+				ifs.amount += fs.amount;
+				fs.amount = ifs.amount % maxFluid;
+				ifs.amount = Math.min(ifs.amount, maxFluid);
+				nbt.setTag("fluidNBT", ifs.writeToNBT(new NBTTagCompound()));
+				nbt.setBoolean("Sealed", true);
+				nbt.setInteger("SealTime", (int)TFC_Time.getTotalHours());
+			}
+			else return is;
+		}
+		else 
+		{
+			nbt.setTag("fluidNBT", fs.writeToNBT(new NBTTagCompound()));
+			nbt.setBoolean("Sealed", true);
+			nbt.setInteger("SealTime", (int)TFC_Time.getTotalHours());
+		}
+
+		is.setTagCompound(nbt);
+		return is;
 	}
 }
 

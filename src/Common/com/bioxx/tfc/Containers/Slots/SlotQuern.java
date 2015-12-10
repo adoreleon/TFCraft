@@ -4,7 +4,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.api.TFCItems;
 
 public class SlotQuern extends Slot
 {
@@ -16,9 +16,7 @@ public class SlotQuern extends Slot
 	@Override
 	public boolean isItemValid(ItemStack is)
 	{
-		if(is.getItem() == TFCItems.Quern)
-			return true;
-		return false;
+		return is.getItem() == TFCItems.quern;
 	}
 
 	@Override

@@ -1,29 +1,26 @@
 package com.bioxx.tfc.Handlers.Client;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Core.Player.InventoryPlayerTFC;
-import com.bioxx.tfc.Items.ItemQuiver;
-import com.bioxx.tfc.Render.RenderLargeItem;
-import com.bioxx.tfc.Render.RenderQuiver;
-
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
 import net.minecraftforge.client.event.RenderPlayerEvent;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Core.Player.InventoryPlayerTFC;
+import com.bioxx.tfc.Items.ItemQuiver;
+import com.bioxx.tfc.Render.RenderLargeItem;
+import com.bioxx.tfc.Render.RenderQuiver;
+
 public class PlayerRenderHandler {
 
-	public static final RenderQuiver renderQuiver = new RenderQuiver();
-	public static final RenderLargeItem renderLarge = new RenderLargeItem();
+	public static final RenderQuiver RENDER_QUIVER = new RenderQuiver();
+	public static final RenderLargeItem RENDER_LARGE = new RenderLargeItem();
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
@@ -34,10 +31,10 @@ public class PlayerRenderHandler {
 				ItemStack[] equipables = ((InventoryPlayerTFC)((EntityPlayer)el).inventory).extraEquipInventory;
 				for(ItemStack i : equipables){
 					if(i != null && i.getItem() instanceof ItemQuiver){
-						renderQuiver.render(e.entityLiving,i);
+						RENDER_QUIVER.render(e.entityLiving,i);
 					}
 					else if(i != null){
-						renderLarge.render(el, i);
+						RENDER_LARGE.render(el, i);
 					}
 				}
 			}
@@ -52,8 +49,8 @@ public class PlayerRenderHandler {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onPlayerTick(TickEvent.PlayerTickEvent e) {
-		if (e.side.isClient()) {
-
-		}
+		/*if (e.side.isClient()) {
+		
+		}*/
 	}
 }

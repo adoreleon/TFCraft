@@ -5,10 +5,10 @@ import java.util.List;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.Metal.MetalRegistry;
 import com.bioxx.tfc.api.Metal;
 import com.bioxx.tfc.api.Enums.EnumSize;
@@ -17,16 +17,16 @@ import com.bioxx.tfc.api.Interfaces.ISmeltable;
 public class ItemUnfinishedArmor extends ItemTerra implements ISmeltable
 {
 	public int metalID;
-	String metal;
-	short metalAmount;
-	short metalAmount2;
-	boolean smeltable = true;
+	private String metal;
+	private short metalAmount;
+	private short metalAmount2;
+	private boolean smeltable = true;
 	public ItemUnfinishedArmor() 
 	{
 		super();
 		this.hasSubtypes = true;
 		this.setMaxDamage(0);
-		setCreativeTab(TFCTabs.TFCMisc);
+		setCreativeTab(TFCTabs.TFC_MISC);
 		this.setFolder("armor/");
 		this.setSize(EnumSize.LARGE);
 	}
@@ -39,29 +39,29 @@ public class ItemUnfinishedArmor extends ItemTerra implements ISmeltable
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + textureFolder + this.getUnlocalizedName().replace("item.", "").replace("Unfinished ", "").replace("Stage2 ", ""));
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder + this.getUnlocalizedName().replace("item.", "").replace("Unfinished ", "").replace("Stage2 ", ""));
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
 		if(is.getItemDamage() == 0)
-			arraylist.add(StatCollector.translateToLocal("word.stage1"));
-		else arraylist.add(StatCollector.translateToLocal("word.stage2"));
+			arraylist.add(TFC_Core.translate("gui.stage1"));
+		else
+			arraylist.add(TFC_Core.translate("gui.stage2"));
 	}
 
 	@Override
 	public String getItemStackDisplayName(ItemStack itemstack)
 	{
-		String s = new StringBuilder().append(super.getItemStackDisplayName(itemstack)).toString();
-		return s;
+		return new StringBuilder().append(super.getItemStackDisplayName(itemstack)).toString();
 	}
 
-	@Override
+	/*@Override
 	public String getUnlocalizedName(ItemStack itemstack)
 	{
 		return super.getUnlocalizedName(itemstack);
-	}
+	}*/
 
 	@Override
 	public int getItemStackLimit()
@@ -80,7 +80,7 @@ public class ItemUnfinishedArmor extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public Metal GetMetalType(ItemStack is)
+	public Metal getMetalType(ItemStack is)
 	{
 		if (metal == null)
 		{
@@ -93,7 +93,7 @@ public class ItemUnfinishedArmor extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public short GetMetalReturnAmount(ItemStack is)
+	public short getMetalReturnAmount(ItemStack is)
 	{
 		if(is.getItemDamage() == 1)
 			return metalAmount2;
@@ -107,7 +107,7 @@ public class ItemUnfinishedArmor extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public EnumTier GetSmeltTier(ItemStack is)
+	public EnumTier getSmeltTier(ItemStack is)
 	{
 		return EnumTier.TierI;
 	}

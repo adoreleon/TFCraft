@@ -8,6 +8,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -15,8 +16,13 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import net.minecraftforge.common.EnumPlantType;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFCTabs;
@@ -24,14 +30,11 @@ import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.TileEntities.TEFarmland;
 import com.bioxx.tfc.api.Constant.Global;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 public class BlockFarmland extends BlockContainer
 {
 	private Block dirtBlock;
-	private IIcon[] DirtTexture;
-	private int textureOffset = 0;
+	private IIcon[] dirtTexture;
+	private int textureOffset;
 
 	public BlockFarmland(Block block, int tex)
 	{
@@ -39,7 +42,7 @@ public class BlockFarmland extends BlockContainer
 		this.setTickRandomly(true);
 		this.dirtBlock = block;
 		this.textureOffset = tex;
-		this.setCreativeTab(TFCTabs.TFCBuilding);
+		this.setCreativeTab(TFCTabs.TFC_BUILDING);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -47,11 +50,12 @@ public class BlockFarmland extends BlockContainer
 	public void registerBlockIcons(IIconRegister registerer)
 	{
 		int count = (textureOffset == 0 ? 16 : Global.STONE_ALL.length - 16);
-		DirtTexture = new IIcon[count];
+		dirtTexture = new IIcon[count];
 		for(int i = 0; i < count; i++)
-			DirtTexture[i] = registerer.registerIcon(Reference.ModID + ":" + "farmland/Farmland " + Global.STONE_ALL[i + textureOffset]);
+			dirtTexture[i] = registerer.registerIcon(Reference.MOD_ID + ":" + "farmland/Farmland " + Global.STONE_ALL[i + textureOffset]);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SideOnly(Side.CLIENT)
 	@Override
 	/**
@@ -60,7 +64,7 @@ public class BlockFarmland extends BlockContainer
 	public void getSubBlocks(Item item, CreativeTabs tabs, List list)
 	{
 		// Change to false if this block should not be added to the creative tab
-		Boolean addToCreative = false;
+		Boolean addToCreative = true;
 
 		if(addToCreative)
 		{
@@ -78,8 +82,10 @@ public class BlockFarmland extends BlockContainer
 	public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side)
 	{
 		int meta = access.getBlockMetadata(x, y, z);
+		if (meta < 0 || meta >= dirtTexture.length)
+			meta = 0;
 		if (side == 1)//top
-			return DirtTexture[meta];
+			return dirtTexture[meta];
 		else
 			return this.dirtBlock.getIcon(side, meta);
 	}
@@ -88,8 +94,10 @@ public class BlockFarmland extends BlockContainer
 	@Override
 	public IIcon getIcon(int side, int meta)
 	{
+		if (meta < 0 || meta >= dirtTexture.length)
+			meta = 0;
 		if (side == ForgeDirection.UP.ordinal())
-			return DirtTexture[meta];
+			return dirtTexture[meta];
 		else
 			return this.dirtBlock.getIcon(0, meta);
 	}
@@ -115,7 +123,7 @@ public class BlockFarmland extends BlockContainer
 	/**
 	 * returns true if there is at least one cropblock nearby (x-1 to x+1, y+1, z-1 to z+1)
 	 */
-	private boolean isCropsNearby(World world, int x, int y, int z)
+	/*private boolean isCropsNearby(World world, int x, int y, int z)
 	{
 		byte var5 = 0;
 		for (int var6 = x - var5; var6 <= x + var5; ++var6)
@@ -128,7 +136,7 @@ public class BlockFarmland extends BlockContainer
 			}
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * returns true if there's water nearby (x-4 to x+4, y to y+1, k-4 to k+4)
@@ -141,9 +149,12 @@ public class BlockFarmland extends BlockContainer
 			{
 				for (int z = k - 4; z <= k + 4; ++z)
 				{
-					Block b = world.getBlock(x, y, z);
-					if (TFC_Core.isFreshWater(b))
-						return true;
+					if (world.blockExists(x, y, z))
+					{
+						Block b = world.getBlock(x, y, z);
+						if (TFC_Core.isFreshWater(b))
+							return true;
+					}
 				}
 			}
 		}
@@ -177,5 +188,19 @@ public class BlockFarmland extends BlockContainer
 	public TileEntity createNewTileEntity(World world, int meta)
 	{
 		return new TEFarmland();
+	}
+
+	@Override
+	public boolean canSustainPlant(IBlockAccess world, int x, int y, int z, ForgeDirection direction, IPlantable plantable)
+	{
+		Block plant = plantable.getPlant(world, x, y + 1, z);
+		if (plant == Blocks.pumpkin_stem || plant == Blocks.melon_stem)
+			return false;
+
+		EnumPlantType plantType = plantable.getPlantType(world, x, y + 1, z);
+		if (plantType == EnumPlantType.Crop)
+			return true;
+
+		return super.canSustainPlant(world, x, y, z, direction, plantable);
 	}
 }

@@ -1,8 +1,11 @@
 package com.bioxx.tfc.Blocks;
 
+import java.util.Random;
+
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
@@ -12,7 +15,7 @@ import net.minecraft.world.World;
 import com.bioxx.tfc.Reference;
 public class BlockMolten extends BlockTerra
 {
-	IIcon moltenOff;
+	private IIcon moltenOff;
 	public BlockMolten()
 	{
 		super(Material.iron);
@@ -21,8 +24,8 @@ public class BlockMolten extends BlockTerra
 	@Override
 	public int getLightValue(IBlockAccess world, int x, int y, int z)
 	{
-		int _meta = world.getBlockMetadata(x, y, z);
-		if((_meta & 8) > 0)
+		int meta = world.getBlockMetadata(x, y, z);
+		if((meta & 8) > 0)
 			return 15;
 		return 0;
 	}
@@ -46,8 +49,8 @@ public class BlockMolten extends BlockTerra
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		this.blockIcon = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Molten Rock");
-		moltenOff = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Molten Rock Off");
+		this.blockIcon = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Molten Rock");
+		moltenOff = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Molten Rock Off");
 	}
 
 	@Override
@@ -70,6 +73,12 @@ public class BlockMolten extends BlockTerra
 
 	@Override
 	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	{
+		return null;
+	}
+
+	@Override
+	public Item getItemDropped(int metadata, Random rand, int fortune)
 	{
 		return null;
 	}

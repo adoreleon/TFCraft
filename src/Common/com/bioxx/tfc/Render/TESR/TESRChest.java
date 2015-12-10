@@ -1,12 +1,13 @@
 package com.bioxx.tfc.Render.TESR;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockChest;
 import net.minecraft.client.model.ModelChest;
 import net.minecraft.client.model.ModelLargeChest;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+
+import cpw.mods.fml.common.FMLLog;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -15,8 +16,6 @@ import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Blocks.Devices.BlockChestTFC;
 import com.bioxx.tfc.TileEntities.TEChest;
 import com.bioxx.tfc.api.Constant.Global;
-
-import cpw.mods.fml.common.FMLLog;
 
 public class TESRChest extends TileEntitySpecialRenderer
 {
@@ -36,8 +35,8 @@ public class TESRChest extends TileEntitySpecialRenderer
 			texNormalDouble = new ResourceLocation[Global.WOOD_ALL.length];
 			for(int i = 0; i < Global.WOOD_ALL.length; i++)
 			{
-				texNormal[i] = new ResourceLocation(Reference.ModID+":textures/models/chest/normal_" + Global.WOOD_ALL[i] + ".png");
-				texNormalDouble[i] = new ResourceLocation(Reference.ModID+":textures/models/chest/normal_double_" + Global.WOOD_ALL[i] + ".png");
+				texNormal[i] = new ResourceLocation(Reference.MOD_ID+":textures/models/chest/normal_" + Global.WOOD_ALL[i] + ".png");
+				texNormalDouble[i] = new ResourceLocation(Reference.MOD_ID+":textures/models/chest/normal_double_" + Global.WOOD_ALL[i] + ".png");
 			}
 		}
 	}
@@ -79,7 +78,7 @@ public class TESRChest extends TileEntitySpecialRenderer
 		{
 			ModelChest modelchest;
 
-			if (te.adjacentChestXPos == null && te.adjacentChestZPos == null && te.isDoubleChest == false)
+			if (te.adjacentChestXPos == null && te.adjacentChestZPos == null && !te.isDoubleChest)
 			{
 				modelchest = this.chestModel;
 
@@ -133,7 +132,7 @@ public class TESRChest extends TileEntitySpecialRenderer
 			GL11.glRotatef(short1, 0.0F, 1.0F, 0.0F);
 			GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 
-			if(te.isDoubleChest == true)
+			if (te.isDoubleChest)
 			{
 				GL11.glScalef(0.5f, 0.5F, 0.5F);
 			}

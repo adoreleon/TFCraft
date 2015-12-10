@@ -17,13 +17,13 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.api.Constant.Global;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
 
 public class BlockTFCFence extends BlockFence
 {
@@ -38,7 +38,7 @@ public class BlockTFCFence extends BlockFence
 		System.arraycopy(Global.WOOD_ALL, 0, woodNames, 0, 16);
 		iconsPost = new IIcon[woodNames.length];
 		iconsPostTop = new IIcon[woodNames.length];
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class BlockTFCFence extends BlockFence
 	 * mask.) Parameters: World, X, Y, Z, mask, list, colliding entity
 	 */
 	@Override
-	public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB AABB, List list, Entity entity)
+	public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aaBB, List list, Entity entity)
 	{
 		boolean flag = this.canConnectFenceTo(world, x, y, z - 1);
 		boolean flag1 = this.canConnectFenceTo(world, x, y, z + 1);
@@ -63,7 +63,7 @@ public class BlockTFCFence extends BlockFence
 		if (flag || flag1)
 		{
 			this.setBlockBounds(f, 0.0F, f2, f1, 1.5F, f3);
-			super.addCollisionBoxesToList(world, x, y, z, AABB, list, entity);
+			super.addCollisionBoxesToList(world, x, y, z, aaBB, list, entity);
 		}
 
 		f2 = 0.375F;
@@ -75,7 +75,7 @@ public class BlockTFCFence extends BlockFence
 		if (flag2 || flag3 || !flag && !flag1)
 		{
 			this.setBlockBounds(f, 0.0F, f2, f1, 1.5F, f3);
-			super.addCollisionBoxesToList(world, x, y, z, AABB, list, entity);
+			super.addCollisionBoxesToList(world, x, y, z, aaBB, list, entity);
 		}
 
 		if (flag) f2 = 0.0F;
@@ -106,8 +106,8 @@ public class BlockTFCFence extends BlockFence
 	{
 		for(int i = 0; i < woodNames.length; i++)
 		{
-			iconsPost[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/" + woodNames[i] + " Fence");
-			iconsPostTop[i] = iconRegisterer.registerIcon(Reference.ModID + ":" + "wood/" + woodNames[i] + " Fence Top");
+			iconsPost[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/" + woodNames[i] + " Fence");
+			iconsPostTop[i] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "wood/" + woodNames[i] + " Fence Top");
 		}
 	}
 
@@ -180,7 +180,7 @@ public class BlockTFCFence extends BlockFence
 	@Override
 	public int getRenderType()
 	{
-		return TFCBlocks.FenceRenderId;
+		return TFCBlocks.fenceRenderId;
 	}
 
 	/**
@@ -228,5 +228,11 @@ public class BlockTFCFence extends BlockFence
 	public boolean canPlaceTorchOnTop(World world, int x, int y, int z)
 	{
 		return true;
+	}
+
+	@Override
+	public boolean canBeReplacedByLeaves(IBlockAccess world, int x, int y, int z)
+	{
+		return false;
 	}
 }

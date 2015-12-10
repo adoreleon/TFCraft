@@ -3,8 +3,6 @@ package com.bioxx.tfc.TileEntities;
 import java.util.List;
 import java.util.Random;
 
-import com.bioxx.tfc.Entities.EntityStand;
-
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -17,14 +15,16 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
+import com.bioxx.tfc.Entities.EntityStand;
+
 public class TEStand extends TileEntity implements IInventory
 {
 
 	public ItemStack[] items;
 	public EntityStand entity;
-	public float yaw = 0;
-	public boolean isTop = false;
-	private boolean hasEntity = false;
+	public float yaw;
+	public boolean isTop;
+	private boolean hasEntity;
 	public int highlightedSlot;
 
 	public TEStand()
@@ -171,7 +171,7 @@ public class TEStand extends TileEntity implements IInventory
 						xCoord, yCoord, zCoord,
 						xCoord+1, yCoord+2, zCoord+1));
 
-				if(list.size() != 0)
+				if (!list.isEmpty())
 					entity = (EntityStand)list.get(0);
 				else
 					hasEntity = false;

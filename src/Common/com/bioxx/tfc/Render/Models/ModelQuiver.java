@@ -8,8 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public class ModelQuiver extends ModelBase {
 
-	ModelRenderer quiver;
-	ModelRenderer[] arrows = new ModelRenderer[16];
+	private ModelRenderer quiver;
+	private ModelRenderer[] arrows = new ModelRenderer[16];
 	
 	public ModelQuiver(){
 		super();
@@ -68,7 +68,8 @@ public class ModelQuiver extends ModelBase {
     	}
     }
     
-    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+    @Override
+	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
         if (entity instanceof EntityPlayer) this.quiver.render(0.0625F);
     }
 }

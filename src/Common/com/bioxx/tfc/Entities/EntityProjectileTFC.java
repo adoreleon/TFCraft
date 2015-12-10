@@ -8,17 +8,22 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.Items.Tools.ItemJavelin;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.Crafting.AnvilManager;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Interfaces.ICausesDamage;
 
 public class EntityProjectileTFC extends EntityArrow implements ICausesDamage
 {
-	public short damageTaken = 0;
-	public Item pickupItem = TFCItems.Arrow;
+	public short damageTaken;
+	public Item pickupItem = TFCItems.arrow;
+	public float damageBuff;
+	public float duraBuff;
 
 	public EntityProjectileTFC(World par1World)
 	{
@@ -61,16 +66,26 @@ public class EntityProjectileTFC extends EntityArrow implements ICausesDamage
 			boolean inground = nbt.hasKey("inGround") && nbt.getByte("inGround") == 1;
 			if(inground)
 			{
-				boolean flag = this.canBePickedUp == 1 || this.canBePickedUp == 2 && player.capabilities.isCreativeMode;
+				ItemStack is = new ItemStack(this.pickupItem, 1, this.damageTaken);
+				if (duraBuff != 0)
+					AnvilManager.setDurabilityBuff(is, duraBuff);
+				if (damageBuff != 0)
+					AnvilManager.setDamageBuff(is, damageBuff);
 
-				EntityItem ei = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, new ItemStack(this.pickupItem, 1, this.damageTaken));
-				EntityItemPickupEvent event = new EntityItemPickupEvent(player, ei);
+				EntityItem ei = new EntityItem(this.worldObj, this.posX, this.posY, this.posZ, is);
 
-				if (MinecraftForge.EVENT_BUS.post(event))
-					return;
+				if (this.canBePickedUp == 1)
+				{
+					EntityItemPickupEvent event = new EntityItemPickupEvent(player, ei);
+
+					if (MinecraftForge.EVENT_BUS.post(event))
+						return;
+				}
 
 				ItemStack itemstack = ei.getEntityItem();
-				if(itemstack.stackSize <= 0) 
+
+				boolean flag = this.canBePickedUp == 1 || this.canBePickedUp == 2 && player.capabilities.isCreativeMode;
+				if (itemstack.stackSize <= 0)
 					flag = true;
 				else if (this.canBePickedUp == 1 && !player.inventory.addItemStackToInventory(itemstack))
 					flag = false;
@@ -90,8 +105,11 @@ public class EntityProjectileTFC extends EntityArrow implements ICausesDamage
 	{
 		super.onUpdate();
 		if(!worldObj.isRemote && this.isDead)
-			if(this.ticksExisted < 1200)
+		{
+			int maxDamage = this.pickupItem instanceof ItemJavelin ? this.pickupItem.getMaxDamage() : 1;
+			if (this.ticksExisted < 1200 && maxDamage > this.damageTaken)
 				this.isDead = false;
+		}
 	}
 
 	@Override
@@ -112,7 +130,7 @@ public class EntityProjectileTFC extends EntityArrow implements ICausesDamage
 	}
 
 	@Override
-	public EnumDamageType GetDamageType()
+	public EnumDamageType getDamageType()
 	{
 		return EnumDamageType.PIERCING;
 	}

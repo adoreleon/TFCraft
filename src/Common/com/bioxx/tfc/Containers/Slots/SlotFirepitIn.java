@@ -1,14 +1,13 @@
 package com.bioxx.tfc.Containers.Slots;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Items.ItemOre;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
+import com.bioxx.tfc.Items.ItemOre;
+import com.bioxx.tfc.api.HeatRegistry;
+import com.bioxx.tfc.api.TFCItems;
 
 public class SlotFirepitIn extends Slot
 {
@@ -26,15 +25,19 @@ public class SlotFirepitIn extends Slot
 	@Override
 	public boolean isItemValid(ItemStack is)
 	{
-		if(is.getItem() == TFCItems.Logs || is.getItem() == Item.getItemFromBlock(TFCBlocks.Peat) || is.getItem() == TFCItems.CeramicMold || is.getItem() instanceof ItemOre)
-			return false;
-		return true;
+		HeatRegistry manager = HeatRegistry.getInstance();
+		return is.getItem() == TFCItems.fireStarter ||
+				is.getItem() == TFCItems.flintSteel ||
+				!(manager.findMatchingIndex(is) == null ||
+					is.getItem() instanceof ItemOre);
 	}
 
 	@Override
-	public void putStack(ItemStack par1ItemStack)
+	public void putStack(ItemStack is)
 	{
-		if (par1ItemStack != null) par1ItemStack.stackSize = 1;
-		super.putStack(par1ItemStack);
+		if (is != null)
+			is.stackSize = 1;
+		if (this.inventory != null)
+			super.putStack(is);
 	}
 }

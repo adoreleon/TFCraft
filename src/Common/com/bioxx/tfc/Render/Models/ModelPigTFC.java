@@ -17,9 +17,10 @@ public class ModelPigTFC extends ModelPig
 	{
 		this(0.0F);
 	}
-	ModelRenderer tusk1;
-	ModelRenderer tusk2;
-	ModelRenderer snout;
+
+	private ModelRenderer tusk1;
+	private ModelRenderer tusk2;
+	private ModelRenderer snout;
 
 	public ModelPigTFC(float par1)
 	{
@@ -46,7 +47,7 @@ public class ModelPigTFC extends ModelPig
 		float percent = TFC_Core.getPercentGrown((IAnimal)entity);
 		float ageScale = 2.0F-percent;
 		float ageHeadScale = (float)Math.pow(1/ageScale,0.66);
-		float offset = 1.4f - percent;
+		//float offset = 1.4f - percent;
 
 		this.setRotationAngles(par2, par3, par4, par5, par6, par7, entity);
 		if(entity instanceof IAnimal)
@@ -61,14 +62,14 @@ public class ModelPigTFC extends ModelPig
 			
 			GL11.glPushMatrix ();
 
-			GL11.glTranslatef (0.0F, (0.75f-(0.75f*percent)), 0f);
+			GL11.glTranslatef(0.0F, 0.75f - (0.75f * percent), 0f);
 			GL11.glScalef(ageHeadScale, ageHeadScale, ageHeadScale);
 			GL11.glTranslatef (0.0F, (ageScale-1)*-0.125f,0.1875f-(0.1875f*percent));
 			head.render(par7);
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix ();
-			GL11.glTranslatef (0.0F, (0.75f-(0.75f*percent)), 0f);
+			GL11.glTranslatef(0.0F, 0.75f - (0.75f * percent), 0f);
 			GL11.glScalef(1/ageScale, 1/ageScale, 1/ageScale);
 			
 			body.render(par7);
@@ -88,7 +89,7 @@ public class ModelPigTFC extends ModelPig
 		tusk2.isHidden = true;
 		this.head.rotateAngleX = par5 / (180F / (float)Math.PI);
 		this.head.rotateAngleY = par4 / (180F / (float)Math.PI);
-		this.body.rotateAngleX = ((float)Math.PI / 2F);
+		this.body.rotateAngleX = (float) Math.PI / 2F;
 		this.leg1.rotateAngleX = MathHelper.cos(par1 * 0.6662F) * 1.4F * par2;
 		this.leg2.rotateAngleX = MathHelper.cos(par1 * 0.6662F + (float)Math.PI) * 1.4F * par2;
 		this.leg3.rotateAngleX = MathHelper.cos(par1 * 0.6662F + (float)Math.PI) * 1.4F * par2;

@@ -11,7 +11,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
@@ -28,7 +27,7 @@ public class ItemQuiver extends ItemTerra implements IEquipable
 	public ItemQuiver()
 	{
 		super();
-		this.setCreativeTab(TFCTabs.TFCArmor);
+		this.setCreativeTab(TFCTabs.TFC_ARMOR);
 	}
 	/**
 	 * Gets an icon index based on an item's damage value and the given render pass
@@ -63,7 +62,7 @@ public class ItemQuiver extends ItemTerra implements IEquipable
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":quiver");
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":quiver");
 	}
 
 	public int getQuiverArrows(ItemStack item){
@@ -87,7 +86,9 @@ public class ItemQuiver extends ItemTerra implements IEquipable
 		return n;
 	}
 
-	public ArrayList[] getQuiverJavelinTypes(ItemStack item)
+	@SuppressWarnings("rawtypes")
+	// Storing both Strings and Integers in the same ArrayList
+	public List[] getQuiverJavelinTypes(ItemStack item)
 	{
 		ArrayList[] pair = new ArrayList[2];
 		ArrayList<String> list = new ArrayList<String>();
@@ -115,19 +116,18 @@ public class ItemQuiver extends ItemTerra implements IEquipable
 	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag)
 	{
 		ItemTerra.addSizeInformation(is, arraylist);
-		ItemTerra.addHeatInformation(is, arraylist);
 
 		if (TFC_Core.showShiftInformation())
 		{
-			//arraylist.add(EnumChatFormatting.WHITE + StatCollector.translateToLocal("gui.Armor.Advanced") + ":");
-			//arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.Pierce") + ": " + EnumChatFormatting.AQUA + ArmorType.getPiercingAR());
-			//arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.Slash") + ": " + EnumChatFormatting.AQUA + ArmorType.getSlashingAR());
-			//arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.Crush") + ": " + EnumChatFormatting.AQUA + ArmorType.getCrushingAR());
+			//arraylist.add(EnumChatFormatting.WHITE + TFC_Core.translate("gui.Advanced") + ":");
+			//arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.Pierce") + ": " + EnumChatFormatting.AQUA + ArmorType.getPiercingAR());
+			//arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.Slash") + ": " + EnumChatFormatting.AQUA + ArmorType.getSlashingAR());
+			//arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.Crush") + ": " + EnumChatFormatting.AQUA + ArmorType.getCrushingAR());
 			//arraylist.add("");
-			arraylist.add(EnumChatFormatting.WHITE + StatCollector.translateToLocal("gui.Bow.Advanced") + ":");
-			arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Bow.Arrows") + ": " + EnumChatFormatting.YELLOW + getQuiverArrows(is));
-			arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Bow.Javelins") + ": " + EnumChatFormatting.YELLOW + getQuiverJavelins(is));
-			ArrayList[] javData = getQuiverJavelinTypes(is);
+			arraylist.add(EnumChatFormatting.WHITE + TFC_Core.translate("gui.Advanced") + ":");
+			arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Bow.Arrows") + ": " + EnumChatFormatting.YELLOW + getQuiverArrows(is));
+			arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Bow.Javelins") + ": " + EnumChatFormatting.YELLOW + getQuiverJavelins(is));
+			List[] javData = getQuiverJavelinTypes(is);
 			for(int i = 0; i < javData[0].size();i++)
 			{
 				String s = (String)(javData[0].get(i));
@@ -138,12 +138,11 @@ public class ItemQuiver extends ItemTerra implements IEquipable
 			{
 				NBTTagCompound stackTagCompound = is.getTagCompound();
 				if(stackTagCompound.hasKey("creator"))
-					arraylist.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("gui.Armor.ForgedBy") + " " + stackTagCompound.getString("creator"));
+					arraylist.add(EnumChatFormatting.ITALIC + TFC_Core.translate("gui.Armor.ForgedBy") + " " + stackTagCompound.getString("creator"));
 			}
 		}
 		else
-			arraylist.add(EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("gui.Armor.Advanced") + ": (" + StatCollector.translateToLocal("gui.Armor.Hold") + " " + 
-					EnumChatFormatting.GRAY + StatCollector.translateToLocal("gui.Armor.Shift") + 
+			arraylist.add(EnumChatFormatting.DARK_GRAY + TFC_Core.translate("gui.Advanced") + ": (" + TFC_Core.translate("gui.Hold") + " " + EnumChatFormatting.GRAY + TFC_Core.translate("gui.Shift") +
 					EnumChatFormatting.DARK_GRAY + ")");
 
 	}
@@ -249,6 +248,18 @@ public class ItemQuiver extends ItemTerra implements IEquipable
 
 	@Override
 	public boolean getTooHeavyToCarry(ItemStack is)
+	{
+		return false;
+	}
+
+	@Override
+	public int getItemStackLimit()
+	{
+		return 1;
+	}
+
+	@Override
+	public boolean canStack()
 	{
 		return false;
 	}

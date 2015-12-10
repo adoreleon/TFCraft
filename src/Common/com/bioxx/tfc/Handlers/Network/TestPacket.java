@@ -1,19 +1,23 @@
 package com.bioxx.tfc.Handlers.Network;
 
-import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+
 import net.minecraft.entity.player.EntityPlayer;
+
+import cpw.mods.fml.common.network.ByteBufUtils;
+
+import com.bioxx.tfc.TerraFirmaCraft;
 
 public class TestPacket extends AbstractPacket
 {
-	String msg;
+	private String msg;
 
 	public TestPacket() {}
 
-	public TestPacket(String S)
+	public TestPacket(String s)
 	{
-		msg = S;
+		msg = s;
 	}
 
 	@Override
@@ -32,13 +36,13 @@ public class TestPacket extends AbstractPacket
 	@Override
 	public void handleClientSide(EntityPlayer player)
 	{
-		System.out.println("++++++++++++Client: "+msg);
+		TerraFirmaCraft.LOG.info("++++++++++++Client: " + msg);
 	}
 
 	@Override
 	public void handleServerSide(EntityPlayer player)
 	{
-		System.out.println("++++++++++++Server: "+msg);
+		TerraFirmaCraft.LOG.info("++++++++++++Server: " + msg);
 	}
 
 }

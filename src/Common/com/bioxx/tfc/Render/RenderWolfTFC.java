@@ -35,7 +35,24 @@ public class RenderWolfTFC extends RenderWolf
 	@Override
 	protected void preRenderCallback(EntityLivingBase par1EntityLivingBase, float par2)
     {
-		float scale = (((EntityWolfTFC)par1EntityLivingBase).size_mod/2)+0.5f;
+		float scale = ((EntityWolfTFC) par1EntityLivingBase).getSizeMod() / 2 + 0.5f;
 		GL11.glScalef(scale, scale, scale);
+	}
+
+	/**
+	 * Defines what float the third param in setRotationAngles of ModelBase is
+	 */
+	protected float handleRotationFloat(EntityWolfTFC wolf, float par2)
+	{
+		return wolf.getTailRotation();
+	}
+
+	/**
+	 * Defines what float the third param in setRotationAngles of ModelBase is
+	 */
+	@Override
+	protected float handleRotationFloat(EntityLivingBase entity, float par2)
+	{
+		return this.handleRotationFloat((EntityWolfTFC) entity, par2);
     }
 }

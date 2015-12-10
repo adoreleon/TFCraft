@@ -8,17 +8,17 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class MapGenRiverRavine extends MapGenBaseTFC
 {
-	private float[] field_35627_a = new float[1024];
-	private byte[] metaArray;
+	private float[] multipliers = new float[1024];
+	//private byte[] metaArray;
 
 	public void generate(IChunkProvider par1IChunkProvider, World par2World, int par3, int par4, Block[] idsBig, byte[] metaBig)
 	{
-		metaArray = metaBig;
+		//metaArray = metaBig;
 		this.range = 12;
 		//super.generate(par1IChunkProvider, par2World, par3, par4, idsBig);
 		this.recursiveGenerate(par2World, par3, par4, par3, par4, idsBig);
@@ -52,7 +52,7 @@ public class MapGenRiverRavine extends MapGenBaseTFC
 		{
 			if (var28 == 0 || rand.nextInt(3) == 0)
 				var27 = 1.0F + rand.nextFloat() * rand.nextFloat() * 1.0F;
-			this.field_35627_a[var28] = var27 * var27;
+			this.multipliers[var28] = var27 * var27;
 		}
 
 		for (; par15 < par16; ++par15)
@@ -140,34 +140,34 @@ public class MapGenRiverRavine extends MapGenBaseTFC
 							{
 								double var45 = (z + chunkZ * 16 + 0.5D - par10) / var53;
 								int var47 = (x * 16 + z) * 256 + var37;
-								boolean var48 = false;
+								//boolean var48 = false;
 								if (var59 * var59 + var45 * var45 < 1.0D)
 								{
 									for (int var49 = var37 - 1; var49 >= var55; --var49)
 									{
 										double var50 = (var49 + 0.5D - startY) / var30;
-										if ((var59 * var59 + var45 * var45) * this.field_35627_a[var49] + var50 * var50 / 6.0D < 1.0D)
+										if ((var59 * var59 + var45 * var45) * this.multipliers[var49] + var50 * var50 / 6.0D < 1.0D)
 										{
 											block = blockArray[var47];
-											if (TFC_Core.isGrass(block))
-												var48 = true;
+											/*if (TFC_Core.isGrass(block))
+												var48 = true;*/
 											if (TFC_Core.isRawStone(block) || TFC_Core.isSoil(block))
 											{
 												if (var49 < 10)
 												{
-													blockArray[var47] = TFCBlocks.Lava;
+													blockArray[var47] = TFCBlocks.lava;
 												}
 												else
 												{
 													if(var49 < waterHeight)
 													{
-														blockArray[var47] = TFCBlocks.FreshWater;
-														metaArray[var47] = 0;
+														blockArray[var47] = TFCBlocks.freshWater;
+														//metaArray[var47] = 0;
 													}
 													else
 													{
 														blockArray[var47] = Blocks.air;
-														metaArray[var47] = 0;
+														//metaArray[var47] = 0;
 													}
 												}
 											}
@@ -195,7 +195,7 @@ public class MapGenRiverRavine extends MapGenBaseTFC
 		{
 			range = 32;
 			double x = chunkX * 16 + this.rand.nextInt(16);
-			Random r = new Random(world.getSeed());
+			//Random r = new Random(world.getSeed());
 			double y = 80;
 			double z = chunkZ * 16 + this.rand.nextInt(16);
 

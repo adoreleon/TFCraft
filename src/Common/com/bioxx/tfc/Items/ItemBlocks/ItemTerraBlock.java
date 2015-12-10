@@ -7,12 +7,12 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Items.ItemTerra;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFC_ItemHeat;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
@@ -21,7 +21,7 @@ import com.bioxx.tfc.api.Interfaces.ISize;
 
 public class ItemTerraBlock extends ItemBlock implements ISize
 {
-	public String[] MetaNames;
+	public String[] metaNames;
 	public IIcon[] icons;
 	public String folder;
 
@@ -43,22 +43,16 @@ public class ItemTerraBlock extends ItemBlock implements ISize
 	{
 		try
 		{
-			if(MetaNames != null)
-				return getUnlocalizedName().concat("." + MetaNames[is.getItemDamage()]);
+			if(metaNames != null && is.getItemDamage() < metaNames.length)
+				return getUnlocalizedName().concat("." + metaNames[is.getItemDamage()]);
 		}
 		catch(Exception ex)
 		{
-			System.out.println(ex.getLocalizedMessage());
+			TerraFirmaCraft.LOG.error(ex.getLocalizedMessage());
 		}
 
 		return super.getUnlocalizedName(is);
 	}
-
-	//	@Override
-	//	public String getItemStackDisplayName(ItemStack is)
-	//	{
-	//		return StringUtil.localize(getUnlocalizedName(is).replace(" ", ""));
-	//	}
 
 	/**
 	 * This is called by inventories in the world to tick things such as temperature and food decay. Override this and 
@@ -75,6 +69,7 @@ public class ItemTerraBlock extends ItemBlock implements ISize
 		return i;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag)
 	{
@@ -82,16 +77,14 @@ public class ItemTerraBlock extends ItemBlock implements ISize
 
 		if (is.hasTagCompound())
 		{
-			NBTTagCompound stackTagCompound = is.getTagCompound();
-
-			if(TFC_ItemHeat.HasTemp(is))
+			if(TFC_ItemHeat.hasTemp(is))
 			{
-				float temp = TFC_ItemHeat.GetTemp(is);
-				float meltTemp = TFC_ItemHeat.IsCookable(is);
+				float temp = TFC_ItemHeat.getTemp(is);
+				float meltTemp = TFC_ItemHeat.isCookable(is);
 
 				if(meltTemp != -1)
 				{
-					if(is.getItem() == TFCItems.Stick)
+					if(is.getItem() == TFCItems.stick)
 						arraylist.add(TFC_ItemHeat.getHeatColorTorch(temp, meltTemp));
 					else
 						arraylist.add(TFC_ItemHeat.getHeatColor(temp, meltTemp));
@@ -136,14 +129,6 @@ public class ItemTerraBlock extends ItemBlock implements ISize
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		/*if(MetaNames != null)
-		{
-			icons = new IIcon[MetaNames.length];
-			for(int i = 0; i < MetaNames.length; i++)
-			{
-				icons[i] = registerer.registerIcon(folder+MetaNames[i]);
-			}
-		}*/
 	}
 
 	@Override
@@ -151,5 +136,4 @@ public class ItemTerraBlock extends ItemBlock implements ISize
 	{
 		return EnumItemReach.SHORT;
 	}
-
 }

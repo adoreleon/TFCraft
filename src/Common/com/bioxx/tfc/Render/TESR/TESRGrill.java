@@ -3,7 +3,6 @@ package com.bioxx.tfc.Render.TESR;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 
 import org.lwjgl.opengl.GL11;
@@ -23,10 +22,7 @@ public class TESRGrill extends TESRBase
 	 */
 	public void renderAt(TEGrill te, double d, double d1, double d2, float f)
 	{
-		if (te.getWorldObj() == null)
-		{
-		}
-		else
+		if (te.getWorldObj() != null)
 		{
 			EntityItem customitem = new EntityItem(field_147501_a.field_147550_f); //tileEntityRenderer.worldObj
 			customitem.hoverStart = 0f;
@@ -114,7 +110,7 @@ public class TESRGrill extends TESRBase
 
 	public void drawItem(TEGrill te, int index, double minX, double maxX, double minZ, double maxZ)
 	{
-		if(te.storage[index] != null && te.storage[index].getItem() instanceof Item)
+		if (te.storage[index] != null /*&& te.storage[index].getItem() instanceof Item*/) //That will always ben an instanceof Item, perhaps this is supposed to check somethign else?
 		{
 			float minU = te.storage[index].getIconIndex().getMinU();
 			float maxU = te.storage[index].getIconIndex().getMaxU();

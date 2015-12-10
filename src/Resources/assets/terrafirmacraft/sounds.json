@@ -6,6 +6,29 @@
     ]
   },
 
+  "item.firestarter": {
+    "category": "ambient",
+    "sounds": [
+      "firestarter1",
+      "firestarter2",
+      "firestarter3",
+      "firestarter4",
+      "firestarter5",
+      "firestarter6",
+      "firestarter7",
+      "firestarter8",
+      "firestarter9",
+      "firestarter10"
+    ]
+  },
+  
+  "item.jug.blow": {
+    "category": "ambient",
+    "sounds": [
+      "jugblow1"
+    ]
+  },
+
   "mob.rooster.cry": {
     "category": "ambient",
     "sounds": [

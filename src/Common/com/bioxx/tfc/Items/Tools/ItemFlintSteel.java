@@ -13,12 +13,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Core;
-import com.bioxx.tfc.TileEntities.TEForge;
+import com.bioxx.tfc.Items.ItemTerra;
 import com.bioxx.tfc.TileEntities.TEPottery;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
@@ -29,7 +29,7 @@ public class ItemFlintSteel extends ItemFlintAndSteel implements ISize
 	public ItemFlintSteel()
 	{
 		super();
-		setCreativeTab(TFCTabs.TFCTools);
+		setCreativeTab(TFCTabs.TFC_TOOLS);
 	}
 
 	@Override
@@ -47,23 +47,37 @@ public class ItemFlintSteel extends ItemFlintAndSteel implements ISize
 					world.getBlock(x, y, z).getMaterial() != Material.wood &&
 					world.getBlock(x, y, z).getMaterial() != Material.cloth &&
 					world.isAirBlock(x, y + 1, z) &&
-					world.getBlock(x, y, z) != TFCBlocks.Charcoal &&
+					world.getBlock(x, y, z) != TFCBlocks.charcoal &&
 					world.getBlock(x, y, z) != Blocks.coal_block)
 			{
 
 				List list = world.getEntitiesWithinAABB(EntityItem.class, AxisAlignedBB.getBoundingBox(x, y + 1, z, x + 1, y + 2, z + 1));
 				int numsticks = 0;
-				int hasPaper = 0;
 
 				if (list != null && !list.isEmpty())
 				{
 					for (Iterator iterator = list.iterator(); iterator.hasNext();)
 					{
 						EntityItem entity = (EntityItem)iterator.next();
-						if(entity.getEntityItem().getItem() == Items.paper)
-							hasPaper = 20;
-						else if(entity.getEntityItem().getItem() == TFCItems.Stick)
+						if (entity.getEntityItem().getItem() == TFCItems.stick)
 							numsticks+=entity.getEntityItem().stackSize;
+					}
+
+					if (numsticks >= 3)
+					{
+						for (Iterator iterator = list.iterator(); iterator.hasNext();)
+						{
+							EntityItem entity = (EntityItem) iterator.next();
+							if (entity.getEntityItem().getItem() == TFCItems.stick)
+								entity.setDead();
+							if (entity.getEntityItem().getItem() == Items.paper)
+								entity.setDead();
+						}
+						itemstack.damageItem(1, entityplayer);
+						world.setBlock(x, y + 1, z, TFCBlocks.firepit, 1, 0x2);
+						if (world.isRemote)
+							world.markBlockForUpdate(x, y + 1, z);
+						return true;
 					}
 				}
 
@@ -71,25 +85,10 @@ public class ItemFlintSteel extends ItemFlintAndSteel implements ISize
 				if(itemstack.getItemDamage() >= itemstack.getMaxDamage())
 					itemstack.stackSize = 0;
 
-				if(numsticks >= 3)
-				{
-					for (Iterator iterator = list.iterator(); iterator.hasNext();)
-					{
-						EntityItem entity = (EntityItem)iterator.next();
-						if(entity.getEntityItem().getItem() == TFCItems.Stick)
-							entity.setDead();
-						if(entity.getEntityItem().getItem() == Items.paper)
-							entity.setDead();
-					}
-					itemstack.damageItem(1, entityplayer);
-					world.setBlock(x, y + 1, z, TFCBlocks.Firepit, 1, 0x2);
-					if(world.isRemote)
-						world.markBlockForUpdate(x, y + 1, z);
-					return true;
-				}
 				return true;
 			}
-			else if((world.getBlock(x, y, z) == TFCBlocks.Charcoal && world.getBlockMetadata(x, y, z) > 6) || world.getBlock(x, y, z) == Blocks.coal_block)
+			else if (world.getBlock(x, y, z) == TFCBlocks.charcoal && world.getBlockMetadata(x, y, z) > 6 ||
+						world.getBlock(x, y, z) == Blocks.coal_block)
 			{
 				if(world.getBlock(x, y - 1, z).getMaterial() == Material.rock &&
 						world.getBlock(x + 1, y, z).getMaterial() == Material.rock &&
@@ -99,15 +98,15 @@ public class ItemFlintSteel extends ItemFlintAndSteel implements ISize
 						surroundSolids)
 				{
 					itemstack.damageItem(1, entityplayer);
-					world.setBlock(x, y, z, TFCBlocks.Forge, 1, 0x2);
-					TEForge te = (TEForge)world.getTileEntity(x, y, z);
+					world.setBlock(x, y, z, TFCBlocks.forge, 1, 0x2);
+					//TEForge te = (TEForge)world.getTileEntity(x, y, z);
 					return true;
 				}
 			}
-			else if(world.getBlock(x, y, z) == TFCBlocks.Pottery && surroundSolids)
+			else if(world.getBlock(x, y, z) == TFCBlocks.pottery && surroundSolids)
 			{
 				TEPottery te = (TEPottery) world.getTileEntity(x, y, z);
-				te.StartPitFire();
+				te.startPitFire();
 				itemstack.damageItem(1, entityplayer);
 				return true;
 			}
@@ -143,5 +142,11 @@ public class ItemFlintSteel extends ItemFlintAndSteel implements ISize
 	public EnumItemReach getReach(ItemStack is)
 	{
 		return EnumItemReach.SHORT;
+	}
+
+	@Override
+	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag)
+	{
+		ItemTerra.addSizeInformation(is, arraylist);
 	}
 }

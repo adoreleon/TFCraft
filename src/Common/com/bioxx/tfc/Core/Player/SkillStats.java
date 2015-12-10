@@ -1,16 +1,20 @@
 package com.bioxx.tfc.Core.Player;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.HashMap;
+import java.util.Map;
+
+import io.netty.buffer.ByteBuf;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
+
 import net.minecraftforge.common.MinecraftForge;
 
+import cpw.mods.fml.common.network.ByteBufUtils;
+
 import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Handlers.Network.AbstractPacket;
 import com.bioxx.tfc.Handlers.Network.PlayerUpdatePacket;
 import com.bioxx.tfc.api.SkillsManager;
@@ -18,11 +22,9 @@ import com.bioxx.tfc.api.SkillsManager.Skill;
 import com.bioxx.tfc.api.Events.GetSkillMultiplierEvent;
 import com.bioxx.tfc.api.Events.PlayerSkillEvent;
 
-import cpw.mods.fml.common.network.ByteBufUtils;
-
 public class SkillStats
 {
-	private HashMap skillsMap;
+	private Map<Skill, Integer> skillsMap;
 	private EntityPlayer player;
 
 	public SkillStats(EntityPlayer p)
@@ -64,7 +66,7 @@ public class SkillStats
 			if(skillsMap.containsKey(sk))
 			{
 				//First get what the skill level currently is
-				int i = (Integer) skillsMap.get(sk);
+				int i = skillsMap.get(sk);
 				//The put method replaces the old identical entry.
 				skillsMap.put(sk, i+amount);
 			}
@@ -74,11 +76,11 @@ public class SkillStats
 			}
 		}
 
-		int i = (Integer) skillsMap.get(sk);
+		int i = skillsMap.get(sk);
 		if(player instanceof EntityPlayerMP)
 		{
 			AbstractPacket pkt = new PlayerUpdatePacket(1, skillName, i);
-			TerraFirmaCraft.packetPipeline.sendTo(pkt, (EntityPlayerMP) player);
+			TerraFirmaCraft.PACKET_PIPELINE.sendTo(pkt, (EntityPlayerMP) player);
 		}
 		writeNBT(player.getEntityData());
 	}
@@ -87,7 +89,7 @@ public class SkillStats
 	{
 		Skill sk = SkillsManager.instance.getSkill(skillName);
 		if(skillsMap.containsKey(sk))
-			return (Integer) skillsMap.get(sk);
+			return skillsMap.get(sk);
 		else
 			return 0;
 	}
@@ -172,7 +174,7 @@ public class SkillStats
 		for(Object o : keys)
 		{
 			Skill k = (Skill)o;
-			int f = (Integer) skillsMap.get(k);
+			int f = skillsMap.get(k);
 			skillCompound.setInteger(k.skillName, f);
 		}
 		nbt.setTag("skillCompound", skillCompound);
@@ -185,7 +187,7 @@ public class SkillStats
 		for(Object o : keys)
 		{
 			Skill k = (Skill)o;
-			int f = (Integer) skillsMap.get(k);
+			int f = skillsMap.get(k);
 			ByteBufUtils.writeUTF8String(buffer, k.skillName);
 			buffer.writeInt(f);
 		}
@@ -208,7 +210,7 @@ public class SkillStats
 
 		public String getLocalizedName()
 		{
-			return StatCollector.translateToLocal(name);
+			return TFC_Core.translate(name);
 		}
 	}
 

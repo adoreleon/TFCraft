@@ -2,7 +2,9 @@ package com.bioxx.tfc.TileEntities;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -10,6 +12,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -18,20 +21,16 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.client.FMLClientHandler;
+
 import com.bioxx.tfc.Blocks.Devices.BlockBlastFurnace;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.Metal.MetalRegistry;
 import com.bioxx.tfc.GUI.GuiBlastFurnace;
-import com.bioxx.tfc.api.HeatIndex;
-import com.bioxx.tfc.api.HeatRegistry;
-import com.bioxx.tfc.api.Metal;
-import com.bioxx.tfc.api.TFC_ItemHeat;
+import com.bioxx.tfc.api.*;
+import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Interfaces.ISmeltable;
 import com.bioxx.tfc.api.TileEntities.TEFireEntity;
-
-import cpw.mods.fml.client.FMLClientHandler;
 
 public class TEBlastFurnace extends TEFireEntity implements IInventory
 {
@@ -41,24 +40,26 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 	public ItemStack fireItemStacks[];
 	public ItemStack outputItemStacks[];
 
-	private int prevStackSize;
-	private int numAirBlocks;
+	public static final int ORE_SLOT1 = 0;
 
-	public String OreType;
+	//private int prevStackSize;
+	//private int numAirBlocks;
+
+	public String oreType;
 
 	// We dont save this since its purpose is to just mkae certain parts of the
 	// code not run every single tick
-	public int slowCounter = 0;
+	public int slowCounter;
 
 	// Bloomery
 	public int charcoalCount;
 	public int oreCount;
 
-	ItemStack outMetal1;
-	int outMetal1Count;
+	//private ItemStack outMetal1;
+	private int outMetal1Count;
 
-	private int cookDelay = 0;
-	private int maxValidStackSize = 0;
+	private int cookDelay;
+	private int maxValidStackSize;
 
 	public TEBlastFurnace()
 	{
@@ -71,7 +72,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		fireItemStacks = new ItemStack[20];
 		outputItemStacks = new ItemStack[20];
 		storage = new ItemStack[2];
-		numAirBlocks = 0;
+		//numAirBlocks = 0;
 		airFromBellows = 0;
 		charcoalCount = 0;
 		oreCount = 0;
@@ -82,13 +83,12 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 	{
 		if (!worldObj.isRemote)
 		{
+			if (this.charcoalCount < this.oreCount)
+				return false;
+
 			// get the direction that the bloomery is facing so that we know
 			// where the stack should be
 			int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-
-			if (this.charcoalCount < this.oreCount) 
-				return false;
-
 			if (this.charcoalCount >= 4 && this.fireTemp == 0)
 			{
 				fireTemp = 1;
@@ -99,7 +99,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		return false;
 	}
 
-	private Boolean CheckValidity()
+	private Boolean checkValidity()
 	{
 		int y = yCoord + 1;
 		if(this.isStackValid(xCoord, y, zCoord))
@@ -112,43 +112,76 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 	{
 	}
 
-	public void CookItem(int i)
+	public void cookItem(int i)
 	{
-		HeatRegistry manager = HeatRegistry.getInstance();
-		Random R = new Random();
-		TECrucible te = (TECrucible) worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
+		ItemStack cookingItemStack = fireItemStacks[i];
+		TECrucible crucibleTE = worldObj.getTileEntity(xCoord, yCoord - 1, zCoord) instanceof TECrucible ?
+				(TECrucible) worldObj.getTileEntity(xCoord, yCoord - 1, zCoord) : null;
 
-		// Only allow the ore to smelt if there is a valid Tuyere associated
-		// with the furnace
-		if (fireItemStacks[i] != null && te != null && storage[1] != null && cookDelay == 0)
+		/*
+		 * Only allow the ore to be smelted if there is a tuyere in the blast furnace, 
+		 * a crucible below the blast furnace that isn't full, and the delay timer has completed.
+		 */
+		if (cookingItemStack != null &&crucibleTE != null && crucibleTE.getTotalMetal() < TECrucible.MAX_UNITS
+				&& storage[1] != null /*Tuyere*/ && cookDelay == 0)
 		{
-			HeatIndex index = manager.findMatchingIndex(fireItemStacks[i]);
-			if (index != null && TFC_ItemHeat.GetTemp(fireItemStacks[i]) >= index.meltTemp)
-			{
-				oreCount--;
-				charcoalCount--;
+			Random r = new Random();
+			HeatRegistry manager = HeatRegistry.getInstance();
+			HeatIndex index = manager.findMatchingIndex(cookingItemStack);
 
+			if (index != null && TFC_ItemHeat.getTemp(cookingItemStack) >= index.meltTemp)
+			{
 				int output = 0;
-				if (fireItemStacks[i].getItem() instanceof ISmeltable)
+				Item cookingItem = cookingItemStack.getItem();
+
+				if (cookingItem instanceof ISmeltable)
 				{
-					output = ((ISmeltable) fireItemStacks[i].getItem()).GetMetalReturnAmount(fireItemStacks[i]);
-					te.addMetal(((ISmeltable) fireItemStacks[i].getItem()).GetMetalType(fireItemStacks[i]), output);
+					output = ((ISmeltable) cookingItem).getMetalReturnAmount(cookingItemStack);
+					// Attempt to add metal to crucible.
+					if (!crucibleTE.addMetal(((ISmeltable) cookingItem).getMetalType(cookingItemStack), output))
+						return; // Do not decrease fuel or ore if the crucible is too full.
 				}
 				else
 				{
-					Metal m = MetalRegistry.instance.getMetalFromItem(fireItemStacks[i].getItem());
-					output = index.getOutput(fireItemStacks[i], R).getItemDamage();
+					Metal m = MetalRegistry.instance.getMetalFromItem(cookingItem);
+					output = index.getOutput(cookingItemStack, r).getItemDamage();
 					if(m != null)
-						te.addMetal(m, (short)(100-output));
+					{
+						// Attempt to add metal to crucible.
+						if (!crucibleTE.addMetal(m, (short) (100 - output)))
+							return; // Do not decrease fuel or ore if the crucible is too full.		
+					}					
 				}
-				cookDelay = 100;
-				fireItemStacks[i] = null;
+
+				oreCount--;
+				charcoalCount--;
+				cookDelay = 100; // Five seconds (20 tps) until the next piece of ore can be smelted
+				fireItemStacks[i] = null; // Delete cooked item
+
+				/*
+				 * Treat fireItemStacks as a queue, and shift everything forward when an item is melted.
+				 * This way the hottest item is always in the first slot - Kitty
+				 */
+				Queue<ItemStack> buffer = new ArrayBlockingQueue<ItemStack>(fireItemStacks.length);
+				for (ItemStack is : fireItemStacks)
+				{
+					if (is != null)
+					{
+						buffer.offer(is);
+					}
+				}
+
+				fireItemStacks = buffer.toArray(new ItemStack[fireItemStacks.length]);
+
+				// Damage the tuyere 1 point per item (not metal unit) smelted.
 				storage[1].setItemDamage(storage[1].getItemDamage() + 1);
 				if (storage[1] != null && storage[1].getItemDamage() == storage[1].getMaxDamage())
 				{
 					setInventorySlotContents(1, null);
 				}
-				te.temperature = (int)fireTemp;
+
+				// Update crucible temperature
+				crucibleTE.temperature = (int)fireTemp;
 			}
 		}
 	}
@@ -201,7 +234,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		//charcoal
 		if(this.charcoalCount > 0)
 		{
-			entityitem = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, new ItemStack(TFCItems.Coal, charcoalCount, 1));
+			entityitem = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, new ItemStack(TFCItems.coal, charcoalCount, 1));
 			entityitem.motionX = (float) rand.nextGaussian() * f3;
 			entityitem.motionY = (float) rand.nextGaussian() * f3 + 0.2F;
 			entityitem.motionZ = (float) rand.nextGaussian() * f3;
@@ -240,7 +273,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		return storage[i];
 	}
 
-	public void HandleTemperature()
+	public void handleTemperature()
 	{
 		int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 
@@ -282,10 +315,10 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 	public boolean isStackValid(int i, int j, int k)
 	{
 		Block yNegBlock = worldObj.getBlock(i, j-1, k);
-		if(yNegBlock != TFCBlocks.Molten &&
+		if(yNegBlock != TFCBlocks.molten &&
 				worldObj.getBlock(i, j-1, k).getMaterial() != Material.rock &&
 				!worldObj.getBlock(i, j-1, k).isNormalCube() &&
-				yNegBlock != TFCBlocks.BlastFurnace && TFC_Core.isTopFaceSolid(worldObj, i, j-1, k))
+				yNegBlock != TFCBlocks.blastFurnace && TFC_Core.isTopFaceSolid(worldObj, i, j-1, k))
 		{
 			return false;
 		}
@@ -293,13 +326,11 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		maxValidStackSize = 0;
 		for (int num = 0; num < 5; num++)
 		{
-			if (!((BlockBlastFurnace) TFCBlocks.BlastFurnace).checkStackAt(worldObj, i, j+num, k))
+			if (!((BlockBlastFurnace) TFCBlocks.blastFurnace).checkStackAt(worldObj, i, j+num, k))
 				break;
 			maxValidStackSize++;
 		}
-		if(maxValidStackSize == 0)
-			return false;
-		return true;
+		return maxValidStackSize != 0;
 	}
 
 	@Override
@@ -313,7 +344,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 	{
 	}
 
-	public boolean AddOreToFire(ItemStack is)
+	public boolean addOreToFire(ItemStack is)
 	{
 		for (int i = 0; i < fireItemStacks.length; i++)
 		{
@@ -334,7 +365,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 			itemstack.stackSize = getInventoryStackLimit();
 	}
 
-	public void CreateTuyereBlock()
+	public void createTuyereBlock()
 	{
 		/**
 		 * Create a tuyere block if the tuyere slot is not empty. REMOVED: Code
@@ -390,14 +421,14 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		return charcoalCount+oreCount;
 	}
 
-	int moltenCount = 0;
+	private int moltenCount;
 
 	@Override
 	public void updateEntity()
 	{
 		if (!worldObj.isRemote)
 		{
-			CreateTuyereBlock();
+			createTuyereBlock();
 
 			if(oreCount < 0)
 				oreCount = 0;
@@ -408,13 +439,16 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 			List list = worldObj.getEntitiesWithinAABB(EntityItem.class,
 					AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + moltenCount + 1.1, zCoord + 1));
 
+			/*Create a list of any players that are inside the chimney*/
+			List playerList = worldObj.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + moltenCount + 1.1, zCoord + 1));
+
 			if (moltenCount == 0)
 				moltenCount = 1;
 			/*
 			 * Make sure the list isn't null or empty and that the stack is
 			 * valid 1 layer above the Molten Ore
 			 */
-			if (list != null && !list.isEmpty() && ((BlockBlastFurnace) TFCBlocks.BlastFurnace).checkStackAt(worldObj, xCoord, yCoord + moltenCount, zCoord))
+			if (list != null && !list.isEmpty() && ((BlockBlastFurnace) TFCBlocks.blastFurnace).checkStackAt(worldObj, xCoord, yCoord + moltenCount, zCoord) && (playerList == null || playerList.isEmpty()))
 			{
 				/*
 				 * Iterate through the list and check for charcoal, coke, and
@@ -423,22 +457,26 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 				for (Iterator iterator = list.iterator(); iterator.hasNext();)
 				{
 					EntityItem entity = (EntityItem) iterator.next();
-					boolean _isOre = TFC_Core.isOreIron(entity.getEntityItem());
+					ItemStack itemstack = entity.getEntityItem();
+					Item item = itemstack.getItem();
+					boolean isOre = TFC_Core.isOreIron(itemstack);
+					HeatRegistry manager = HeatRegistry.getInstance();
+					HeatIndex index = manager.findMatchingIndex(itemstack);
 
-					if (entity.getEntityItem().getItem() == TFCItems.Coal &&
-							entity.getEntityItem().getItemDamage() == 1 ||
-							entity.getEntityItem().getItem() == TFCItems.Coke)
+					if (item == TFCItems.coal &&
+							itemstack.getItemDamage() == 1 /*||
+							item == TFCItems.Coke*/)
 					{
-						for (int c = 0; c < entity.getEntityItem().stackSize; c++)
+						for (int c = 0; c < itemstack.stackSize; c++)
 						{
 							if (getTotalCount() < 40 && charcoalCount < (this.maxValidStackSize*4))
 							{
 								charcoalCount++;
-								entity.getEntityItem().stackSize--;
+								itemstack.stackSize--;
 							}
 						}
 
-						if (entity.getEntityItem().stackSize == 0)
+						if (itemstack.stackSize == 0)
 							entity.setDead();
 					}
 					/*
@@ -446,16 +484,17 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 					 * can melt down into something then add the ore to the list
 					 * of items in the fire.
 					 */
-					else if ((TFC_ItemHeat.IsCookable(entity.getEntityItem()) != -1 && _isOre)
-							|| (!_isOre && entity.getEntityItem().getItem() instanceof ISmeltable))
+					else if (TFC_ItemHeat.isCookable(itemstack) != -1 && isOre ||
+								!isOre && item instanceof ISmeltable && ((ISmeltable) item).getMetalType(itemstack) == Global.PIGIRON &&
+								index != null)
 					{
-						int c = entity.getEntityItem().stackSize;
+						int c = itemstack.stackSize;
 						int nonConsumedOre = 0;
 						for (; c > 0; c--)
 						{
 							if (getTotalCount() < 40 && oreCount < (this.maxValidStackSize*4))
 							{
-								if (foundFlux(moltenCount) && AddOreToFire(new ItemStack(entity.getEntityItem().getItem(), 1, entity.getEntityItem().getItemDamage())))
+								if (foundFlux(moltenCount) && addOreToFire(new ItemStack(item, 1, itemstack.getItemDamage())))
 									oreCount+=1;
 								else
 									nonConsumedOre++;
@@ -470,16 +509,15 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 							entity.setDead();
 						else
 						{
-							ItemStack is = entity.getEntityItem();
-							is.stackSize = c + nonConsumedOre;
-							entity.setEntityItemStack(is);
+							itemstack.stackSize = c + nonConsumedOre;
+							entity.setEntityItemStack(itemstack);
 						}
 					}
 				}
 			}
 
 			/* Handle the temperature of the Bloomery */
-			HandleTemperature();
+			handleTemperature();
 
 			if (cookDelay > 0)
 				cookDelay--;
@@ -489,9 +527,9 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 				/* Handle temperature for each item in the stack */
 				careForInventorySlot(fireItemStacks[i]);
 				/* Cook each input item */
-				if (worldObj.getBlock(xCoord, yCoord - 1, zCoord) == TFCBlocks.Crucible)
+				if (worldObj.getBlock(xCoord, yCoord - 1, zCoord) == TFCBlocks.crucible)
 				{
-					CookItem(i);
+					cookItem(i);
 				}
 			}
 
@@ -500,7 +538,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 			if (slowCounter > 100)
 			{
 				// Here we make sure that the forge is valid
-				isValid = CheckValidity();
+				isValid = checkValidity();
 				moltenCount = updateMoltenBlocks();
 			}
 			slowCounter++;
@@ -525,8 +563,8 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		for (int i = 1; i <= 5; i++)
 		{
 			/*The stack must be air or already be molten rock*/
-			if((worldObj.isAirBlock(xCoord, yCoord+i, zCoord) ||
-					worldObj.getBlock(xCoord, yCoord+i, zCoord) == TFCBlocks.Molten))
+			if (worldObj.isAirBlock(xCoord, yCoord + i, zCoord) ||
+				worldObj.getBlock(xCoord, yCoord + i, zCoord) == TFCBlocks.molten)
 			{
 				// Make sure that the Stack is surrounded by rock
 				/*if (isStackValid(xCoord, yCoord + i, zCoord))
@@ -538,13 +576,13 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 					if (this.fireTemp > 100)
 					{
 						int m = count > 7 ? 7 : count;
-						worldObj.setBlock(xCoord, yCoord + i, zCoord, TFCBlocks.Molten, m + 8, 2);
+						worldObj.setBlock(xCoord, yCoord + i, zCoord, TFCBlocks.molten, m + 8, 2);
 						count -= 8;
 					}
 					else
 					{
 						int m = count > 7 ? 7 : count;
-						worldObj.setBlock(xCoord, yCoord + i, zCoord, TFCBlocks.Molten, m, 2);
+						worldObj.setBlock(xCoord, yCoord + i, zCoord, TFCBlocks.molten, m, 2);
 						count -= 8;
 					}
 				}
@@ -566,7 +604,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		{
 			EntityItem entity = (EntityItem) iterator.next();
 			ItemStack is = entity.getEntityItem();
-			if(!entity.isDead && (is.getItemDamage() == 0) && is.getItem() == TFCItems.Powder)
+			if (!entity.isDead && is.getItemDamage() == 0 && is.getItem() == TFCItems.powder)
 			{
 				is.stackSize--;
 				if(is.stackSize == 0)
@@ -664,7 +702,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		fireItemStacks = new ItemStack[20];
 		for (int i = 0; i < nbttaglist.tagCount(); i++)
 		{
-			NBTTagCompound nbttagcompound1 = (NBTTagCompound)nbttaglist.getCompoundTagAt(i);
+			NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
 			byte byte0 = nbttagcompound1.getByte("Slot");
 			if(byte0 >= 0 && byte0 < fireItemStacks.length)
 				fireItemStacks[byte0] = ItemStack.loadItemStackFromNBT(nbttagcompound1);
@@ -674,7 +712,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		storage = new ItemStack[2];
 		for (int i = 0; i < nbttaglist2.tagCount(); i++)
 		{
-			NBTTagCompound nbttagcompound1 = (NBTTagCompound)nbttaglist2.getCompoundTagAt(i);
+			NBTTagCompound nbttagcompound1 = nbttaglist2.getCompoundTagAt(i);
 			byte byte0 = nbttagcompound1.getByte("Slot");
 			if (byte0 >= 0 && byte0 < storage.length)
 			{
@@ -686,7 +724,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		outputItemStacks = new ItemStack[20];
 		for (int i = 0; i < nbttaglist3.tagCount(); i++)
 		{
-			NBTTagCompound nbttagcompound1 = (NBTTagCompound)nbttaglist3.getCompoundTagAt(i);
+			NBTTagCompound nbttagcompound1 = nbttaglist3.getCompoundTagAt(i);
 			byte byte0 = nbttagcompound1.getByte("Slot");
 			if(byte0 >= 0 && byte0 < outputItemStacks.length)
 				outputItemStacks[byte0] = ItemStack.loadItemStackFromNBT(nbttagcompound1);
@@ -707,7 +745,7 @@ public class TEBlastFurnace extends TEFireEntity implements IInventory
 		readFromNBT(pkt.func_148857_g());
 		
 		GuiScreen gui = FMLClientHandler.instance().getClient().currentScreen;
-		if(gui != null && gui instanceof GuiBlastFurnace)
+		if (gui instanceof GuiBlastFurnace)
 			((GuiBlastFurnace)gui).updateScreen();
 	}
 

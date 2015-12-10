@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.fluids.Fluid;
@@ -15,13 +16,13 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
 
-import com.bioxx.tfc.TFCBlocks;
+import cpw.mods.fml.common.eventhandler.Event;
+
 import com.bioxx.tfc.Items.ItemTerra;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Util.Helper;
-
-import cpw.mods.fml.common.eventhandler.Event;
 
 public class ItemSteelBucket extends ItemTerra
 {
@@ -52,7 +53,7 @@ public class ItemSteelBucket extends ItemTerra
 	@Override
 	public ItemStack onItemRightClick(ItemStack is, World world, EntityPlayer player)
 	{
-		float var4 = 1.0F;
+		//float var4 = 1.0F;
 		boolean var11 = this.bucketContents == Blocks.air;
 		MovingObjectPosition mop = Helper.getMovingObjectPositionFromPlayer(world, player, var11);
 
@@ -108,22 +109,25 @@ public class ItemSteelBucket extends ItemTerra
 					}
 
 					Fluid fluid = ((IFluidBlock)world.getBlock(i, j, k)).getFluid();
-					ItemStack filledIS = FluidContainerRegistry.fillFluidContainer(new FluidStack(fluid, 1000), is);
-					if(filledIS != null)
+					if (fluid != null)
 					{
-						world.setBlockToAir(i, j, k);
-
-						if (--is.stackSize <= 0)
+						ItemStack filledIS = FluidContainerRegistry.fillFluidContainer(new FluidStack(fluid, 1000), is);
+						if (filledIS != null)
 						{
-							return filledIS;
-						}
+							world.setBlockToAir(i, j, k);
 
-						if (!player.inventory.addItemStackToInventory(filledIS))
-						{
-							player.entityDropItem(filledIS, 0);
-						}
+							if (--is.stackSize <= 0)
+							{
+								return filledIS;
+							}
 
-						return is;
+							if (!player.inventory.addItemStackToInventory(filledIS))
+							{
+								player.entityDropItem(filledIS, 0);
+							}
+
+							return is;
+						}
 					}
 				}
 				else
@@ -175,7 +179,7 @@ public class ItemSteelBucket extends ItemTerra
 			}
 			else
 			{
-				if (world.provider.isHellWorld && (this.bucketContents == TFCBlocks.FreshWater || this.bucketContents == TFCBlocks.SaltWater))
+				if (world.provider.isHellWorld && (this.bucketContents == TFCBlocks.freshWater || this.bucketContents == TFCBlocks.saltWater))
 				{
 					world.playSoundEffect(x + 0.5F, y + 0.5F, z + 0.5F, "random.fizz", 0.5F, 2.6F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.8F);
 

@@ -1,155 +1,135 @@
 package com.bioxx.tfc.WorldGen.Generators;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import net.minecraft.block.Block;
 
-import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
 
 public class OreSpawnData
 {
 	public int type, size, meta, rarity, min = 5, max = 128, vDensity, hDensity;
 	public Block block;
-	public HashMap<Block, Integer> base;
+	public Map<Block, List<Integer>> base;
 
-	public OreSpawnData(String T, String S, String BN, int M, int R, String[] baseRocks)
+	public OreSpawnData(String t, String s, String blockName, int m, int r, String[] baseRocks)
 	{
-		block = Block.getBlockFromName(BN);
-		meta = M;
-		rarity = R;
-		if(T.equals("default"))
+		block = Block.getBlockFromName(blockName);
+
+		if (block == null)
+		{
+			TerraFirmaCraft.LOG.error(TFC_Core.translate("error.error") + " " + TFC_Core.translate("error.OreCFG") + " " + blockName);
+			throw new java.lang.NullPointerException(TFC_Core.translate("error.OreCFG") + " " + blockName);
+		}
+
+		meta = m;
+		rarity = r;
+		if ("default".equals(t))
 			type = 0;
 		else
 			type = 1;
 
-		if(S.equals("small"))
+		if ("small".equals(s))
 			size = 0;
-		else if(S.equals("medium"))
+		else if ("medium".equals(s))
 			size = 1;
 		else
 			size = 2;
 
-		base = new HashMap<Block, Integer>();
-		for(int i = 0, j = 0; i < baseRocks.length; i++)
+		base = new HashMap<Block, List<Integer>>();
+		for (String name : baseRocks)
 		{
-			getOre(baseRocks[i]);
+			getOre(name);
 		}
 	}
 
-	public OreSpawnData(String T, String S, String BN, int M, int R, String[] baseRocks, int Min, int Max, int v, int h)
+	public OreSpawnData(String t, String s, String blockName, int m, int r, String[] baseRocks, int minHeight, int maxHeight, int v, int h)
 	{
-		this(T, S, BN, M, R, baseRocks);
-		min = Min;
-		max = Max;
+		this(t, s, blockName, m, r, baseRocks);
+		min = minHeight;
+		max = maxHeight;
 		vDensity = v;
 		hDensity = h;
 	}
 
 	private void getOre(String name)
-	{
-		if(name.equalsIgnoreCase("granite"))
-		{
-			this.base.put(TFCBlocks.StoneIgIn, 0);
+	{		
+		for (int i = 0; i < Global.STONE_IGIN.length; i++){
+			if (name.equalsIgnoreCase(Global.STONE_IGIN[i]))
+			{
+				List<Integer> metadata = base.containsKey(TFCBlocks.stoneIgIn) ? base.get(TFCBlocks.stoneIgIn) : new ArrayList<Integer>();
+				metadata.add(i);
+				base.put(TFCBlocks.stoneIgIn, metadata);
+				return;
+			}
 		}
-		else if(name.equalsIgnoreCase("diorite"))
+
+		for (int i = 0; i < Global.STONE_IGEX.length; i++)
 		{
-			this.base.put(TFCBlocks.StoneIgIn, 1);
+			if (name.equalsIgnoreCase(Global.STONE_IGEX[i]))
+			{
+				List<Integer> metadata = base.containsKey(TFCBlocks.stoneIgEx) ? base.get(TFCBlocks.stoneIgEx) : new ArrayList<Integer>();
+				metadata.add(i);
+				base.put(TFCBlocks.stoneIgEx, metadata);
+				return;
+			}
 		}
-		else if(name.equalsIgnoreCase("gabbro"))
+
+		for (int i = 0; i < Global.STONE_SED.length; i++)
 		{
-			this.base.put(TFCBlocks.StoneIgIn, 2);
+			if (name.equalsIgnoreCase(Global.STONE_SED[i]))
+			{
+				List<Integer> metadata = base.containsKey(TFCBlocks.stoneSed) ? base.get(TFCBlocks.stoneSed) : new ArrayList<Integer>();
+				metadata.add(i);
+				base.put(TFCBlocks.stoneSed, metadata);
+				return;
+			}
 		}
-		else if(name.equalsIgnoreCase("shale"))
+
+		for (int i = 0; i < Global.STONE_MM.length; i++)
 		{
-			this.base.put(TFCBlocks.StoneSed, 0);
+			if (name.equalsIgnoreCase(Global.STONE_MM[i]))
+			{
+				List<Integer> metadata = base.containsKey(TFCBlocks.stoneMM) ? base.get(TFCBlocks.stoneMM) : new ArrayList<Integer>();
+				metadata.add(i);
+				base.put(TFCBlocks.stoneMM, metadata);
+				return;
+			}				
 		}
-		else if(name.equalsIgnoreCase("claystone"))
+		
+		if ("igneous intrusive".equalsIgnoreCase(name))
 		{
-			this.base.put(TFCBlocks.StoneSed, 1);
+			List<Integer> metadata = base.containsKey(TFCBlocks.stoneIgIn) ? base.get(TFCBlocks.stoneIgIn) : new ArrayList<Integer>();
+			metadata.add(-1);
+			base.put(TFCBlocks.stoneIgIn, metadata);
+			return;
 		}
-		else if(name.equalsIgnoreCase("rock salt"))
+		else if ("igneous extrusive".equalsIgnoreCase(name))
 		{
-			this.base.put(TFCBlocks.StoneSed, 2);
+			List<Integer> metadata = base.containsKey(TFCBlocks.stoneIgEx) ? base.get(TFCBlocks.stoneIgEx) : new ArrayList<Integer>();
+			metadata.add(-1);
+			base.put(TFCBlocks.stoneIgEx, metadata);
+			return;
 		}
-		else if(name.equalsIgnoreCase("limestone"))
+		else if ("sedimentary".equalsIgnoreCase(name))
 		{
-			this.base.put(TFCBlocks.StoneSed, 3);
+			List<Integer> metadata = base.containsKey(TFCBlocks.stoneSed) ? base.get(TFCBlocks.stoneSed) : new ArrayList<Integer>();
+			metadata.add(-1);
+			base.put(TFCBlocks.stoneSed, metadata);
+			return;
 		}
-		else if(name.equalsIgnoreCase("conglomerate"))
+		else if ("metamorphic".equalsIgnoreCase(name))
 		{
-			this.base.put(TFCBlocks.StoneSed, 4);
-		}
-		else if(name.equalsIgnoreCase("dolomite"))
-		{
-			this.base.put(TFCBlocks.StoneSed, 5);
-		}
-		else if(name.equalsIgnoreCase("chert"))
-		{
-			this.base.put(TFCBlocks.StoneSed, 6);
-		}
-		else if(name.equalsIgnoreCase("chalk"))
-		{
-			this.base.put(TFCBlocks.StoneSed, 7);
-		}
-		else if(name.equalsIgnoreCase("rhyolite"))
-		{
-			this.base.put(TFCBlocks.StoneIgEx, 0);
-		}
-		else if(name.equalsIgnoreCase("basalt"))
-		{
-			this.base.put(TFCBlocks.StoneIgEx, 1);
-		}
-		else if(name.equalsIgnoreCase("andesite"))
-		{
-			this.base.put(TFCBlocks.StoneIgEx, 2);
-		}
-		else if(name.equalsIgnoreCase("dacite"))
-		{
-			this.base.put(TFCBlocks.StoneIgEx, 3);
-		}
-		else if(name.equalsIgnoreCase("quartzite"))
-		{
-			this.base.put(TFCBlocks.StoneMM, 0);
-		}
-		else if(name.equalsIgnoreCase("slate"))
-		{
-			this.base.put(TFCBlocks.StoneMM, 1);
-		}
-		else if(name.equalsIgnoreCase("phyllite"))
-		{
-			this.base.put(TFCBlocks.StoneMM, 2);
-		}
-		else if(name.equalsIgnoreCase("schist"))
-		{
-			this.base.put(TFCBlocks.StoneMM, 3);
-		}
-		else if(name.equalsIgnoreCase("gneiss"))
-		{
-			this.base.put(TFCBlocks.StoneMM, 4);
-		}
-		else if(name.equalsIgnoreCase("marble"))
-		{
-			this.base.put(TFCBlocks.StoneMM, 5);
-		}
-		else if(name.equalsIgnoreCase("igneous intrusive"))
-		{
-			this.base.put(TFCBlocks.StoneIgIn, -1);
-		}
-		else if(name.equalsIgnoreCase("igneous extrusive"))
-		{
-			this.base.put(TFCBlocks.StoneIgEx, -1);
-		}
-		else if(name.equalsIgnoreCase("sedimentary"))
-		{
-			this.base.put(TFCBlocks.StoneSed, -1);
-		}
-		else if(name.equalsIgnoreCase("metamorphic"))
-		{
-			this.base.put(TFCBlocks.StoneMM, -1);
-		}
-		else
-		{
-			this.base.put(TFCBlocks.StoneIgIn, -1);
+			List<Integer> metadata = base.containsKey(TFCBlocks.stoneMM) ? base.get(TFCBlocks.stoneMM) : new ArrayList<Integer>();
+			metadata.add(-1);
+			base.put(TFCBlocks.stoneMM, metadata);
+			return;
 		}
 	}
 }

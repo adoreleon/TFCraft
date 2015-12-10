@@ -2,6 +2,7 @@ package com.bioxx.tfc.WorldGen;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
@@ -19,7 +20,7 @@ import com.bioxx.tfc.WorldGen.GenLayers.DataLayers.Tree.GenTreeLayer;
 
 public class WorldCacheManager 
 {	
-	World localWorld;
+	//private World localWorld;
 	//Rocks
 	protected GenLayerTFC[] rocksIndexLayer;
 	protected DataCache[] rockCache;
@@ -48,28 +49,28 @@ public class WorldCacheManager
 	protected GenLayerTFC drainageIndexLayer;
 	protected DataCache drainageCache;
 
-	protected LinkedHashMap<String, Float> worldTempCache;
+	protected Map<String, Float> worldTempCache;
 
-	public long seed = 0;
+	public long seed;
 
-	public static DataLayer[] RockLayer1 = new DataLayer[]{
-		DataLayer.Shale, DataLayer.Claystone, DataLayer.RockSalt, DataLayer.Limestone,
-		DataLayer.Conglomerate, DataLayer.Dolomite, DataLayer.Chert, DataLayer.Chalk,
-		DataLayer.Rhyolite, DataLayer.Basalt, DataLayer.Andesite, DataLayer.Dacite,
-		DataLayer.Quartzite, DataLayer.Slate, DataLayer.Phyllite, DataLayer.Schist,
-		DataLayer.Gneiss, DataLayer.Marble, DataLayer.Granite, DataLayer.Diorite, DataLayer.Gabbro};
-	public static DataLayer[] RockLayer2 = new DataLayer[]{
-		DataLayer.Rhyolite, DataLayer.Basalt, DataLayer.Andesite, DataLayer.Dacite,
-		DataLayer.Quartzite, DataLayer.Slate, DataLayer.Phyllite, DataLayer.Schist,
-		DataLayer.Gneiss, DataLayer.Marble, DataLayer.Granite, DataLayer.Diorite,
-		DataLayer.Gabbro};
-	public static DataLayer[] RockLayer3 = new DataLayer[]{
-		DataLayer.Rhyolite, DataLayer.Basalt, DataLayer.Andesite,
-		DataLayer.Dacite, DataLayer.Granite, DataLayer.Diorite, DataLayer.Gabbro};
+	public static final DataLayer[] ROCK_LAYER_1 = new DataLayer[]{
+		DataLayer.SHALE, DataLayer.CLAYSTONE, DataLayer.ROCKSALT, DataLayer.LIMESTONE,
+		DataLayer.CONGLOMERATE, DataLayer.DOLOMITE, DataLayer.CHERT, DataLayer.CHALK,
+		DataLayer.RHYOLITE, DataLayer.BASALT, DataLayer.ANDESITE, DataLayer.DACITE,
+		DataLayer.QUARTZITE, DataLayer.SLATE, DataLayer.PHYLLITE, DataLayer.SCHIST,
+		DataLayer.GNEISS, DataLayer.MARBLE, DataLayer.GRANITE, DataLayer.DIORITE, DataLayer.GABBRO};
+	public static final DataLayer[] ROCK_LAYER_2 = new DataLayer[]{
+		DataLayer.RHYOLITE, DataLayer.BASALT, DataLayer.ANDESITE, DataLayer.DACITE,
+		DataLayer.QUARTZITE, DataLayer.SLATE, DataLayer.PHYLLITE, DataLayer.SCHIST,
+		DataLayer.GNEISS, DataLayer.MARBLE, DataLayer.GRANITE, DataLayer.DIORITE,
+		DataLayer.GABBRO};
+	public static final DataLayer[] ROCK_LAYER_3 = new DataLayer[]{
+		DataLayer.RHYOLITE, DataLayer.BASALT, DataLayer.ANDESITE,
+		DataLayer.DACITE, DataLayer.GRANITE, DataLayer.DIORITE, DataLayer.GABBRO};
 
-	public static DataLayer[] treeArray = new DataLayer[] {DataLayer.Ash, DataLayer.Aspen, DataLayer.Birch, DataLayer.Chestnut, DataLayer.DouglasFir, 
-		DataLayer.Hickory, DataLayer.Maple, DataLayer.Oak, DataLayer.Pine, DataLayer.Redwood, DataLayer.Pine, DataLayer.Spruce, DataLayer.Sycamore, 
-		DataLayer.WhiteCedar, DataLayer.WhiteElm, DataLayer.Willow, DataLayer.NoTree};
+	public static final DataLayer[] TREE_ARRAY = new DataLayer[] {DataLayer.ASH, DataLayer.ASPEN, DataLayer.BIRCH, DataLayer.CHESTNUT, DataLayer.DOUGLASFIR, 
+		DataLayer.HICKORY, DataLayer.MAPLE, DataLayer.OAK, DataLayer.PINE, DataLayer.REDWOOD, DataLayer.PINE, DataLayer.SPRUCE, DataLayer.SYCAMORE, 
+		DataLayer.WHITECEDAR, DataLayer.WHITEELM, DataLayer.WILLOW, DataLayer.NO_TREE};
 
 	private WorldCacheManager()
 	{
@@ -92,42 +93,42 @@ public class WorldCacheManager
 	public WorldCacheManager(World world)
 	{
 		this(world.getSeed(), world.getWorldInfo().getTerrainType());
-		localWorld = world;
+		//localWorld = world;
 	}
 
-	private WorldCacheManager(long Seed, WorldType worldtype)
+	private WorldCacheManager(long genSeed, WorldType worldtype)
 	{
 		this();
-		seed = Seed;
+		seed = genSeed;
 
 		//Setup Rocks
 		rocksIndexLayer = new GenLayerTFC[3];
-		rocksIndexLayer[0] = GenRockLayer.initialize(Seed+1, RockLayer1);
-		rocksIndexLayer[1] = GenRockLayer.initialize(Seed+2, RockLayer2);
-		rocksIndexLayer[2] = GenRockLayer.initialize(Seed+3, RockLayer3);
+		rocksIndexLayer[0] = GenRockLayer.initialize(genSeed+1, ROCK_LAYER_1);
+		rocksIndexLayer[1] = GenRockLayer.initialize(genSeed+2, ROCK_LAYER_2);
+		rocksIndexLayer[2] = GenRockLayer.initialize(genSeed+3, ROCK_LAYER_3);
 
 
 		//Setup Trees
 		treesIndexLayer = new GenLayerTFC[3];
 
-		treesIndexLayer[0] = GenTreeLayer.initialize(Seed+4, treeArray);
-		treesIndexLayer[1] = GenTreeLayer.initialize(Seed+5, treeArray);
-		treesIndexLayer[2] = GenTreeLayer.initialize(Seed+6, treeArray);
+		treesIndexLayer[0] = GenTreeLayer.initialize(genSeed+4, TREE_ARRAY);
+		treesIndexLayer[1] = GenTreeLayer.initialize(genSeed+5, TREE_ARRAY);
+		treesIndexLayer[2] = GenTreeLayer.initialize(genSeed+6, TREE_ARRAY);
 
 		//Setup Evapotranspiration
-		evtIndexLayer = GenEVTLayer.initialize(Seed+7, worldtype);
+		evtIndexLayer = GenEVTLayer.initialize(genSeed+7, worldtype);
 
 		//Setup Rainfall
-		rainfallIndexLayer = GenRainLayerTFC.initialize(Seed+8, worldtype);
+		rainfallIndexLayer = GenRainLayerTFC.initialize(genSeed+8, worldtype);
 
 		//Setup Stability
-		stabilityIndexLayer = GenStabilityLayer.initialize(Seed+9, worldtype);
+		stabilityIndexLayer = GenStabilityLayer.initialize(genSeed+9, worldtype);
 
 		//Setup Soil PH
-		phIndexLayer = GenPHLayer.initialize(Seed+10, worldtype);
+		phIndexLayer = GenPHLayer.initialize(genSeed+10, worldtype);
 
 		//Setup Soil Drainage
-		drainageIndexLayer = GenDrainageLayer.initialize(Seed+11, worldtype);
+		drainageIndexLayer = GenDrainageLayer.initialize(genSeed+11, worldtype);
 
 		worldTempCache = new LinkedHashMap<String, Float>();
 	}
@@ -205,10 +206,10 @@ public class WorldCacheManager
 		return cache.getDataLayerAt(indexLayers, par1, par2);
 	}
 
-	private DataLayer[] loadDataLayerGeneratorData(DataCache[] cache, DataLayer[] layers, GenLayerTFC[] indexLayers, int par2, int par3, int par4, int par5, int layer)
+	/*private DataLayer[] loadDataLayerGeneratorData(DataCache[] cache, DataLayer[] layers, GenLayerTFC[] indexLayers, int par2, int par3, int par4, int par5, int layer)
 	{
 		return this.getDataLayerAt(cache, layers, indexLayers, par2, par3, par4, par5, true, layer);
-	}
+	}*/
 
 	public DataLayer[] getDataLayerAt(DataCache[] cache, DataLayer[] layers, GenLayerTFC[] indexLayers, int x, int y, int width, int height, boolean par6, int layer)
 	{
@@ -267,7 +268,7 @@ public class WorldCacheManager
 	 */
 	public DataLayer[] loadRockLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height, int layer)
 	{
-		return this.getDataLayerAt(rockCache, layers, rocksIndexLayer, x, y, width, height, true, layer);
+		return this.getDataLayerAt(rockCache.clone(), layers, rocksIndexLayer, x, y, width, height, true, layer);
 	}
 
 	public DataLayer getTreeLayerAt(int x, int z, int index)
@@ -281,7 +282,7 @@ public class WorldCacheManager
 	 */
 	public DataLayer[] loadTreeLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height, int layer)
 	{
-		return this.getDataLayerAt(treeCache, layers, treesIndexLayer, x, y, width, height, true, 0);
+		return this.getDataLayerAt(treeCache.clone(), layers, treesIndexLayer, x, y, width, height, true, 0);
 	}
 
 	public DataLayer getEVTLayerAt(int x, int z)
@@ -295,7 +296,7 @@ public class WorldCacheManager
 	 */
 	public DataLayer[] loadEVTLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height)
 	{
-		return this.getDataLayerAt(evtCache, layers, evtIndexLayer, x, y, width, height, true, 0);
+		return this.getDataLayerAt(evtCache, layers, evtIndexLayer, x, y, width, height, true, 0); //NOPMD
 	}
 
 	public DataLayer getRainfallLayerAt(int x, int z)
@@ -308,7 +309,7 @@ public class WorldCacheManager
 	 */
 	public DataLayer[] loadRainfallLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height)
 	{
-		return this.getDataLayerAt(rainfallCache, layers, rainfallIndexLayer, x, y, width, height, true, 0);
+		return this.getDataLayerAt(rainfallCache, layers, rainfallIndexLayer, x, y, width, height, true, 0); //NOPMD
 	}
 
 	public DataLayer getStabilityLayerAt(int x, int z)
@@ -318,18 +319,18 @@ public class WorldCacheManager
 
 	public DataLayer[] loadStabilityLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height)
 	{
-		return this.getDataLayerAt(stabilityCache, layers, stabilityIndexLayer, x, y, width, height, true, 0);
+		return this.getDataLayerAt(stabilityCache, layers, stabilityIndexLayer, x, y, width, height, true, 0); //NOPMD
 	}
 
 	public DataLayer getPHLayerAt(int x, int z)
 	{
 		DataLayer dl = this.phCache.getDataLayerAt(phIndexLayer, x, z);
-		return dl != null ? dl : DataLayer.PH_Neutral;
+		return dl != null ? dl : DataLayer.PH_NEUTRAL;
 	}
 
 	public DataLayer[] loadPHLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height)
 	{
-		return this.getDataLayerAt(phCache, layers, phIndexLayer, x, y, width, height, true, 0);
+		return this.getDataLayerAt(phCache, layers, phIndexLayer, x, y, width, height, true, 0); //NOPMD
 	}
 
 	public DataLayer getDrainageLayerAt(int x, int z)
@@ -339,6 +340,6 @@ public class WorldCacheManager
 
 	public DataLayer[] loadDrainageLayerGeneratorData(DataLayer[] layers, int x, int y, int width, int height)
 	{
-		return this.getDataLayerAt(drainageCache, layers, drainageIndexLayer, x, y, width, height, true, 0);
+		return this.getDataLayerAt(drainageCache, layers, drainageIndexLayer, x, y, width, height, true, 0); //NOPMD
 	}
 }

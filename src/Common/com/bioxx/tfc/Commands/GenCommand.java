@@ -6,9 +6,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.WorldGen.TFCBiome;
 import com.bioxx.tfc.WorldGen.Generators.WorldGenFissure;
+import com.bioxx.tfc.WorldGen.Generators.Trees.WorldGenCustomFruitTree;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.TFCOptions;
 
 public class GenCommand extends CommandBase
@@ -22,33 +24,47 @@ public class GenCommand extends CommandBase
 	@Override
 	public void processCommand(ICommandSender sender, String[] params)
 	{
-		if(!TFCOptions.enableDebugMode)
-			return;
-
 		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
 
-		if(params.length == 2)
+		if(!TFCOptions.enableDebugMode)
+		{
+			TFC_Core.sendInfoMessage(player, new ChatComponentText("Debug Mode Required"));
+			return;
+		}
+
+		if (params.length == 1)
+		{
+			if (params[0].equalsIgnoreCase("fruittree"))
+			{
+				TFC_Core.sendInfoMessage(player, new ChatComponentText("Generating Fruit Tree"));
+				WorldGenerator fruitGen = new WorldGenCustomFruitTree(false, TFCBlocks.fruitTreeLeaves, 0);
+
+				if (!fruitGen.generate(sender.getEntityWorld(), sender.getEntityWorld().rand, (int) player.posX, (int) player.posY, (int) player.posZ))
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Generation Failed"));
+			}
+		}
+		else if (params.length == 2)
 		{
 			if(params[0].equals("fissure"))
 			{
 				WorldGenFissure gen = null;
 				if(params[1].equals("water"))
 				{
-					gen = new WorldGenFissure(TFCBlocks.FreshWater);
+					gen = new WorldGenFissure(TFCBlocks.freshWater);
 					gen.checkStability = false;
-					player.addChatMessage(new ChatComponentText("Generating Water"));
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Generating Water"));
 				}
 				else if(params[1].equals("hotwater"))
 				{
-					gen = new WorldGenFissure(TFCBlocks.HotWater);
+					gen = new WorldGenFissure(TFCBlocks.hotWater);
 					gen.checkStability = false;
-					player.addChatMessage(new ChatComponentText("Generating Hot Springs"));
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Generating Hot Springs"));
 				}
 				else
 				{
 					gen = new WorldGenFissure(null);
 					gen.checkStability = false;
-					player.addChatMessage(new ChatComponentText("Generating Fissure"));
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Generating Fissure"));
 				}
 				gen.generate(sender.getEntityWorld(), sender.getEntityWorld().rand, (int)player.posX, (int)player.posY - 1, (int)player.posZ);
 			}
@@ -58,28 +74,28 @@ public class GenCommand extends CommandBase
 
 				if (i != -1)
 				{
-					player.addChatMessage(new ChatComponentText("Generating Small " + params[1] + " Tree"));
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Generating Small " + params[1] + " Tree"));
 					WorldGenerator treeGen = TFCBiome.getTreeGen(i, false);
 					if (!treeGen.generate(sender.getEntityWorld(), sender.getEntityWorld().rand, (int) player.posX, (int) player.posY, (int) player.posZ))
-						player.addChatMessage(new ChatComponentText("Generation Failed"));
+						TFC_Core.sendInfoMessage(player, new ChatComponentText("Generation Failed"));
 				}
 				else
-					player.addChatMessage(new ChatComponentText("Invalid Tree"));
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Invalid Tree"));
 			}
 		}
-		else if (params.length == 3 && (params[0].equalsIgnoreCase("tree") && params[2].equalsIgnoreCase("big")))
+		else if (params.length == 3 && params[0].equalsIgnoreCase("tree") && params[2].equalsIgnoreCase("big"))
 		{
 			int i = getTree(params[1]);
 
 			if (i != -1)
 			{
-				player.addChatMessage(new ChatComponentText("Generating Big " + params[1] + " Tree"));
-				WorldGenerator treeGen = TFCBiome.getTreeGen(i, false);
+				TFC_Core.sendInfoMessage(player, new ChatComponentText("Generating Big " + params[1] + " Tree"));
+				WorldGenerator treeGen = TFCBiome.getTreeGen(i, true);
 				if (!treeGen.generate(sender.getEntityWorld(), sender.getEntityWorld().rand, (int) player.posX, (int) player.posY, (int) player.posZ))
-					player.addChatMessage(new ChatComponentText("Generation Failed"));
+					TFC_Core.sendInfoMessage(player, new ChatComponentText("Generation Failed"));
 			}
 			else
-				player.addChatMessage(new ChatComponentText("Invalid Tree"));
+				TFC_Core.sendInfoMessage(player, new ChatComponentText("Invalid Tree"));
 		}
 	}
 
@@ -91,39 +107,39 @@ public class GenCommand extends CommandBase
 
 	public int getTree(String tree)
 	{
-		if (tree.equalsIgnoreCase("oak"))
+		if ("oak".equalsIgnoreCase(tree))
 			return 0;
-		else if (tree.equalsIgnoreCase("aspen"))
+		else if ("aspen".equalsIgnoreCase(tree))
 			return 1;
-		else if (tree.equalsIgnoreCase("birch"))
+		else if ("birch".equalsIgnoreCase(tree))
 			return 2;
-		else if (tree.equalsIgnoreCase("chestnut"))
+		else if ("chestnut".equalsIgnoreCase(tree))
 			return 3;
-		else if (tree.equalsIgnoreCase("douglasfir"))
+		else if ("douglasfir".equalsIgnoreCase(tree))
 			return 4;
-		else if (tree.equalsIgnoreCase("hickory"))
+		else if ("hickory".equalsIgnoreCase(tree))
 			return 5;
-		else if (tree.equalsIgnoreCase("maple"))
+		else if ("maple".equalsIgnoreCase(tree))
 			return 6;
-		else if (tree.equalsIgnoreCase("ash"))
+		else if ("ash".equalsIgnoreCase(tree))
 			return 7;
-		else if (tree.equalsIgnoreCase("pine"))
+		else if ("pine".equalsIgnoreCase(tree))
 			return 8;
-		else if (tree.equalsIgnoreCase("sequoia"))
+		else if ("sequoia".equalsIgnoreCase(tree))
 			return 9;
-		else if (tree.equalsIgnoreCase("spruce"))
+		else if ("spruce".equalsIgnoreCase(tree))
 			return 10;
-		else if (tree.equalsIgnoreCase("sycamore"))
+		else if ("sycamore".equalsIgnoreCase(tree))
 			return 11;
-		else if (tree.equalsIgnoreCase("whitecedar"))
+		else if ("whitecedar".equalsIgnoreCase(tree))
 			return 12;
-		else if (tree.equalsIgnoreCase("whiteelm"))
+		else if ("whiteelm".equalsIgnoreCase(tree))
 			return 13;
-		else if (tree.equalsIgnoreCase("willow"))
+		else if ("willow".equalsIgnoreCase(tree))
 			return 14;
-		else if (tree.equalsIgnoreCase("kapok"))
+		else if ("kapok".equalsIgnoreCase(tree))
 			return 15;
-		else if (tree.equalsIgnoreCase("acacia"))
+		else if ("acacia".equalsIgnoreCase(tree))
 			return 16;
 		else
 			return -1;

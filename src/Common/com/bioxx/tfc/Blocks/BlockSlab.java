@@ -1,21 +1,21 @@
 package com.bioxx.tfc.Blocks;
 
+import java.util.Random;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.Player.PlayerInfo;
-import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
-import com.bioxx.tfc.Items.Tools.ItemChisel;
-import com.bioxx.tfc.Items.Tools.ItemHammer;
 import com.bioxx.tfc.TileEntities.TEPartial;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class BlockSlab extends BlockPartial
 {
@@ -41,8 +41,8 @@ public class BlockSlab extends BlockPartial
 		TEPartial te = (TEPartial) world.getTileEntity(x, y, z);
 		if(8 - (getTopChiselLevel(te.extraData) + getBottomChiselLevel(te.extraData)) < 3)
 		{
-			if((8 - (getSouthChiselLevel(te.extraData) + getNorthChiselLevel(te.extraData)) < 3) || 
-					(8 - (getEastChiselLevel(te.extraData) + getWestChiselLevel(te.extraData)) < 3))
+			if (8 - (getSouthChiselLevel(te.extraData) + getNorthChiselLevel(te.extraData)) < 3 || 
+					8 - (getEastChiselLevel(te.extraData) + getWestChiselLevel(te.extraData)) < 3)
 			{
 				return true;
 			}
@@ -55,7 +55,7 @@ public class BlockSlab extends BlockPartial
 	{
 		TEPartial te = (TEPartial) world.getTileEntity(x, y, z);
 		if(te != null)
-			return Block.getBlockById(te.TypeID).getBlockHardness(world, x, y, z);
+			return Block.getBlockById(te.typeID).getBlockHardness(world, x, y, z);
 		return this.blockHardness;
 	}
 
@@ -90,52 +90,6 @@ public class BlockSlab extends BlockPartial
 	}
 
 	/**
-	 * Called when the block is clicked by a player. Args: x, y, z, entityPlayer
-	 */
-	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int side, float par7, float par8, float par9)  
-	{
-		boolean hasHammer = false;
-		for(int i = 0; i < 9;i++)
-		{
-			if(entityplayer.inventory.mainInventory[i] != null && entityplayer.inventory.mainInventory[i].getItem() instanceof ItemHammer) {
-				hasHammer = true;
-			}
-		}
-		if(entityplayer.getCurrentEquippedItem() != null && entityplayer.getCurrentEquippedItem().getItem() instanceof ItemChisel && hasHammer && !world.isRemote)
-		{
-			Block block = world.getBlock(x, y, z);
-			byte meta = (byte) world.getBlockMetadata(x, y, z);
-
-			int mode = 0;
-			if(!world.isRemote)
-			{
-				PlayerInfo pi = PlayerManagerTFC.getInstance().getPlayerInfoFromPlayer(entityplayer);
-
-				if(pi!=null) {
-					mode = pi.ChiselMode;
-				}
-			} else {
-				mode = PlayerManagerTFC.getInstance().getClientPlayer().ChiselMode;
-			}
-
-			if(mode == 2)
-			{
-				ItemChisel.CreateSlab(world, x, y, z, block, meta, side);
-				entityplayer.getCurrentEquippedItem().damageItem(1, entityplayer);
-				return true;
-			}
-			else if(mode == 3)
-			{
-				ItemChisel.CreateDetailed(world, x, y, z, block, meta, side, par7, par8, par9);
-				entityplayer.getCurrentEquippedItem().damageItem(1, entityplayer);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Returns a bounding box from the pool of bounding boxes (this means this box can change after the pool has been
 	 * cleared to be reused)
 	 */
@@ -143,10 +97,10 @@ public class BlockSlab extends BlockPartial
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int i, int j, int k)
 	{
 		TEPartial te = (TEPartial) world.getTileEntity(i, j, k);
-		int md = world.getBlockMetadata(i, j, k);
+		//int md = world.getBlockMetadata(i, j, k);
 		if(te != null)
 		{
-			short type = te.TypeID;
+			short type = te.typeID;
 
 			if (type <= 0) {
 				return super.getCollisionBoundingBoxFromPool(world, i, j, k);
@@ -195,9 +149,7 @@ public class BlockSlab extends BlockPartial
 
 	public void onBlockDestroyedByExplosion(World world, int i, int j, int k) 
 	{
-		if(!world.isRemote)
-		{
-		}
+		// Do Nothing
 	}
 
 	@Override
@@ -214,7 +166,14 @@ public class BlockSlab extends BlockPartial
 	@Override
 	public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
 	{
-		TEPartial te = (TEPartial) world.getTileEntity(x, y, z);
+		TEPartial te = null;
+
+		if (world.getTileEntity(x, y, z) instanceof TEPartial)
+			te = (TEPartial) world.getTileEntity(x, y, z);
+
+		if(te == null)
+			return false;
+
 		long data = te.extraData;
 
 		switch(side)
@@ -240,5 +199,11 @@ public class BlockSlab extends BlockPartial
 		default: 
 			return false;
 		}
+	}
+	
+	@Override
+	public Item getItemDropped(int metadata, Random rand, int fortune)
+	{
+		return null;
 	}
 }

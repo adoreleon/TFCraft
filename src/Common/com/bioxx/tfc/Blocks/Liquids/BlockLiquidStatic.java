@@ -12,21 +12,26 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
-
-import com.bioxx.tfc.TFCBlocks;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Core.TFC_Climate;
+import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFC_Sounds;
+import com.bioxx.tfc.api.TFCBlocks;
+
 public class BlockLiquidStatic extends BlockLiquid implements IFluidBlock
 {
-	Block flowing;
-	Fluid fluidType;
-	IIcon[] icons;
+	private Block flowing;
+	protected Fluid fluidType;
+	protected IIcon[] icons;
 	public BlockLiquidStatic(Fluid fluid, Material material, Block f) 
 	{
 		super(material);
@@ -43,15 +48,25 @@ public class BlockLiquidStatic extends BlockLiquid implements IFluidBlock
 	}
 
 	@Override
-	public FluidStack drain(World world, int x, int y, int z, boolean doDrain) 
+	public FluidStack drain(World world, int x, int y, int z, boolean doDrain)
 	{
-		return null;
+		if (!isDrainableSourceBlock(world, x, y, z))
+		{
+			return null;
+		}
+
+		if (doDrain)
+		{
+			world.setBlock(x, y, z, Blocks.air);
+		}
+
+		return new FluidStack(fluidType, FluidContainerRegistry.BUCKET_VOLUME);
 	}
 
 	@Override
-	public boolean canDrain(World world, int x, int y, int z) 
+	public boolean canDrain(World world, int x, int y, int z)
 	{
-		return false;
+		return isDrainableSourceBlock(world, x, y, z);
 	}
 
 	@Override
@@ -100,33 +115,118 @@ public class BlockLiquidStatic extends BlockLiquid implements IFluidBlock
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand)
 	{
-		super.updateTick(world, x, y, z, rand);
 		if(!world.isRemote)
 		{
-			if(world.isAirBlock(x, y+1, z))
+			if(world.isAirBlock(x, y + 1, z))
 			{
 				world.provider.canBlockFreeze(x, y, z, false);
 			}
 
-			if(this.getMaterial() == Material.lava)
+			// Play frog sound at night only in fresh water and above freezing temperature.
+			if(world.getBlock(x, y, z) == TFCBlocks.freshWaterStationary
+					&& world.isAirBlock(x, y + 1, z)
+					&& TFC_Climate.getHeightAdjustedTemp(world, x, y + 1, z) > 2)
 			{
-				if(world.getBlock(x, y+1, z) == Blocks.air)
+				if(rand.nextInt(100) < 25 && world.getBlockLightValue(x, y, z) < 7)
 				{
-					int i = x-2+rand.nextInt(5);
-					int j = y+1+rand.nextInt(4);
-					int k = z-2+rand.nextInt(5);
-					if(world.getBlock(i, j, k) == Blocks.air && 
-							(world.isSideSolid(i, j+1, k, ForgeDirection.DOWN) || world.isSideSolid(i, j-1, k, ForgeDirection.UP) ||
-									world.isSideSolid(i-1, j, k, ForgeDirection.EAST) || world.isSideSolid(i+1, j, k, ForgeDirection.WEST) ||
-									world.isSideSolid(i, j, k+1, ForgeDirection.NORTH) || world.isSideSolid(i, j, k-1, ForgeDirection.SOUTH)))
+					outerloop:
+					for(int x1 = x - 3; x1 < x + 3; x1++)
 					{
-						world.setBlock(i, j, k, TFCBlocks.Sulfur, world.rand.nextInt(4), 3);
+						for(int z1 = z - 3; z1 < z + 3; z1++)
+						{
+							if(TFC_Core.isGrass(world.getBlock(x1, y, z1)) || world.getBlock(x1, y - 1, z1) == TFCBlocks.waterPlant)
+							{
+								float mod = rand.nextFloat();
+								world.playSoundEffect(x, y, z, TFC_Sounds.FROG, (mod < 0.55F ? mod : 0.55F), (mod < 0.41F ? mod + 0.8F : 0.8F));
+								break outerloop;
+							}
+						}
 					}
 				}
 			}
 
+			if(this.getMaterial() == Material.lava)
+			{
+				if (world.getBlock(x, y + 1, z).getMaterial() == Material.air)
+				{
+					int i = x-2+rand.nextInt(5);
+					int j = y+1+rand.nextInt(4);
+					int k = z-2+rand.nextInt(5);
+
+					if (world.getBlock(i, j, k).getMaterial() == Material.air)
+					{
+						if (this.isFlammable(world, i - 1, j, k) || this.isFlammable(world, i + 1, j, k) || 
+								this.isFlammable(world, i, j, k - 1) || this.isFlammable(world, i, j, k + 1) || 
+								this.isFlammable(world, i, j - 1, k) || this.isFlammable(world, i, j + 1, k))
+						{
+							world.setBlock(i, j, k, Blocks.fire);
+						}
+						else if (world.isSideSolid(i, j + 1, k, ForgeDirection.DOWN) || world.isSideSolid(i, j - 1, k, ForgeDirection.UP) ||
+									world.isSideSolid(i-1, j, k, ForgeDirection.EAST) || world.isSideSolid(i+1, j, k, ForgeDirection.WEST) ||
+									world.isSideSolid(i, j, k + 1, ForgeDirection.NORTH) || world.isSideSolid(i, j, k - 1, ForgeDirection.SOUTH))
+						{
+							world.setBlock(i, j, k, TFCBlocks.sulfur, world.rand.nextInt(4), 3);
+						}
+
+					}
+
+					int distance = rand.nextInt(3);
+					int xCoord;
+
+					for (xCoord = 0; xCoord < distance; ++xCoord)
+					{
+						x += rand.nextInt(3) - 1;
+						++y;
+						z += rand.nextInt(3) - 1;
+						Block block = world.getBlock(x, y, z);
+
+						if (block.getMaterial() == Material.air)
+						{
+							if (this.isFlammable(world, x - 1, y, z) || this.isFlammable(world, x + 1, y, z) || 
+									this.isFlammable(world, x, y, z - 1) || this.isFlammable(world, x, y, z + 1) || 
+									this.isFlammable(world, x, y - 1, z) || this.isFlammable(world, x, y + 1, z))
+							{
+								world.setBlock(x, y, z, Blocks.fire);
+								return;
+							}
+						}
+						else if (block.getMaterial().blocksMovement())
+						{
+							return;
+						}
+					}
+
+					if (distance == 0)
+					{
+						xCoord = x;
+						int zCoord = z;
+
+						for (int c = 0; c < 3; ++c)
+						{
+							x = xCoord + rand.nextInt(3) - 1;
+							z = zCoord + rand.nextInt(3) - 1;
+
+							if (world.isAirBlock(x, y + 1, z) && this.isFlammable(world, x, y, z))
+							{
+								world.setBlock(x, y + 1, z, Blocks.fire);
+							}
+						}
+					}
+				}
+			}
 		}
+
+		super.updateTick(world, x, y, z, rand);
 	}
+	
+
+    /**
+     * Checks to see if the block is flammable.
+     */
+	private boolean isFlammable(World world, int x, int y, int z)
+    {
+		return Blocks.fire.getFlammability(world.getBlock(x, y, z)) > 0;
+    }
 
 	/**
 	 * Changes the block ID to that of an updating fluid.
@@ -154,5 +254,11 @@ public class BlockLiquidStatic extends BlockLiquid implements IFluidBlock
 	public IIcon getIcon(int side, int meta)
 	{
 		return side != 0 && side != 1 ? this.icons[1] : this.icons[0];
+	}
+
+	public boolean isDrainableSourceBlock(IBlockAccess world, int x, int y, int z)
+	{
+		Block block = world.getBlock(x, y, z);
+		return !TFC_Core.isHotWater(block) && block == this && world.getBlockMetadata(x, y, z) == 0;
 	}
 }

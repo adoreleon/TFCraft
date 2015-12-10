@@ -7,23 +7,15 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
 
-import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Items.ItemTerra;
-import com.bioxx.tfc.TileEntities.TEBarrel;
 import com.bioxx.tfc.TileEntities.TELoom;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
-import com.bioxx.tfc.api.Interfaces.IEquipable;
 
 public class ItemLooms extends ItemTerraBlock
 {
@@ -32,8 +24,8 @@ public class ItemLooms extends ItemTerraBlock
 		super(par1);
 		setMaxDamage(0);
 		setHasSubtypes(true);
-		this.setCreativeTab(CreativeTabs.tabMaterials);
-		this.MetaNames = Global.WOOD_ALL;
+		this.setCreativeTab(TFCTabs.TFC_DEVICES);
+		this.metaNames = Global.WOOD_ALL;
 	}
 
 	@Override
@@ -48,6 +40,7 @@ public class ItemLooms extends ItemTerraBlock
 		return EnumWeight.HEAVY;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void addInformation(ItemStack is, EntityPlayer player, List arraylist, boolean flag)
 	{
@@ -68,35 +61,37 @@ public class ItemLooms extends ItemTerraBlock
 			field_150939_a.onBlockPlacedBy(world, x, y, z, player, stack);
 			field_150939_a.onPostBlockPlaced(world, x, y, z, 0);
 
-			TELoom te = (TELoom) world.getTileEntity(x, y, z);	
-			if (te != null && te instanceof TELoom)
+			if (world.getTileEntity(x, y, z) instanceof TELoom)
 			{
-				te.loomType = metadata;
-				te = (TELoom) te;
-				world.markBlockForUpdate(x, y, z);
-				
-				int l = MathHelper.floor_double(player.rotationYaw * 4F / 360F + 0.5D) & 3;
-				byte byte0 = 0;
-				if(l == 0)//+z
-					byte0 = 0;
-				if(l == 1)//-x
-					byte0 = 1;
-				if(l == 2)//-z
-					byte0 = 2;
-				if(l == 3)//+x
-					byte0 = 3;
-				te.rotation = byte0;
+				TELoom te = (TELoom) world.getTileEntity(x, y, z);
+				if (te != null)
+				{
+					te.loomType = metadata;
+					world.markBlockForUpdate(x, y, z);
+
+					int l = MathHelper.floor_double(player.rotationYaw * 4F / 360F + 0.5D) & 3;
+					byte byte0 = 0;
+					if (l == 0)//+z
+						byte0 = 0;
+					if (l == 1)//-x
+						byte0 = 1;
+					if (l == 2)//-z
+						byte0 = 2;
+					if (l == 3)//+x
+						byte0 = 3;
+					te.rotation = byte0;
+				}
 			}
 		}
 		return true;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List list)
 	{
-		for(int i = 0; i < MetaNames.length; i++) {
+		for(int i = 0; i < metaNames.length; i++) {
 			list.add(new ItemStack(this,1,i));
 		}
 	}
 }
-

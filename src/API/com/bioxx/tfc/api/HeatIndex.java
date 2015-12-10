@@ -13,9 +13,9 @@ public class HeatIndex
 	public float meltTemp;
 	public boolean keepNBT;
 
-	private ItemStack output = null;
-	private int outputMin = 0;
-	private int outputMax = 0;
+	private ItemStack output;
+	private int outputMin;
+	private int outputMax;
 
 	private ItemStack morph;
 	public ItemStack input;
@@ -90,14 +90,14 @@ public class HeatIndex
 		return morph;
 	}
 
-	public ItemStack getOutput(Random R)
+	public ItemStack getOutput(Random r)
 	{
 		if(getOutputItem() == null)
 			return null;
 		int rand = 0;
 		if(outputMax - outputMin > 0) 
 		{
-			rand = outputMin + R.nextInt(outputMax - outputMin);
+			rand = outputMin + r.nextInt(outputMax - outputMin);
 			return new ItemStack(getOutputItem(),output.stackSize, 100-rand);
 		}
 		else 
@@ -106,9 +106,9 @@ public class HeatIndex
 		}
 	}
 
-	public ItemStack getOutput(ItemStack in, Random R)
+	public ItemStack getOutput(ItemStack in, Random r)
 	{
-		ItemStack is = getOutput(R);
+		ItemStack is = getOutput(r);
 		if(is != null && this.keepNBT)
 		{
 			if(is.hasTagCompound())
@@ -125,8 +125,8 @@ public class HeatIndex
 			else
 			{
 				is.setTagCompound(in.stackTagCompound);
-				if(TFC_ItemHeat.HasTemp(is))
-					TFC_ItemHeat.SetTemp(is, TFC_ItemHeat.GetTemp(is)*0.9f);
+				if(TFC_ItemHeat.hasTemp(is))
+					TFC_ItemHeat.setTemp(is, TFC_ItemHeat.getTemp(is)*0.9f);
 			}
 		}
 		return is;
@@ -139,9 +139,8 @@ public class HeatIndex
 			boolean b = is.getItem().getHasSubtypes();
 			if(is.getItem() != input.getItem())
 				return false;
-			else if(is.getItem().getHasSubtypes() && 
-					(input.getItemDamage() != 32767 && 
-					is.getItemDamage() != input.getItemDamage()))
+			else if (b &&input.getItemDamage() != 32767 &&
+						is.getItemDamage() != input.getItemDamage())
 				return false;
 		}
 		else return false;

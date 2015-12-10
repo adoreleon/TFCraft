@@ -10,13 +10,13 @@ public class GenLayerRiverMixTFC extends GenLayerTFC
 {
 	private GenLayer biomePatternGeneratorChain;
 	private GenLayer riverPatternGeneratorChain;
-	int[] layerBiomes;
-	int[] layerRivers;
-	int[] layerOut;
-	int xn = 0;
-	int xp = 0;
-	int zn = 0;
-	int zp = 0;
+	private int[] layerBiomes;
+	private int[] layerRivers;
+	private int[] layerOut;
+	private int xn;
+	private int xp;
+	private int zn;
+	private int zp;
 
 	public GenLayerRiverMixTFC(long par1, GenLayer par3GenLayer, GenLayer par4GenLayer)
 	{
@@ -58,14 +58,14 @@ public class GenLayerRiverMixTFC extends GenLayerTFC
 					//Here we make sure that rivers dont run along ocean/beach splits. We turn the river into oceans.
 					if (TFC_Core.isBeachBiome(b))
 					{
-						layerOut[index] = TFCBiome.ocean.biomeID;
-						if(inBounds(xn, layerOut) && layerOut[xn] == TFCBiome.river.biomeID)
+						layerOut[index] = TFCBiome.OCEAN.biomeID;
+						if(inBounds(xn, layerOut) && layerOut[xn] == TFCBiome.RIVER.biomeID)
 						{
-							layerOut[xn] = TFCBiome.ocean.biomeID;
+							layerOut[xn] = TFCBiome.OCEAN.biomeID;
 						}
-						if(inBounds(zn, layerOut) && layerOut[zn] == TFCBiome.river.biomeID)
+						if(inBounds(zn, layerOut) && layerOut[zn] == TFCBiome.RIVER.biomeID)
 						{
-							layerOut[zn] = TFCBiome.ocean.biomeID;
+							layerOut[zn] = TFCBiome.OCEAN.biomeID;
 						}
 						if(inBounds(zp, layerOut) && TFC_Core.isOceanicBiome(layerBiomes[zp]) && layerRivers[zp] == 0)
 						{
@@ -89,18 +89,18 @@ public class GenLayerRiverMixTFC extends GenLayerTFC
 					layerOut[index] = b;
 
 				//Similar to above, if we're near a lake, we turn the river into lake.
-				removeRiver(index, TFCBiome.lake.biomeID);
-				removeRiver(index, TFCBiome.MountainsEdge.biomeID);
+				removeRiver(index, TFCBiome.LAKE.biomeID);
+				removeRiver(index, TFCBiome.MOUNTAINS_EDGE.biomeID);
 
 				validateInt(layerOut, index);
 			}
 		}
-		return layerOut;
+		return layerOut.clone();
 	}
 
 	public void removeRiver(int index, int biomeToReplaceWith)
 	{		
-		if(layerOut[index] == TFCBiome.river.biomeID)
+		if(layerOut[index] == TFCBiome.RIVER.biomeID)
 		{
 			if(xn >= 0 && layerBiomes[xn] == biomeToReplaceWith)
 			{
@@ -123,9 +123,7 @@ public class GenLayerRiverMixTFC extends GenLayerTFC
 
 	public boolean inBounds(int index, int[] array)
 	{
-		if(index < array.length && index >= 0)
-			return true;
-		return false;
+		return index < array.length && index >= 0;
 	}
 
 	/**

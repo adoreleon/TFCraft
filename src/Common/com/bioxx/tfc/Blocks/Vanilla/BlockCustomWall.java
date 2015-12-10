@@ -15,24 +15,25 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.api.TFCOptions;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCOptions;
+
 public class BlockCustomWall extends BlockWall
 {
-	int totalsubTypes = 0;
-	Block block;
+	private int totalsubTypes;
+	private Block block;
 
 	public BlockCustomWall(Block blk, int t)
 	{
 		super(blk);
 		this.block = blk;
 		totalsubTypes = t;
-		this.setCreativeTab(TFCTabs.TFCBuilding);
+		this.setCreativeTab(TFCTabs.TFC_BUILDING);
 	}
 
 	/**
@@ -50,7 +51,7 @@ public class BlockCustomWall extends BlockWall
 		if(TFCOptions.enableDebugMode && world.isRemote)
 		{
 			int metadata = world.getBlockMetadata(i, j, k);
-			System.out.println("Meta="+(new StringBuilder()).append(this.getUnlocalizedName()).append(":").append(metadata).toString());
+			TerraFirmaCraft.LOG.info("Meta=" + (new StringBuilder()).append(this.getUnlocalizedName()).append(":").append(metadata).toString());
 		}
 	}
 
@@ -60,7 +61,7 @@ public class BlockCustomWall extends BlockWall
 		if(TFCOptions.enableDebugMode && world.isRemote)
 		{
 			int metadata = world.getBlockMetadata(x, y, z);
-			System.out.println("Meta = "+(new StringBuilder()).append(getUnlocalizedName()).append(":").append(metadata).toString());
+			TerraFirmaCraft.LOG.info("Meta = " + (new StringBuilder()).append(getUnlocalizedName()).append(":").append(metadata).toString());
 		}
 		return false;
 	}
@@ -71,7 +72,7 @@ public class BlockCustomWall extends BlockWall
 	@Override
 	public int getRenderType()
 	{
-		return 32;
+		return TFCBlocks.wallRenderId;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -91,12 +92,70 @@ public class BlockCustomWall extends BlockWall
 	{
 		return par1;
 	}
+	
+	@Override
+	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
+    {
+        boolean flag0 = this.canConnectWallTo(world, x, y, z - 1);
+        boolean flag1 = this.canConnectWallTo(world, x, y, z + 1);
+        boolean flag2 = this.canConnectWallTo(world, x - 1, y, z);
+        boolean flag3 = this.canConnectWallTo(world, x + 1, y, z);
+        //The up flags. These check if there is an adjacent block above us that would raise the height of the wall
+        boolean flag0Up = this.canConnectWallTo(world, x, y, z - 1);
+        boolean flag1Up = this.canConnectWallTo(world, x, y, z + 1);
+        boolean flag2Up = this.canConnectWallTo(world, x - 1, y, z);
+        boolean flag3Up = this.canConnectWallTo(world, x + 1, y, z);
+        float f = 0.25F;
+        float f1 = 0.75F;
+        float f2 = 0.25F;
+        float f3 = 0.75F;
+        float f4 = 1.0F;
+
+        if (flag0)
+        {
+            f2 = 0.0F;
+        }
+
+        if (flag1)
+        {
+            f3 = 1.0F;
+        }
+
+        if (flag2)
+        {
+            f = 0.0F;
+        }
+
+        if (flag3)
+        {
+            f1 = 1.0F;
+        }
+
+        if (flag0 && flag1 && !flag2 && !flag3)
+        {
+        	if(!(flag0Up && flag1Up)){
+        		f4 = 0.8125F;
+        	}
+            f = 0.3125F;
+            f1 = 0.6875F;
+        }
+        else if (!flag0 && !flag1 && flag2 && flag3)
+        {
+        	if(!(flag2Up && flag3Up)){
+        		f4 = 0.8125F;
+        	}
+            f2 = 0.3125F;
+            f3 = 0.6875F;
+        }
+
+        this.setBlockBounds(f, 0.0F, f2, f1, f4, f3);
+    }
 
 	@Override
 	public boolean canConnectWallTo(IBlockAccess access, int i, int j, int k)
 	{
 		Block block = access.getBlock(i, j, k);
-		if (block != this && block != Blocks.fence_gate && block != TFCBlocks.FenceGate && block != TFCBlocks.FenceGate2 && !(block instanceof BlockCustomWall))
+		if (block != this && block != Blocks.fence_gate && block != TFCBlocks.fenceGate && block != TFCBlocks.fenceGate2 && !(block instanceof BlockCustomWall))
 			return block != null && block.getMaterial().isOpaque() && block.renderAsNormalBlock() ? block.getMaterial() != Material.gourd : false;
 		else
 			return true;
@@ -105,5 +164,11 @@ public class BlockCustomWall extends BlockWall
 	@Override
 	public boolean canPlaceTorchOnTop(World world, int x, int y, int z) {
 		return true;
+	}
+
+	@Override
+	public boolean canBeReplacedByLeaves(IBlockAccess world, int x, int y, int z)
+	{
+		return false;
 	}
 }

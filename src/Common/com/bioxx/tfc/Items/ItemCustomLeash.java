@@ -3,13 +3,6 @@ package com.bioxx.tfc.Items;
 import java.util.Iterator;
 import java.util.List;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.api.Enums.EnumItemReach;
-import com.bioxx.tfc.api.Enums.EnumSize;
-import com.bioxx.tfc.api.Enums.EnumWeight;
-import com.bioxx.tfc.api.Interfaces.ISize;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLeashKnot;
@@ -19,8 +12,14 @@ import net.minecraft.item.ItemLead;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Enums.EnumItemReach;
+import com.bioxx.tfc.api.Enums.EnumSize;
+import com.bioxx.tfc.api.Enums.EnumWeight;
+import com.bioxx.tfc.api.Interfaces.ISize;
 
 public class ItemCustomLeash extends ItemLead implements ISize
 {
@@ -46,7 +45,7 @@ public class ItemCustomLeash extends ItemLead implements ISize
 			}
 			else
 			{
-				ItemCustomLeash.func_135066_a(par2EntityPlayer, par3World, par4, par5, par6);
+				ItemCustomLeash.tryLeash(par2EntityPlayer, par3World, par4, par5, par6);
 				return true;
 			}
 		}
@@ -56,12 +55,12 @@ public class ItemCustomLeash extends ItemLead implements ISize
 		}
 	}
 
-	public static boolean func_135066_a(EntityPlayer par0EntityPlayer, World par1World, int par2, int par3, int par4)
+	public static boolean tryLeash(EntityPlayer par0EntityPlayer, World par1World, int par2, int par3, int par4)
 	{
 		EntityLeashKnot entityleashknot = EntityLeashKnot.getKnotForBlock(par1World, par2, par3, par4);
 		boolean flag = false;
 		double d0 = 7.0D;
-		List list = par1World.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getBoundingBox((double)par2 - d0, (double)par3 - d0, (double)par4 - d0, (double)par2 + d0, (double)par3 + d0, (double)par4 + d0));
+		List list = par1World.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getBoundingBox(par2 - d0, par3 - d0, par4 - d0, par2 + d0, par3 + d0, par4 + d0));
 
 		if (list != null)
 		{
@@ -92,13 +91,12 @@ public class ItemCustomLeash extends ItemLead implements ISize
 	{
 		//Minecraft.getMinecraft().gameSettings.advancedItemTooltips = false;
 		ItemTerra.addSizeInformation(is, arraylist);
-		ItemTerra.addHeatInformation(is, arraylist);
 	}
 
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + textureFolder + this.getUnlocalizedName().replace("item.", ""));
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + textureFolder + this.getUnlocalizedName().replace("item.", ""));
 	}
 
 	@Override

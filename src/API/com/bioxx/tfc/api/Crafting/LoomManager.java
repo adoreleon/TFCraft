@@ -3,23 +3,25 @@ package com.bioxx.tfc.api.Crafting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 public class LoomManager
 {
-	private static final LoomManager instance = new LoomManager();
+	private static final LoomManager INSTANCE = new LoomManager();
 	public static final LoomManager getInstance()
 	{
-		return instance;
+		return INSTANCE;
 	}
 
-	private List recipes;
-	private HashMap<LoomRecipe,ResourceLocation> textures;
+	private List<LoomRecipe> recipes;
+	private Map<LoomRecipe, ResourceLocation> textures;
 
 	private LoomManager()
 	{
-		recipes = new ArrayList();
+		recipes = new ArrayList<LoomRecipe>();
 		textures = new HashMap<LoomRecipe, ResourceLocation>();
 	}
 
@@ -38,6 +40,17 @@ public class LoomManager
 		{
 			LoomRecipe lr = (LoomRecipe) recipe;
 			if(item != null&& lr.matches(item))
+				return lr;
+		}
+		return null;
+	}
+
+	public LoomRecipe findMatchingResult(ItemStack item)
+	{
+		for (Object recipe : recipes)
+		{
+			LoomRecipe lr = (LoomRecipe) recipe;
+			if (item != null && lr.resultMatches(item))
 				return lr;
 		}
 		return null;
@@ -75,4 +88,8 @@ public class LoomManager
 		return null;
 	}
 
+	public List<LoomRecipe> getRecipes()
+    {
+        return recipes;
+    }
 }

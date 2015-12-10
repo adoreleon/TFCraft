@@ -2,8 +2,6 @@ package com.bioxx.tfc.WorldGen.Generators;
 
 import java.util.Random;
 
-import com.bioxx.tfc.TFCBlocks;
-
 import net.minecraft.block.Block;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -11,25 +9,25 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 
 public class WorldGenMinableTFC extends WorldGenerator
 {
-	private Block minableBlock;
-	private int minableBlockMeta;
+	private final Block minableBlock;
+	private final int minableBlockMeta;
 	private int numberOfBlocks;
-	private Block LayerBlock;
-	private int LayerMeta;
-	private int BiomeId;
+	private Block layerBlock;
+	private int layerMeta;
+	//private int BiomeId;
 
-	private int MPChunk_X;
-	private int MPChunk_Z;
-	public static Block MPBlock;
-	public static int MPBlockMeta;
-	public static Block MPLayerBlock;
-	public static int MPLayerMeta;
-	public static int MPPrevX;
-	public static int MPPrevZ;
-	public static Block MPPrevBlock;
-	public static int MPPrevMeta;
-	public static Block MPPrevLayerBlock;
-	public static int MPPrevLayerMeta;
+	private int mPChunkX;
+	private int mPChunkZ;
+	public static Block mPBlock;
+	public static int mPBlockMeta;
+	public static Block mPlayerBlock;
+	public static int mPlayerMeta;
+	public static int mPPrevX;
+	public static int mPPrevZ;
+	public static Block mPPrevBlock;
+	public static int mPPrevMeta;
+	public static Block mPPrevLayerBlock;
+	public static int mPPrevLayerMeta;
 	private World worldObj;
 
 	private int rarity = 2;
@@ -39,27 +37,28 @@ public class WorldGenMinableTFC extends WorldGenerator
 	private int diameter = 2;
 	private int vDens = 2;
 	private int hDens = 2;
-	private String name;
+
+	//private String name;
 
 	public WorldGenMinableTFC(Block block, int j)
 	{
-		int emptyHolder = 0;
+		//int emptyHolder = 0;
 		minableBlock = block;
 		minableBlockMeta = 0;
-		emptyHolder = j;
-		BiomeId = -1;
+		//emptyHolder = j;
+		//BiomeId = -1;
 	}
 
 	public WorldGenMinableTFC(Block block, int j, Block layerB, int layerMeta, int rarity, int veinSize, 
 			int veinAmount, int height, int diameter, int vDensity, int hDensity)
 	{
-		int emptyHolder = 0;
-		emptyHolder = j;
+		/*int emptyHolder = 0;
+		emptyHolder = j;*/
 
 		this.minableBlock = block;
 		this.minableBlockMeta = j;
-		this.LayerBlock= layerB;
-		this.LayerMeta = layerMeta;
+		this.layerBlock= layerB;
+		this.layerMeta = layerMeta;
 		this.rarity = rarity;
 		this.veinSi = veinSize;
 		this.veinAm = veinAmount;
@@ -69,7 +68,7 @@ public class WorldGenMinableTFC extends WorldGenerator
 		this.hDens = hDensity;
 	}
 
-	public boolean BetterOreDistribution(int xChunk, int zChunk, Block MPMinableBlock, int MPMinableBlockMeta, int min, int max, Random rand)
+	public boolean betterOreDistribution(int xChunk, int zChunk, Block mPMinableBlock, int mPMinableBlockMeta, int min, int max, Random rand)
 	{
 		if (rand.nextInt(rarity) == 0)
 		{
@@ -81,13 +80,13 @@ public class WorldGenMinableTFC extends WorldGenerator
 				int l5 = xChunk*16 + temp1;
 				int i9 = temp2;
 				int k13 = zChunk*16 + temp3;
-				BODgenerate(worldObj, rand, l5, i9, k13, veinSi);
+				bODgenerate(worldObj, rand, l5, i9, k13, veinSi);
 			}
 		}
 		return true;
 	}
 
-	public boolean BetterOreDistributionVein(int xChunk, int zChunk, Block MPMinableBlock, int MPMinableBlockMeta, int min, int max, Random rand)
+	public boolean betterOreDistributionVein(int xChunk, int zChunk, Block mPMinableBlock, int mPMinableBlockMeta, int min, int max, Random rand)
 	{
 		if (rand.nextInt(rarity) == 0)
 		{
@@ -99,23 +98,23 @@ public class WorldGenMinableTFC extends WorldGenerator
 				int l5 = xChunk*16 + temp1;
 				int i9 = temp2;
 				int k13 = zChunk*16 + temp3;
-				BODgenerateVein(worldObj, rand, l5, i9, k13, veinSi);
+				bODgenerateVein(worldObj, rand, l5, i9, k13, veinSi);
 			}
 		}
 		return true;
 	}
 
-	public boolean BODgenerateVein(World world, Random rand, int parX, int parY, int parZ, int xyz)
+	public boolean bODgenerateVein(World world, Random rand, int parX, int parY, int parZ, int xyz)
 	{
-		boolean doOnce = true;
+		//boolean doOnce = true;
 
 		//==========================================mp mod
 		int posX = parX;
 		int posY = parY;
 		int posZ = parZ;
-		int tempPosX =0;
+		/*int tempPosX =0;
 		int tempPosY =0;
-		int tempPosZ =0;
+		int tempPosZ =0;*/
 		int posX2 = 0;
 		int posY2 = 0;
 		int posZ2 = 0;
@@ -125,9 +124,9 @@ public class WorldGenMinableTFC extends WorldGenerator
 		int directionX2 = 0;
 		int directionY2 = 0;
 		int directionZ2 = 0;
-		int directionX3 =0;
+		/*int directionX3 =0;
 		int directionY3 =0;
-		int directionZ3 =0;
+		int directionZ3 =0;*/
 		int directionChange =0;
 		int directionChange2 =0;
 		int blocksToUse = xyz;//input number of blocks per vein
@@ -183,10 +182,10 @@ public class WorldGenMinableTFC extends WorldGenerator
 						if(directionY2 == 1 && directionChange2 != 1){posY2 = posY2 - rand.nextInt(2);}
 						if(directionZ2 == 1 && directionChange2 != 2){posZ2 = posZ2 - rand.nextInt(2);}
 						int m = world.getBlockMetadata(posX, posY, posZ);
-						boolean isCorrectRockType = world.getBlock(posX, posY, posZ) == LayerBlock;
-						boolean isCorrectMeta = (m == LayerMeta || LayerMeta == -1);
+						boolean isCorrectRockType = world.getBlock(posX, posY, posZ) == layerBlock;
+						boolean isCorrectMeta = m == layerMeta || layerMeta == -1;
 						if(isCorrectRockType && isCorrectMeta)
-							world.setBlock(posX, posY, posZ, MPBlock, MPBlockMeta, 0x2);
+							world.setBlock(posX, posY, posZ, mPBlock, mPBlockMeta, 0x2);
 						blocksMade++;
 						blocksMade1++;
 						blocksMade2++;
@@ -194,10 +193,10 @@ public class WorldGenMinableTFC extends WorldGenerator
 				}
 
 				int m = world.getBlockMetadata(posX, posY, posZ);
-				boolean isCorrectRockType = world.getBlock(posX, posY, posZ) == LayerBlock;
-				boolean isCorrectMeta = (m == LayerMeta || LayerMeta == -1);
+				boolean isCorrectRockType = world.getBlock(posX, posY, posZ) == layerBlock;
+				boolean isCorrectMeta = m == layerMeta || layerMeta == -1;
 				if(isCorrectRockType && isCorrectMeta)
-					world.setBlock(posX, posY, posZ, MPBlock, MPBlockMeta, 0x2);
+					world.setBlock(posX, posY, posZ, mPBlock, mPBlockMeta, 0x2);
 				blocksMade++;
 				blocksMade1++;
 			}
@@ -212,9 +211,9 @@ public class WorldGenMinableTFC extends WorldGenerator
 		return true;
 	}
 
-	public boolean BODgenerate(World world, Random rand, int x, int y, int z, int xyz)
+	public boolean bODgenerate(World world, Random rand, int x, int y, int z, int xyz)
 	{
-		boolean doOnce = true;
+		//boolean doOnce = true;
 		numberOfBlocks = xyz;
 		float f = rand.nextFloat() * (float)Math.PI;
 		double d = x + 8 + MathHelper.sin(f) * numberOfBlocks / 8F;
@@ -253,10 +252,10 @@ public class WorldGenMinableTFC extends WorldGenerator
 					{
 						double d14 = (zCoord + 0.5D - d8) / (d10 / 2D);
 						int m = world.getBlockMetadata(xCoord, yCoord, zCoord);
-						boolean isCorrectRockType = world.getBlock(xCoord, yCoord, zCoord) == LayerBlock;
-						boolean isCorrectMeta = (m == LayerMeta || LayerMeta == -1);
-						if(d12 * d12 + d13 * d13 + d14 * d14 < 1.0D && isCorrectRockType && (m == LayerMeta || LayerMeta == -1))
-							world.setBlock(xCoord, yCoord, zCoord, MPBlock, MPBlockMeta, 0x2);
+						boolean isCorrectRockType = world.getBlock(xCoord, yCoord, zCoord) == layerBlock;
+						boolean isCorrectMeta = m == layerMeta || layerMeta == -1;
+						if (d12 * d12 + d13 * d13 + d14 * d14 < 1.0D && isCorrectRockType && isCorrectMeta)
+							world.setBlock(xCoord, yCoord, zCoord, mPBlock, mPBlockMeta, 0x2);
 					}
 				}
 			}
@@ -266,44 +265,44 @@ public class WorldGenMinableTFC extends WorldGenerator
 
 	public boolean generate(World world, Random random, int x, int z, int min, int max, String n)//absorb default system
 	{
-		MPChunk_X = x >> 4;// set output chunk x
-		MPChunk_Z = z >> 4;// set output chunk z
-		MPBlock = minableBlock;// set output block ID
-		MPBlockMeta = minableBlockMeta;
+		mPChunkX = x >> 4;// set output chunk x
+		mPChunkZ = z >> 4;// set output chunk z
+		mPBlock = minableBlock;// set output block ID
+		mPBlockMeta = minableBlockMeta;
 		worldObj = world;
 		//rand = random;
-		if(MPChunk_X != MPPrevX || MPChunk_Z != MPPrevZ || MPBlock != MPPrevBlock ||
-				MPBlock == MPPrevBlock && MPBlockMeta != MPPrevMeta ||
-				MPLayerBlock != MPPrevLayerBlock || MPLayerMeta != MPPrevLayerMeta)// if it is a new x or y chunk or is a new ore, then generate
+		if(mPChunkX != mPPrevX || mPChunkZ != mPPrevZ || mPBlock != mPPrevBlock ||
+				mPBlock == mPPrevBlock && mPBlockMeta != mPPrevMeta ||
+				mPlayerBlock != mPPrevLayerBlock || mPlayerMeta != mPPrevLayerMeta)// if it is a new x or y chunk or is a new ore, then generate
 		{
-			MPPrevX = MPChunk_X;
-			MPPrevZ = MPChunk_Z;
-			MPPrevBlock = MPBlock;
-			MPPrevMeta = MPBlockMeta;
-			this.name = n;
-			BetterOreDistribution(MPChunk_X, MPChunk_Z, MPBlock, MPBlockMeta, min, max,random);
+			mPPrevX = mPChunkX;
+			mPPrevZ = mPChunkZ;
+			mPPrevBlock = mPBlock;
+			mPPrevMeta = mPBlockMeta;
+			//this.name = n;
+			betterOreDistribution(mPChunkX, mPChunkZ, mPBlock, mPBlockMeta, min, max,random);
 		}
 		return true;
 	}
 
 	public boolean generateVein(World world, Random random, int x, int z, int min, int max, String n)//absorb default system
 	{
-		MPChunk_X = x >> 4;// set output chunk x
-		MPChunk_Z = z >> 4;// set output chunk z
-		MPBlock = minableBlock;// set output block ID
-		MPBlockMeta = minableBlockMeta;
+		mPChunkX = x >> 4;// set output chunk x
+		mPChunkZ = z >> 4;// set output chunk z
+		mPBlock = minableBlock;// set output block ID
+		mPBlockMeta = minableBlockMeta;
 		worldObj = world;
 		//rand = random;
-		if(MPChunk_X != MPPrevX || MPChunk_Z != MPPrevZ || MPBlock != MPPrevBlock ||
-				MPBlock == MPPrevBlock && MPBlockMeta != MPPrevMeta ||
-				MPLayerBlock != MPPrevLayerBlock || MPLayerMeta != MPPrevLayerMeta)// if it is a new x or y chunk or is a new ore, then generate
+		if(mPChunkX != mPPrevX || mPChunkZ != mPPrevZ || mPBlock != mPPrevBlock ||
+				mPBlock == mPPrevBlock && mPBlockMeta != mPPrevMeta ||
+				mPlayerBlock != mPPrevLayerBlock || mPlayerMeta != mPPrevLayerMeta)// if it is a new x or y chunk or is a new ore, then generate
 		{
-			MPPrevX = MPChunk_X;
-			MPPrevZ = MPChunk_Z;
-			MPPrevBlock = MPBlock;
-			MPPrevMeta = MPBlockMeta;
-			this.name = n;
-			BetterOreDistributionVein(MPChunk_X, MPChunk_Z, MPBlock, MPBlockMeta, min, max,random);
+			mPPrevX = mPChunkX;
+			mPPrevZ = mPChunkZ;
+			mPPrevBlock = mPBlock;
+			mPPrevMeta = mPBlockMeta;
+			//this.name = n;
+			betterOreDistributionVein(mPChunkX, mPChunkZ, mPBlock, mPBlockMeta, min, max,random);
 		}
 		return true;
 	}
@@ -314,7 +313,7 @@ public class WorldGenMinableTFC extends WorldGenerator
 		return true;
 	}
 
-	private boolean isRock(Block i)
+	/*private boolean isRock(Block i)
 	{
 		if(i == TFCBlocks.StoneIgIn || i == TFCBlocks.StoneIgEx || 
 				i == TFCBlocks.StoneMM || i == TFCBlocks.StoneSed ||
@@ -324,7 +323,7 @@ public class WorldGenMinableTFC extends WorldGenerator
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	//======================================================================================
 	public int mPCalculateDensity(Random rand, int oreDist, float oreDens) // returns the density value

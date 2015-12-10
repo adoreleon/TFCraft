@@ -11,11 +11,11 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.Core.TFCTabs;
-import com.bioxx.tfc.Core.TFC_Core;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
 
 public class BlockCustomLilyPad extends BlockLilyPad
 {
@@ -25,7 +25,7 @@ public class BlockCustomLilyPad extends BlockLilyPad
 		float f = 0.5F;
 		float f1 = 0.015625F;
 		this.setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, f1, 0.5F + f);
-		this.setCreativeTab(TFCTabs.TFCDecoration);
+		this.setCreativeTab(TFCTabs.TFC_DECORATION);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class BlockCustomLilyPad extends BlockLilyPad
 	@Override
 	public void addCollisionBoxesToList(World par1World, int par2, int par3, int par4, AxisAlignedBB par5AxisAlignedBB, List par6List, Entity par7Entity)
 	{
-		if (par7Entity == null || !(par7Entity instanceof EntityBoat))
+		if (!(par7Entity instanceof EntityBoat))
 			super.addCollisionBoxesToList(par1World, par2, par3, par4, par5AxisAlignedBB, par6List, par7Entity);
 	}
 
@@ -55,7 +55,7 @@ public class BlockCustomLilyPad extends BlockLilyPad
 	@Override
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
 	{
-		return AxisAlignedBB.getBoundingBox((double)par2 + this.minX, (double)par3 + this.minY, (double)par4 + this.minZ, (double)par2 + this.maxX, (double)par3 + this.maxY, (double)par4 + this.maxZ);
+		return AxisAlignedBB.getBoundingBox(par2 + this.minX, par3 + this.minY, par4 + this.minZ, par2 + this.maxX, par3 + this.maxY, par4 + this.maxZ);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class BlockCustomLilyPad extends BlockLilyPad
 
 	public boolean canThisPlantGrowOnThisBlock(Block par1, int meta)
 	{
-		return TFC_Core.isFreshWaterIncludeIce(par1,meta) && !TFC_Core.isWater(par1);
+		return TFC_Core.isFreshWaterIncludeIce(par1, meta) && !TFC_Core.isWaterFlowing(par1);
 	}
 
 	/**

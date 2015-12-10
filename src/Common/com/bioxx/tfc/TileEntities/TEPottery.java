@@ -12,27 +12,28 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
+
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Core.Metal.Alloy;
 import com.bioxx.tfc.Items.Pottery.ItemPotteryBase;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Crafting.KilnCraftingManager;
 import com.bioxx.tfc.api.Crafting.KilnRecipe;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class TEPottery extends NetworkTileEntity implements IInventory
 {
 	public ItemStack inventory[];
 	public boolean hasRack;
-	public long burnStart = 0;
-	public int straw = 0;
-	public int wood = 0;
+	public long burnStart;
+	public int straw;
+	public int wood;
 
 	public TEPottery()
 	{
@@ -46,17 +47,15 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 		{
 			return false;
 		}
-		if(inventory[slot] != null)
-			return false;
-		return true;
+
+		return inventory[slot] == null;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord +1, yCoord + 1, zCoord + 1);
-		return bb;
+		return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 1, zCoord + 1);
 	}
 
 	@Override
@@ -84,12 +83,12 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 
 			//If there is fire nearby, the pitkiln will also catch fire and start the burn countdown
 			if(burnStart == 0 && isFireNear())
-				StartPitFire();
+				startPitFire();
 
 			//Make sure to keep the fire going throughout the length of the burn
-			if(blockAbove != Blocks.fire && TFC_Time.getTotalTicks() - burnStart < TFC_Time.hourLength * TFCOptions.pitKilnBurnTime)
+			if(blockAbove != Blocks.fire && TFC_Time.getTotalTicks() - burnStart <= TFC_Time.HOUR_LENGTH * TFCOptions.pitKilnBurnTime)
 			{
-				if((blockAbove == Blocks.air || worldObj.getBlock(xCoord, yCoord + 1, zCoord).getMaterial().getCanBurn()) && isValid())
+				if ((blockAbove.isAir(worldObj, xCoord, yCoord + 1, zCoord) || worldObj.getBlock(xCoord, yCoord + 1, zCoord).getMaterial().getCanBurn()) && isValid())
 					worldObj.setBlock(xCoord, yCoord + 1, zCoord, Blocks.fire);
 				else
 				{
@@ -102,7 +101,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 			}
 
 			//If the total time passes then we complete the burn and turn the clay into ceramic
-			if(blockAbove == Blocks.fire && TFC_Time.getTotalTicks() > burnStart + (TFCOptions.pitKilnBurnTime * TFC_Time.hourLength))
+			if (blockAbove == Blocks.fire && TFC_Time.getTotalTicks() >= burnStart + (TFCOptions.pitKilnBurnTime * TFC_Time.HOUR_LENGTH))
 			{
 				worldObj.setBlockToAir(xCoord, yCoord + 1, zCoord);
 				if(inventory[0] != null)
@@ -148,7 +147,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 		{
 			for(int z = -1; z <= 1; z++)
 			{
-				if(worldObj.getBlock(xCoord + x, yCoord + 1, zCoord + z) == Blocks.fire)
+				if (worldObj.blockExists(xCoord + x, yCoord + 1, zCoord + z) && worldObj.getBlock(xCoord + x, yCoord + 1, zCoord + z) == Blocks.fire)
 					foundFire = true;
 			}
 		}
@@ -156,7 +155,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 		return foundFire;
 	}
 
-	public void StartPitFire()
+	public void startPitFire()
 	{
 		if(straw == 8 && wood == 8)
 		{
@@ -165,7 +164,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 		}
 	}
 
-	public void addLog(ItemStack is, EntityPlayer player)
+	public boolean addLog(ItemStack is, EntityPlayer player)
 	{
 		if(wood < 8)
 		{
@@ -176,12 +175,12 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 					if (this.inventory[i] == null)
 					{
 						wood++;
-						ItemStack _is = is.copy();
+						ItemStack itemStack = is.copy();
 						is.stackSize--;
-						_is.stackSize = 1;
-						this.setInventorySlotContents(i, _is);
+						itemStack.stackSize = 1;
+						this.setInventorySlotContents(i, itemStack);
 						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-						break;
+						return true;
 					}
 				}
 			}
@@ -192,14 +191,16 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 					if (this.inventory[i] == null)
 					{
 						wood++;
-						ItemStack _is = is.copy();
-						_is.stackSize = 1;
-						this.setInventorySlotContents(i, _is);
+						ItemStack itemStack = is.copy();
+						itemStack.stackSize = 1;
+						this.setInventorySlotContents(i, itemStack);
 					}
 				}
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				return true;
 			}
 		}
+		return false;
 	}
 
 	public void addStraw(ItemStack is, EntityPlayer player)
@@ -230,10 +231,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 
 	public boolean isLit()
 	{
-		if (TFC_Time.getTotalTicks() > burnStart && TFC_Time.getTotalTicks() - burnStart < TFC_Time.hourLength * TFCOptions.pitKilnBurnTime)
-			return true;
-		else
-			return false;
+		return TFC_Time.getTotalTicks() > burnStart && TFC_Time.getTotalTicks() - burnStart < TFC_Time.HOUR_LENGTH * TFCOptions.pitKilnBurnTime;
 	}
 
 	@Override
@@ -268,7 +266,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 
 		if(straw > 0)
 		{
-			entityitem = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, new ItemStack(TFCItems.Straw, straw));
+			entityitem = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, new ItemStack(TFCItems.straw, straw));
 			entityitem.motionX = (float)rand.nextGaussian() * f3;
 			entityitem.motionY = (float)rand.nextGaussian() * f3 + 0.2F;
 			entityitem.motionZ = (float)rand.nextGaussian() * f3;
@@ -279,7 +277,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 	public void ejectItem(int index)
 	{
 		EntityItem entityitem;
-		new Random();
+		//new Random();
 
 		if(inventory[index] != null)
 		{
@@ -295,7 +293,7 @@ public class TEPottery extends NetworkTileEntity implements IInventory
 			int m = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 			if(m > 0)
 			{
-				entityitem = new EntityItem(worldObj, xCoord + 0.5, yCoord + 0.5, zCoord + 0.5, new ItemStack(TFCItems.Straw, m));
+				entityitem = new EntityItem(worldObj, xCoord + 0.5, yCoord + 0.5, zCoord + 0.5, new ItemStack(TFCItems.straw, m));
 				entityitem.lifespan = 48000;
 				worldObj.spawnEntityInWorld(entityitem);
 			}

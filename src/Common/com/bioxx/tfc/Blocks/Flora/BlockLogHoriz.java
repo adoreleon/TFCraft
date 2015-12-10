@@ -10,22 +10,23 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.api.Constant.Global;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.Constant.Global;
+
 public class BlockLogHoriz extends BlockLogVert
 {
-	int offset = 0;
+	protected int offset;
 
 	public BlockLogHoriz(int off)
 	{
 		super();
 		offset = off;
 		woodNames = new String[16];
-		System.arraycopy(Global.WOOD_ALL, off, woodNames, 0, off);
+		System.arraycopy(Global.WOOD_ALL, off, woodNames, 0, 8);
+		System.arraycopy(Global.WOOD_ALL, off, woodNames, 8, 8);
 	}
 
 	@Override
@@ -33,32 +34,33 @@ public class BlockLogHoriz extends BlockLogVert
 	public IIcon getIcon(int side, int meta)
 	{
 		int dir = meta >> 3;
-		meta = (meta & 7) + offset;
+		meta = (meta & 7) + offset; //NOPMD
 
 		if(dir == 0)
 		{
 			if(side == 0 || side == 1)
-				return ((BlockLogNatural)TFCBlocks.LogNatural).sideIcons[meta];
+				return ((BlockLogNatural)TFCBlocks.logNatural).sideIcons[meta];
 			else if(side == 2 || side == 3)
-				return ((BlockLogNatural)TFCBlocks.LogNatural).innerIcons[meta];
+				return ((BlockLogNatural)TFCBlocks.logNatural).innerIcons[meta];
 			else
-				return ((BlockLogNatural)TFCBlocks.LogNatural).rotatedSideIcons[meta];
+				return ((BlockLogNatural)TFCBlocks.logNatural).rotatedSideIcons[meta];
 		}
 		else
 		{
 			if(side == 0 || side == 1 || side == 2 || side == 3)
-				return ((BlockLogNatural)TFCBlocks.LogNatural).rotatedSideIcons[meta];
+				return ((BlockLogNatural)TFCBlocks.logNatural).rotatedSideIcons[meta];
 			else
-				return ((BlockLogNatural)TFCBlocks.LogNatural).innerIcons[meta];
+				return ((BlockLogNatural)TFCBlocks.logNatural).innerIcons[meta];
 		}
 	}
 
 	@Override
 	public int damageDropped(int dmg)
 	{
-		return (dmg & 7) + offset;
+		return (dmg & 7) + offset; //NOPMD
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SideOnly(Side.CLIENT)
 	@Override
 	/**

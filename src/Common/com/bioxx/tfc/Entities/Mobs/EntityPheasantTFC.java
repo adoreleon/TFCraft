@@ -1,37 +1,32 @@
 package com.bioxx.tfc.Entities.Mobs;
 
-import java.util.ArrayList;
-
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIEatGrass;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Sounds;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Entities.IAnimal;
-import com.bioxx.tfc.api.Entities.IAnimal.InteractionEnum;
 import com.bioxx.tfc.api.Util.Helper;
 
 public class EntityPheasantTFC extends EntityChickenTFC
 {
-	private final EntityAIEatGrass aiEatGrass = new EntityAIEatGrass(this);
-	private boolean wasRoped = false;
+	//private final EntityAIEatGrass aiEatGrass = new EntityAIEatGrass(this);
+	private boolean wasRoped;
 
 	public EntityPheasantTFC(World par1World)
 	{
 		super(par1World);
 	}
 
-	public EntityPheasantTFC(World world, IAnimal mother,  ArrayList<Float> data)
+	public EntityPheasantTFC(World world, double posX, double posY, double posZ, NBTTagCompound genes)
 	{
-		super(world, mother, data);
+		super(world, posX, posY, posZ, genes);
 	}
 
 	@Override
@@ -60,8 +55,9 @@ public class EntityPheasantTFC extends EntityChickenTFC
 	@Override
 	public void onLivingUpdate()
 	{
-		timeUntilNextEgg = 10000;
-		if(this.getLeashed()&&!wasRoped)wasRoped = true;
+		timeUntilNextEgg = 10000; // Keep resetting timer to prevent pheasants from laying eggs
+		if (this.getLeashed() && !wasRoped)
+			wasRoped = true;
 		super.onLivingUpdate();
 	}
 
@@ -95,7 +91,7 @@ public class EntityPheasantTFC extends EntityChickenTFC
 	@Override
 	public void roosterCrow()
 	{
-		//Nulled so that pheasant dont crow since they extend chickens
+		//Empty so that pheasants don't crow since they extend chickens
 	}
 
 	/**
@@ -105,22 +101,14 @@ public class EntityPheasantTFC extends EntityChickenTFC
 	protected void dropFewItems(boolean par1, int par2)
 	{
 		float ageMod = TFC_Core.getPercentGrown(this);
-		this.dropItem(Items.feather, (int)(ageMod * this.size_mod * (5 + this.rand.nextInt(10))));
+		this.dropItem(Items.feather, (int) (ageMod * this.getSizeMod() * (5 + this.rand.nextInt(10))));
 
 		if(isAdult())
 		{
-			float foodWeight = ageMod * (this.size_mod * 40);//528 oz (33lbs) is the average yield of lamb after slaughter and processing
+			float foodWeight = ageMod * (this.getSizeMod() * 40);
 			TFC_Core.animalDropMeat(this, TFCItems.chickenRaw, foodWeight);
 			this.dropItem(Items.bone, rand.nextInt(2) + 1);
 		}
-	}
-
-	@Override
-	public EntityPheasantTFC createChild(EntityAgeable entityageable)
-	{
-		ArrayList<Float> data = new ArrayList<Float>();
-		data.add(mateSizeMod);
-		return new EntityPheasantTFC(worldObj, this, data);
 	}
 
 	@Override
@@ -132,9 +120,16 @@ public class EntityPheasantTFC extends EntityChickenTFC
 	@Override
 	public EntityAgeable createChildTFC(EntityAgeable entityageable)
 	{
-		ArrayList<Float> data = new ArrayList<Float>();
-		data.add(entityageable.getEntityData().getFloat("MateSize"));
-		return new EntityPheasantTFC(worldObj, this, data);
+		if (entityageable instanceof IAnimal)
+		{
+			IAnimal animal = (IAnimal) entityageable;
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setFloat("m_size", animal.getSizeMod());
+			nbt.setFloat("f_size", animal.getSizeMod());
+			return new EntityPheasantTFC(worldObj, posX, posY, posZ, nbt);
+		}
+
+		return null;
 	}
 
 	@Override
@@ -159,11 +154,12 @@ public class EntityPheasantTFC extends EntityChickenTFC
 	
 	@Override
 	public boolean trySetName(String name, EntityPlayer player) {
-		if(this.checkFamiliarity(InteractionEnum.NAME, player) && !this.hasCustomNameTag()){
+		if (this.checkFamiliarity(InteractionEnum.NAME, player))
+		{
 			this.setCustomNameTag(name);
 			return true;
 		}
-		this.playSound(TFC_Sounds.PHAESANTSAY,  6, (rand.nextFloat()/2F)+(isChild()?1.25F:0.75F));
+		this.playSound(TFC_Sounds.PHAESANTSAY, 6, rand.nextFloat() / 2F + (isChild() ? 1.25F : 0.75F));
 		return false;
 	}
 	
@@ -171,15 +167,13 @@ public class EntityPheasantTFC extends EntityChickenTFC
 	public boolean checkFamiliarity(InteractionEnum interaction, EntityPlayer player) {
 		boolean flag = false;
 		switch(interaction){
-		case MOUNT: flag = familiarity > 15;break;
-		case BREED: flag = familiarity > 20;break;
-		case SHEAR: flag = familiarity > 10;break;
-		case MILK: flag = familiarity > 10;break;
-		case NAME: flag = familiarity > 60;break;
+		case NAME:
+			flag = this.getFamiliarity() > FAMILIARITY_CAP - 5;
+			break; // 5 Below adult cap since babies are impossible
 		default: break;
 		}
 		if(!flag && !player.worldObj.isRemote){
-			player.addChatMessage(new ChatComponentText(StatCollector.translateToLocal("entity.notFamiliar")));
+			TFC_Core.sendInfoMessage(player, new ChatComponentTranslation("entity.notFamiliar"));
 		}
 		return flag;
 	}

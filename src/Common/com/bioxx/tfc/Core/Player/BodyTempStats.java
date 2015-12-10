@@ -8,24 +8,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Interfaces.IClothing;
 import com.bioxx.tfc.api.TileEntities.TEFireEntity;
 
 public class BodyTempStats
 {
-	private int temperatureLevel = 0;
-	private int prevTemperatureLevel = 0;
-	private int extraFoodConsumed = 0;
-	private int extraWaterConsumed = 0;
-	private int heatStorage = 0;
-	private long tempTimer = 0;
+	private int temperatureLevel;
+	private int prevTemperatureLevel;
+	private int extraFoodConsumed;
+	private int extraWaterConsumed;
+	private int heatStorage;
+	private long tempTimer;
 
-	Random rand = new Random();
-	ItemStack itemHead,itemChest,itemLegs,itemFeet;
+	private Random rand = new Random();
+	private ItemStack itemHead, itemChest, itemLegs, itemFeet;
 
 	public void onUpdate(EntityPlayer player)
 	{
@@ -62,8 +62,8 @@ public class BodyTempStats
 		extraWaterConsumed = 0; //(temperatureLevel >0 && heatStorage <= 0 && rand.nextInt(350)<100)?temperatureLevel/10:0;
 
 		if(temperatureLevel != prevTemperatureLevel &&
-				!((prevTemperatureLevel >=-10 && prevTemperatureLevel <=10) &&
-						(temperatureLevel >=-10 && temperatureLevel <=10)))
+				!(prevTemperatureLevel >=-10 && prevTemperatureLevel <=10 &&
+						temperatureLevel >=-10 && temperatureLevel <=10))
 		{
 			tellPlayerMessage(player);
 		}
@@ -139,27 +139,28 @@ public class BodyTempStats
 			{
 				for(int k = z-7;k<z+7;k++)
 				{
-					TileEntity te = player.worldObj.getTileEntity(i, j, k);
-					if((player.worldObj.getBlock(i, j, k) == Blocks.lava ||
-							player.worldObj.getBlock(i, j, k) == TFCBlocks.Lava) ||
-							(te != null && te instanceof TEFireEntity))
+					if (player.worldObj.blockExists(i, j, k))
 					{
-						//returnAmount += (rand.nextInt(2000 - 198*(10-( (int)player.getDistance(i, j, k) )) )<10?1:0);
-						//Lava averages 700-1200 C = 950 C, assume source is lava.
-						double tempValue = 950;
+						TileEntity te = player.worldObj.getTileEntity(i, j, k);
+						if (player.worldObj.getBlock(i, j, k) == Blocks.lava || player.worldObj.getBlock(i, j, k) == TFCBlocks.lava || te instanceof TEFireEntity)
+						{
+							//returnAmount += (rand.nextInt(2000 - 198*(10-( (int)player.getDistance(i, j, k) )) )<10?1:0);
+							//Lava averages 700-1200 C = 950 C, assume source is lava.
+							double tempValue = 950;
 
-						//if there is a firepit, use it's heat instead.
-						if(te instanceof TEFireEntity)
-							tempValue = ((TEFireEntity)te).fireTemp;
+							//if there is a firepit, use it's heat instead.
+							if (te instanceof TEFireEntity)
+								tempValue = ((TEFireEntity) te).fireTemp;
 
-						//Just to make sure it's not 0
-						double distanceSq = player.getDistanceSq(i, j, k) + 0.05;
+							//Just to make sure it's not 0
+							double distanceSq = player.getDistanceSq(i, j, k) + 0.05;
 
-						//radiation isn't perfect, so I don't know what a good numerator is, but it decreases with the square of the distance.
-						//We can assume that the temperature of the actual heat source is when the player is directly touching it, which we have assigned to
-						//a distanceSq of 0.05, therefore, the heat from such a heat source is = to the heat value * 0.05 divided by the distance squared
-						tempValue *= (0.05)/distanceSq;
-						temperatureMod += tempValue;
+							//radiation isn't perfect, so I don't know what a good numerator is, but it decreases with the square of the distance.
+							//We can assume that the temperature of the actual heat source is when the player is directly touching it, which we have assigned to
+							//a distanceSq of 0.05, therefore, the heat from such a heat source is = to the heat value * 0.05 divided by the distance squared
+							tempValue *= (0.05) / distanceSq;
+							temperatureMod += tempValue;
+						}
 					}
 				}
 			}
@@ -206,12 +207,6 @@ public class BodyTempStats
 		case 7: killPlayer(player);break;
 		}
 		 */
-	}
-
-	private void killPlayer(EntityPlayer player)
-	{
-		player.inventory.dropAllItems();
-		player.setHealth(0);
 	}
 
 	public void readNBT(NBTTagCompound nbt)

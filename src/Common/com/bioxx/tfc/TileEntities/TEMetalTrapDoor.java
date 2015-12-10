@@ -3,12 +3,12 @@ package com.bioxx.tfc.TileEntities;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import com.bioxx.tfc.TFCBlocks;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class TEMetalTrapDoor extends NetworkTileEntity
 {
 	public ItemStack sheetStack;
-	public byte data = 0;
+	public byte data;
 
 	public TEMetalTrapDoor()
 	{
@@ -50,7 +50,7 @@ public class TEMetalTrapDoor extends NetworkTileEntity
 	@Override
 	public void handleInitPacket(NBTTagCompound nbt) {
 		data = nbt.getByte("data");
-		sheetStack = new ItemStack(TFCBlocks.MetalTrapDoor, 1, nbt.getInteger("metalID"));
+		sheetStack = new ItemStack(TFCBlocks.metalTrapDoor, 1, nbt.getInteger("metalID"));
 	}
 
 	@Override

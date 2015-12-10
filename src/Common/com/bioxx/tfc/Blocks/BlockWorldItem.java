@@ -15,13 +15,14 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Core.TFC_Textures;
-import com.bioxx.tfc.TileEntities.TEWorldItem;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import com.bioxx.tfc.Core.TFC_Textures;
+import com.bioxx.tfc.TileEntities.TEWorldItem;
 
 public class BlockWorldItem extends BlockTerraContainer
 {
@@ -99,7 +100,7 @@ public class BlockWorldItem extends BlockTerraContainer
 			world.setBlockToAir(x, y, z);
 			return;
 		}
-		if (!world.getBlock(x, y - 1, z).isSideSolid(world, x, y, z, ForgeDirection.UP))
+		if (!world.getBlock(x, y - 1, z).isSideSolid(world, x, y - 1, z, ForgeDirection.UP))
 		{
 			world.setBlockToAir(x, y, z);
 			return;
@@ -140,7 +141,7 @@ public class BlockWorldItem extends BlockTerraContainer
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister reg)
 	{
-		this.blockIcon = TFC_Textures.InvisibleTexture; // This gets registered in BlockGrass
+		this.blockIcon = TFC_Textures.invisibleTexture; // This gets registered in BlockGrass
 	}
 
 	@Override

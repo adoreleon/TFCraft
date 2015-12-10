@@ -4,24 +4,25 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Core.TFC_Climate;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
 import com.bioxx.tfc.Food.CropIndex;
 import com.bioxx.tfc.Food.CropManager;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class TEFarmland extends NetworkTileEntity
 {
 	public long nutrientTimer = -1;
-	public int[] nutrients = {6666,6666,6666, 0};
-	public boolean isInfested = false;
+	public int[] nutrients =
+	{ getSoilMax(), getSoilMax(), getSoilMax(), 0 };
+	public boolean isInfested;
 
 	/**
 	 * Client only
 	 * */
-	public long timeSinceUpdate = 0;
+	public long timeSinceUpdate;
 
 	public TEFarmland()
 	{
@@ -42,23 +43,23 @@ public class TEFarmland extends NetworkTileEntity
 				int soilMax = getSoilMax();
 				int restoreAmount = 139;
 
-				if((worldObj.getBlock(xCoord, yCoord + 1, zCoord) == TFCBlocks.Crops))
+				if (worldObj.getBlock(xCoord, yCoord + 1, zCoord) == TFCBlocks.crops)
 				{
 					crop = CropManager.getInstance().getCropFromId(((TECrop)worldObj.getTileEntity(xCoord, yCoord + 1, zCoord)).cropId);
 
-					if((crop.cycleType != 0))
+					if (crop.cycleType != 0)
 					{
 						if(nutrients[0] < soilMax)
 							nutrients[0] += restoreAmount + crop.nutrientExtraRestore[0];
 					}
 
-					if((crop.cycleType != 1))
+					if (crop.cycleType != 1)
 					{
 						if(nutrients[1] < soilMax)
 							nutrients[1] += restoreAmount + crop.nutrientExtraRestore[1];
 					}
 
-					if((crop.cycleType != 2))
+					if (crop.cycleType != 2)
 					{
 						if(nutrients[2] < soilMax)
 							nutrients[2] += restoreAmount + crop.nutrientExtraRestore[2];
@@ -144,10 +145,13 @@ public class TEFarmland extends NetworkTileEntity
 		return (int) (25000 * timeMultiplier);
 	}
 
-	public void DrainNutrients(int type, float multiplier)
+	public void drainNutrients(int type, float multiplier)
 	{
 		float timeMultiplier = 360f / TFC_Time.daysInYear;
 		nutrients[type] -= (100 * multiplier) * timeMultiplier;
+
+		if (nutrients[type] < 0)
+			nutrients[type] = 0;
 	}
 
 	public boolean fertilize(ItemStack is, boolean isOrganic)

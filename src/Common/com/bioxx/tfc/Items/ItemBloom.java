@@ -7,9 +7,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.api.Metal;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Constant.Global;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
@@ -21,7 +22,7 @@ public class ItemBloom extends ItemTerra implements ISmeltable
 	{
 		super();
 		setHasSubtypes(true);
-		setCreativeTab(TFCTabs.TFCMaterials);
+		setCreativeTab(TFCTabs.TFC_MATERIALS);
 		this.setWeight(EnumWeight.HEAVY);
 		this.setSize(EnumSize.LARGE);
 
@@ -34,9 +35,9 @@ public class ItemBloom extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
-		arraylist.add(is.getItemDamage() + "%");
+		arraylist.add(TFC_Core.translate("gui.units") + ": " + is.getItemDamage());
 	}
 
 	@Override
@@ -49,13 +50,16 @@ public class ItemBloom extends ItemTerra implements ISmeltable
 	}
 
 	@Override
-	public Metal GetMetalType(ItemStack is)
+	public Metal getMetalType(ItemStack is)
 	{
+		if (this == TFCItems.rawBloom)
+			return Global.UNKNOWN;
+
 		return Global.WROUGHTIRON;
 	}
 
 	@Override
-	public short GetMetalReturnAmount(ItemStack is)
+	public short getMetalReturnAmount(ItemStack is)
 	{
 		return (short) is.getItemDamage();
 	}
@@ -63,13 +67,11 @@ public class ItemBloom extends ItemTerra implements ISmeltable
 	@Override
 	public boolean isSmeltable(ItemStack is)
 	{
-		if(this == TFCItems.Bloom)
-			return true;
-		return false;
+		return this == TFCItems.bloom;
 	}
 
 	@Override
-	public EnumTier GetSmeltTier(ItemStack is)
+	public EnumTier getSmeltTier(ItemStack is)
 	{
 		return EnumTier.TierIII;
 	}

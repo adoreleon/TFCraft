@@ -1,7 +1,5 @@
 package com.bioxx.tfc.Blocks;
 
-import static net.minecraftforge.common.util.ForgeDirection.UP;
-
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -15,21 +13,24 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Core.TFC_Time;
-import com.bioxx.tfc.TileEntities.TELogPile;
-import com.bioxx.tfc.api.TFCOptions;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Reference;
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.Core.TFC_Time;
+import com.bioxx.tfc.TileEntities.TELogPile;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.TFCOptions;
+
+import static net.minecraftforge.common.util.ForgeDirection.UP;
+
 public class BlockLogPile extends BlockTerraContainer
 {
-	IIcon[] icons = new IIcon[3];
+	private IIcon[] icons = new IIcon[3];
 
 	public BlockLogPile()
 	{
@@ -45,11 +46,10 @@ public class BlockLogPile extends BlockTerraContainer
 	@Override
 	public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side)
 	{
-		TELogPile te = (TELogPile) world.getTileEntity(x, y, z);
-		int time = (int) (TFC_Time.getTotalHours()-te.fireTimer);
-		if (te.isOnFire && side == UP)
+		if (world.getTileEntity(x,y,z) instanceof TELogPile && side == UP)
 		{
-			return true;
+			if (((TELogPile) world.getTileEntity(x, y, z)).isOnFire)
+				return true;
 		}
 		return false;
 	}
@@ -65,11 +65,11 @@ public class BlockLogPile extends BlockTerraContainer
 		{
 			if((TELogPile)world.getTileEntity(i, j, k)!=null)
 			{
-				TELogPile te;
-				te = (TELogPile)world.getTileEntity(i, j, k);
+				//TELogPile te;
+				//te = (TELogPile)world.getTileEntity(i, j, k);
 				ItemStack is = entityplayer.getCurrentEquippedItem();
 
-				if(is != null && is.getItem() == TFCItems.Logs)
+				if(is != null && is.getItem() == TFCItems.logs)
 				{
 					return false;
 				}
@@ -129,18 +129,17 @@ public class BlockLogPile extends BlockTerraContainer
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
-		icons[0] = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Log Pile Side 0");
-		icons[1] = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Log Pile Side 1");
-		icons[2] = iconRegisterer.registerIcon(Reference.ModID + ":" + "devices/Log Pile End");
+		icons[0] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Log Pile Side 0");
+		icons[1] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Log Pile Side 1");
+		icons[2] = iconRegisterer.registerIcon(Reference.MOD_ID + ":" + "devices/Log Pile End");
 	}
 
-	public void Eject(World world, int x, int y, int z)
+	public void eject(World world, int x, int y, int z)
 	{
-		if(!world.isRemote && (TELogPile)world.getTileEntity(x, y, z) != null)
+		if (!world.isRemote && world.getTileEntity(x, y, z) instanceof TELogPile)
 		{
-			TELogPile TELogPile;
-			TELogPile = (TELogPile)world.getTileEntity(x, y, z);
-			TELogPile.ejectContents();
+			TELogPile te = (TELogPile) world.getTileEntity(x, y, z);
+			te.ejectContents();
 			world.removeTileEntity(x, y, z);
 		}
 	}
@@ -154,26 +153,26 @@ public class BlockLogPile extends BlockTerraContainer
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int i, int j, int k, int l)
 	{
-		Eject(world, i, j, k);
+		eject(world, i, j, k);
 	}
 
 	@Override
 	public void onBlockDestroyedByExplosion(World world, int x, int y, int z, Explosion ex)
 	{
-		Eject(world, x, y, z);
+		eject(world, x, y, z);
 	}
 
 	@Override
 	public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int i)
 	{
-		Eject(world, x, y, z);
+		eject(world, x, y, z);
 	}
 
 	@Override
 	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
-		Eject(world, x, y, z);
-		return super.removedByPlayer(world, player, x, y, z);
+		eject(world, x, y, z);
+		return world.setBlockToAir(x, y, z); // super.removedByPlayer is deprecated, and causes a loop.
 	}
 
 	@Override
@@ -185,11 +184,9 @@ public class BlockLogPile extends BlockTerraContainer
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
 	{
-		if(!world.isRemote)
+		if (!world.isRemote && world.getTileEntity(x, y, z) instanceof TELogPile)
 		{
-			TELogPile teLogPile = (TELogPile)world.getTileEntity(x, y, z);
-			if(teLogPile != null)
-				teLogPile.neighborChanged();
+			((TELogPile) world.getTileEntity(x, y, z)).lightNeighbors();
 		}
 	}
 
@@ -202,10 +199,14 @@ public class BlockLogPile extends BlockTerraContainer
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand)
 	{
-		TELogPile te = (TELogPile)world.getTileEntity(x, y, z);
-		if(te.isOnFire && te.fireTimer+TFCOptions.charcoalPitBurnTime < TFC_Time.getTotalHours())
+		if (world.getTileEntity(x, y, z) instanceof TELogPile)
 		{
-			te.createCharcoal(x, y, z);
+			TELogPile te = (TELogPile) world.getTileEntity(x, y, z);
+
+			if (te.isOnFire && te.fireTimer + TFCOptions.charcoalPitBurnTime < TFC_Time.getTotalHours())
+			{
+				te.createCharcoal(x, y, z, true);
+			}
 		}
 	}
 
@@ -213,13 +214,13 @@ public class BlockLogPile extends BlockTerraContainer
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand)
 	{
-		if(((TELogPile)world.getTileEntity(x, y, z)).isOnFire)
+		if (world.getTileEntity(x, y, z) instanceof TELogPile && ((TELogPile) world.getTileEntity(x, y, z)).isOnFire)
 		{
-			double centerX = (double)((float)x + 0.5F);
-			double centerY = (double)((float)y + 2F);
-			double centerZ = (double)((float)z + 0.5F);
-			double d3 = 0.2199999988079071D;
-			double d4 = 0.27000001072883606D;
+			double centerX = x + 0.5F;
+			double centerY = y + 2F;
+			double centerZ = z + 0.5F;
+			//double d3 = 0.2199999988079071D;
+			//double d4 = 0.27000001072883606D;
 			world.spawnParticle("smoke", centerX+(rand.nextDouble()-0.5), centerY, centerZ+(rand.nextDouble()-0.5), 0.0D, 0.1D, 0.0D);
 			world.spawnParticle("smoke", centerX+(rand.nextDouble()-0.5), centerY, centerZ+(rand.nextDouble()-0.5), 0.0D, 0.15D, 0.0D);
 			world.spawnParticle("smoke", centerX+(rand.nextDouble()-0.5), centerY-1, centerZ+(rand.nextDouble()-0.5), 0.0D, 0.1D, 0.0D);

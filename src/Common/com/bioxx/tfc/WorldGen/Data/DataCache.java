@@ -15,11 +15,11 @@ public class DataCache
 	/** Reference to the WorldChunkManager */
 	private final WorldCacheManager chunkManager;
 	/** The last time this BiomeCache was cleaned, in milliseconds.*/
-	private long lastCleanupTime = 0L;
+	private long lastCleanupTime;
 	/** The map of keys to BiomeCacheBlocks. Keys are based on the chunk x, z coordinates as (x | z << 32). */
 	private LongHashMap cacheMap = new LongHashMap();
 	/** The list of cached BiomeCacheBlocks */
-	private List cache = new ArrayList();
+	private List<DataCacheBlockTFC> cache = new ArrayList<DataCacheBlockTFC>();
 	private int index;
 
 	public DataCache(WorldCacheManager worldLayerManager)
@@ -37,7 +37,7 @@ public class DataCache
 	{
 		x >>= 4;
 		y >>= 4;
-		long var3 = (long)x & 4294967295L | ((long)y & 4294967295L) << 32;
+		long var3 = x & 4294967295L | (y & 4294967295L) << 32;
 		DataCacheBlockTFC var5 = (DataCacheBlockTFC)this.cacheMap.getValueByKey(var3);
 		if (var5 == null)
 		{
@@ -63,14 +63,14 @@ public class DataCache
 			this.lastCleanupTime = var1;
 			for (int var5 = 0; var5 < this.cache.size(); ++var5)
 			{
-				DataCacheBlockTFC var6 = (DataCacheBlockTFC)this.cache.get(var5);
+				DataCacheBlockTFC var6 = this.cache.get(var5);
 				if(var6 != null)
 				{
 					long var7 = var1 - var6.lastAccessTime;
 					if (var7 > 30000L || var7 < 0L)
 					{
 						this.cache.remove(var5--);
-						long var9 = (long)var6.xPosition & 4294967295L | ((long)var6.zPosition & 4294967295L) << 32;
+						long var9 = var6.xPosition & 4294967295L | (var6.zPosition & 4294967295L) << 32;
 						this.cacheMap.remove(var9);
 					}
 				}
@@ -86,7 +86,7 @@ public class DataCache
 	/**
 	 * Get the world chunk manager object for a biome list.
 	 */
-	static WorldCacheManager getChunkManager(DataCache cache)
+	public static WorldCacheManager getChunkManager(DataCache cache)
 	{
 		return cache.chunkManager;
 	}

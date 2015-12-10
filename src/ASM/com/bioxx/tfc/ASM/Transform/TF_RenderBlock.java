@@ -10,12 +10,11 @@ package com.bioxx.tfc.ASM.Transform;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bioxx.tfc.ASM.ClassTransformer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-
-import com.bioxx.tfc.ASM.ClassTransformer;
 
 public class TF_RenderBlock extends ClassTransformer
 {
@@ -28,7 +27,7 @@ public class TF_RenderBlock extends ClassTransformer
 		/**
 		 * renderFaceZNeg
 		 */
-		List nodes = new ArrayList<InstrSet>();
+		List<InstrSet> nodes = new ArrayList<InstrSet>();
 
 		nodes.add(new InstrSet(new LdcInsnNode(16.0D), 7189, 2, InstrOpType.InsertAfter));
 		nodes.add(new InstrSet(new InsnNode(Opcodes.DSUB), 7189, 6, InstrOpType.InsertAfter));

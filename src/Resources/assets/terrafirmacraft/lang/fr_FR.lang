@@ -6,44 +6,50 @@
 
 
 generator.TFCDefault=TFC par défault
-generator.TFCFlat=TFC plat
+generator.TFCFlat=TFC plat (non utilisé)
+generator.TFCAmplified=TFC amplifié (non utilisé)
+generator.TFCLargeBiomes=TFC biomes larges (non utilisé)
 
 key.ToolMode=Changer le mode outil
 key.LockTool=Verouiller l'outil
 
 effect.bleed=Saignement
+death.attack.alcohol=%1$s est mort d'intoxication alcoolique
+death.attack.heatStroke= est mort d'un coup de chaleur
 
 #==============
-#= Spawn Eggs =
+#= Entities = 
 #==============
-entity.squidTFC.name=Calmar
-entity.cowTFC.name=Vache
-entity.wolfTFC.name=Loup
 entity.bearTFC.name=Ours
-entity.deerTFC.name=Cerf
 entity.chickenTFC.name=Poulet
-entity.pigTFC.name=Cochon
-entity.skeletonTFC.name=Squelette
-entity.zombieTFC.name=Zombie
-entity.spiderTFC.name=Araignée
-entity.slimeTFC.name=Slime
-entity.silverfishTFC.name=Lépisme
-entity.ghastTFC.name=Ghast
-entity.caveSpiderTFC.name=Araignée des cavernes
-entity.blazeTFC.name=Blaze
-entity.endermanTFC.name=Enderman
-entity.pigZombieTFC.name=Homme-cochon zombie
-entity.creeperTFC.name=Creeper
-entity.sheepTFC.name=Mouton
-entity.pheasantTFC.name=Faisan
-entity.horseTFC.name=Cheval
-entity.irongolemTFC.name=Golem de fer
+entity.cowTFC.name=Vache
+entity.deerTFC.name=Cerf
 entity.fishTFC.name=Bar
+entity.horseTFC.name=Cheval
+entity.pheasantTFC.name=Faisan
+entity.pigTFC.name=Cochon
+entity.sheepTFC.name=Mouton
+entity.squidTFC.name=Calmar
+entity.wolfTFC.name=Loup
 
+entity.blazeTFC.name=Blaze
+entity.caveSpiderTFC.name=Araignée des cavernes
+entity.creeperTFC.name=Creeper
+entity.endermanTFC.name=Enderman
+entity.ghastTFC.name=Ghast
+entity.irongolemTFC.name=Golem de fer
+entity.pigZombieTFC.name=Homme-cochon zombie
+entity.silverfishTFC.name=Lépisme
+entity.skeletonTFC.name=Squelette
+entity.slimeTFC.name=Slime
+entity.spiderTFC.name=Araignée
+entity.zombieTFC.name=Zombie
 
-#==========
-#= Entity =
-#==========
+entity.arrowTFC.name=Flèche
+entity.standTFC.name=Support à armure
+entity.barrel.name=Baril
+entity.fallingBlock.name=Bloc en chute
+
 entity.notFamiliar=L'animal ne vous laissera pas faire ça
 fishingRod.lineTension=La ligne va briser !
 fishingRod.lineSnap=La ligne a brisé !
@@ -87,13 +93,36 @@ achievement.achPokeCreeper.desc=Le toucher avec un bâton
 #============
 #= Commands =
 #============
-commands.transferTamed.noTamed=Aucun animal valide à porté !
-commands.transferTamed.tooMany=Trop d'animaux à porté !
+commands.transferTamed.noTamed=Aucun animal valide à portée !
+commands.transferTamed.tooMany=Trop d'animaux à portée !
 commands.transferTamed.wrongOwner=Ça ne vous appartient pas !
 commands.transferTamed.sameTarget=Vous ne pouvez pas transférer à vous-même !
 commands.transferTamed.display.incoming=Un animal vous a été transféré par %s !
 commands.transferTamed.display.outgoing=Vous avez transféré un animal à %s !
 commands.transferTamed.wrongSender=Vous ne pouvez pas transférer d'animaux !
+
+#==========
+#= Fluids =
+#==========
+fluid.freshwater=Eau douce
+fluid.saltwater=Eau salée
+fluid.lavatfc=Lave
+fluid.hotwater=Eau thermale
+fluid.beer=Bière
+fluid.cider=Cidre
+fluid.rum=Rhum
+fluid.ryewhiskey=Rye whisky
+fluid.sake=Vodka
+fluid.vodka=Vodka
+fluid.whiskey=Whisky
+fluid.cornwhiskey=Whisky de maïs
+fluid.milk=Lait
+fluid.milkcurdled=Lait caillé
+fluid.milkvinegar=Mélange lait et vinaigre
+fluid.limewater=Eau de chaux
+fluid.tannin=Tanin
+fluid.vinegar=Vinaigre
+fluid.brine=Saumure
 
 #========
 #= Food =
@@ -105,6 +134,11 @@ item.meal.decent=Décent
 item.meal.good=Bon
 item.meal.great=Très bon
 item.meal.fantastic=Fantastique
+item.Sandwich.name=Sandwich
+item.Salad.name=Salade
+item.Soup.name=Soupe
+item.Sugar.name=Sucre
+item.Sea Weed.name=Algue
 
 #== Grains ==
 item.Barley Bread.name=Pain d'orge
@@ -143,7 +177,7 @@ item.Wheat Dough.name=Pâte de blé
 
 item.Seeds Barley.name=Graines d'orge
 item.Seeds Maize.name=Graines de maïs
-item.Seeds Oat.name=Graines d'orge
+item.Seeds Oat.name=Graines d'avoine
 item.Seeds Rice.name=Graines de riz
 item.Seeds Rye.name=Graines de seigle
 item.Seeds Wheat.name=Graines de blé
@@ -152,7 +186,7 @@ item.Seeds Wheat.name=Graines de blé
 item.Green Apple.name=Pomme verte
 item.Red Apple.name=Pomme rouge
 item.Banana.name=Banane
-item.Cherry.name=Cherise
+item.Cherry.name=Cerise
 item.Lemon.name=Citron
 item.Olive.name=Olive
 item.Orange.name=Orange
@@ -177,9 +211,9 @@ tile.BerryBush.Cloudberry.name=Plaquebière
 tile.BerryBush.Cranberry.name=Airelle
 tile.BerryBush.Elderberry.name=Sureau
 tile.BerryBush.Gooseberry.name=Groseillier
-tile.BerryBush.Raspberry.name=Fraisier
+tile.BerryBush.Raspberry.name=Framboisier
 tile.BerryBush.Snowberry.name=Symphorine
-tile.BerryBush.Strawberry.name=Framboisier
+tile.BerryBush.Strawberry.name=Fraisier
 tile.BerryBush.Wintergreen.name=Gaulthérie
 
 item.Blackberry.name=Mûres
@@ -201,9 +235,9 @@ item.Cloudberry Leaf.name=Feuilles de plaquebière
 item.Cranberry Leaf.name=Feuilles de airelle
 item.Elderberry Leaf.name=Feuilles de sureau
 item.Gooseberry Leaf.name=Feuilles de groseillier
-item.Raspberry Leaf.name=Feuilles de fraisier
+item.Raspberry Leaf.name=Feuilles de famboisier
 item.Snowberry Leaf.name=Feuilles de symphorine
-item.Strawberry Leaf.name=Feuilles de famboisier
+item.Strawberry Leaf.name=Feuilles de fraisier
 item.Wintergreen Leaf.name=Feuilles de gaulthérie
 
 #== Protein ==
@@ -230,7 +264,7 @@ item.Red Bell Pepper.name=Poivron rouge
 item.Yellow Bell Pepper.name=Poivron jaune
 item.Cabbage.name=Choux
 item.Carrot.name=Carotte
-item.Garlic.name=Ait
+item.Garlic.name=Ail
 item.Greenbeans.name=Fèves
 item.Onion.name=Oignon
 item.Potato.name=Pomme de terre
@@ -267,10 +301,10 @@ item.CornWhiskey.name=Whisky de maïs
 item.Clay.Clay.name=Argile
 item.Clay.Fire Clay.name=Argile réfractaire
 
-item.clay.clayflatlight.name=Argile clair plat
-item.clay.clayflatdark.name=Argile foncé plat
-item.clay.clayflatfire.name=Argile réfractaire plat
-item.clay.clayflatdarkfire.name=Argile réfractaire foncé plat
+item.Flat Clay.clay flat light.name=Argile clair plat
+item.Flat Clay.clay flat dark.name=Argile foncé plat
+item.Flat Clay.clay flat fire.name=Argile réfractaire plat
+item.Flat Clay.clay flat dark fire.name=Argile réfractaire foncé plat
 
 item.Jug.Clay Jug.name=Jarre d'argile
 item.Jug.Ceramic Jug.name=Jarre de céramique
@@ -386,6 +420,10 @@ item.Spindle Head.Spindle Head.name=Tête de fuseau
 item.Fire Brick.Fire Brick.name=Brique réfractaire
 item.Fire Brick.Clay Fire Brick.name=Brique en argile réfractaire
 tile.FireBrick.name=Bloc de brique réfractaire
+tile.Pottery.name=Potterie
+
+item.ClayBowl.Ceramic Bowl.name=Bol de céramique
+item.ClayBowl.Clay Bowl.name=Bol d'argile
 
 #= Gems =
 item.Agate.Chipped.name=Jade abîmé
@@ -462,7 +500,7 @@ item.Tourmaline.Exquisite.name=Tourmaline exquise
 #= Powders =
 #===========
 item.dyePowder.black.name=Sac d'encre
-item.dyePowder.blue.name=Lapis Lazuli
+item.dyePowder.blue.name=Teinture bleue
 item.dyePowder.brown.name=Fèves de cacao
 item.dyePowder.cyan.name=Teinture cyan
 item.dyePowder.gray.name=Teinture grise
@@ -824,6 +862,7 @@ item.Small Ore.Sphalerite.name=Petite sphalérite
 item.Small Ore.Tetrahedrite.name=Petite tétraédrite
 
 #== Ore Blocks ==
+tile.Ore.name=Minerai
 tile.Ore.Bituminous Coal.name=Charbon
 tile.Ore.Borax.name=Borax
 tile.Ore.Cinnabar.name=Cinnabar
@@ -956,7 +995,24 @@ item.Loom.White Elm.name=Métier à tisser en orme
 item.Loom.Willow.name=Métier à tisser en saule
 
 #== Wood Blocks ==
-tile.log.Acacia.name=Bûche d'acacia
+tile.Chest.Acacia.name=Coffre en acacia
+tile.Chest.Ash.name=Coffre en frêne
+tile.Chest.Aspen.name=Coffre en tremble
+tile.Chest.Birch.name=Coffre en bouleau
+tile.Chest.Chestnut.name=Coffre en noisetier
+tile.Chest.Douglas Fir.name=Coffre en sapin de douglas
+tile.Chest.Hickory.name=Coffre en caryer
+tile.Chest.Kapok.name=Coffre en kapok
+tile.Chest.Maple.name=Coffre en érable
+tile.Chest.Oak.name=Coffre en chêne
+tile.Chest.Pine.name=Coffre en pin
+tile.Chest.Sequoia.name=Coffre en séquoia
+tile.Chest.Spruce.name=Coffre en épinette
+tile.Chest.Sycamore.name=Coffre en platane
+tile.Chest.White Cedar.name=Coffre en cèdre blanc
+tile.Chest.White Elm.name=Coffre en orme
+tile.Chest.Willow.name=Coffre en saule
+
 tile.log2.Acacia.name=Bûche d'acacia
 tile.log.Ash.name=Bûche de frêne
 tile.log.Aspen.name=Bûche de tremble
@@ -1029,7 +1085,8 @@ tile.sapling.White Cedar.name=Pousse de cèdre blanc
 tile.sapling.White Elm.name=Pousse d’orme
 tile.sapling.Willow.name=Pousse de saule
 
-tile.leaves.Acacia.name=Feuilles d'acacia
+tile.leaves2.name=Feuilles d'acacia
+tile.leaves2.Acacia.name=Feuilles d'acacia
 tile.leaves.Ash.name=Feuilles de frêne
 tile.leaves.Aspen.name=Feuilles de tremble
 tile.leaves.Birch.name=Feuilles de bouleau
@@ -1064,6 +1121,10 @@ tile.wood.Sycamore.name=Planches de platane
 tile.wood.White Cedar.name=Planches de cèdre blanc
 tile.wood.White Elm.name=Planches d’orme
 tile.wood.Willow.name=Planches de saule
+
+tile.fruitTreeWood.name=Arbre fruitier
+tile.fruitTreeLeaves.name=Feuilles d'arbre fruitier
+tile.fruitTreeLeaves2.name=Feuilles d'arbre fruitier
 
 tile.Door Acacia.name=Porte d'acacia
 tile.Door Ash.name=Porte de frêne
@@ -1173,7 +1234,7 @@ tile.ArmourStand.White Cedar.name=Support à armure de cèdre blanc
 tile.ArmourStand.White Elm.name=Support à armure d’orme
 tile.ArmourStand.Willow.name=Support à armure de saule
 
-tile.WoodSupportV2.Acacia.name=Pupport d'acacia
+tile.WoodSupportV2.Acacia.name=Support d'acacia
 tile.WoodSupportV.Ash.name=Support de frêne
 tile.WoodSupportV.Aspen.name=Support de tremble
 tile.WoodSupportV.Birch.name=Support de bouleau
@@ -1190,6 +1251,25 @@ tile.WoodSupportV.Sycamore.name=Support de platane
 tile.WoodSupportV.White Cedar.name=Support de cèdre blanc
 tile.WoodSupportV.White Elm.name=Support d’orme
 tile.WoodSupportV.Willow.name=Support de saule
+
+tile.WoodSupportH2.name=Support de bois
+tile.WoodSupportH2.Acacia.name=Support d'acacia
+tile.WoodSupportH.Ash.name=Support de frêne
+tile.WoodSupportH.Aspen.name=Support de tremble
+tile.WoodSupportH.Birch.name=Support de bouleau
+tile.WoodSupportH.Chestnut.name=Support de noisetier
+tile.WoodSupportH.Douglas Fir.name=Support de sapin de douglas
+tile.WoodSupportH.Hickory.name=Support de caryer
+tile.WoodSupportH.Kapok.name=Support de kapok
+tile.WoodSupportH.Maple.name=Support d’érable
+tile.WoodSupportH.Oak.name=Support de chêne
+tile.WoodSupportH.Pine.name=Support de pin
+tile.WoodSupportH.Sequoia.name=Support de séquoia
+tile.WoodSupportH.Spruce.name=Support d’épinette
+tile.WoodSupportH.Sycamore.name=Support de platane
+tile.WoodSupportH.White Cedar.name=Support de cèdre blanc
+tile.WoodSupportH.White Elm.name=Support d’orme
+tile.WoodSupportH.Willow.name=Support de saule
 
 tile.Toolrack.Acacia.name=Support de rangement d'acacia
 tile.Toolrack.Ash.name=Support de rangement de frêne
@@ -1794,6 +1874,9 @@ item.Tin Double Sheet.name=Double feuille d'étain
 item.Wrought Iron Double Sheet.name=Double feuille de fer forgé
 item.Zinc Double Sheet.name=Double feuille de zinc
 
+#== Misc ==
+item.Blueprint=Dessin technique
+
 #===========
 #= Devices =
 #===========
@@ -1803,10 +1886,16 @@ tile.BlastFurnace.name=Haut fourneau
 tile.SpawnMeter.name=Indicateur de protection
 tile.Quern.name=Meule
 tile.EarlyBloomery.name=Bas fourneau
+tile.Molten.name=Minerai en fusion
 tile.Crucible.name=Creuset
 tile.NestBox.name=Pondoir
 item.SluiceItem.name=Rampe de lavage
+tile.Sluice.name=Rampe de lavage
 tile.LeatherRack.name=Porte-cuir
+tile.FoodPrep.name=Espace de préparation des repas
+tile.MetalSheet.name=Feuille de métal
+tile.ingotpile.name=Pile de lingots
+tile.SmokeRack.name=Support à fumer
 
 #== Anvils ==
 tile.Anvil.Stone.name=Enclume de pierre
@@ -1848,7 +1937,7 @@ item.stick.name=Bâton
 item.coal.coal.name=Charbon
 item.coal.charcoal.name=Charbon de bois
 item.Fertilizer.name=Engrais
-item.Reeds.name=Canne à sucre
+item.Reeds.name=Roseau
 
 item.Wooden Bucket Empty.name=Seau de bois (Vide)
 item.Wooden Bucket Water.name=Seau de bois (Eau douce)
@@ -1872,7 +1961,7 @@ item.Firestarter.name=Allumeur
 
 item.Quern.name=Meule
 item.Blueprint.name=Dessin technique
-item.Nametag.name=
+item.Nametag.name=Étiquette
 item.WoolYarn.name=Fil de laine
 item.Wool.name=Laine
 item.WoolCloth.name=Tissus de laine
@@ -1905,17 +1994,35 @@ item.fishingRod.name=Canne à pêche
 
 item.Quiver.name=Carquois
 item.Rope.name=Corde
+item.Mud Brick.name=Brique de boue
+item.Wet Mud Brick.name=Brique de boue humide
 
 #======== Misc. Blocks========
 tile.Straw Hide Bed.name=Lit de paille
+tile.StrawHideBed.name=Lit de paille
 tile.customBed.sleep=Ce lit n'est pas assez confortable pour s'endormir.
 tile.BasicPipe.name=Tuyeau
 tile.ValvePipe.name=Valve
+tile.Smoke.name=Fumée
 tile.Torch.name=Torche
 tile.Chest.name=Coffre
 tile.Bookshelf.name=Bibliothèque
 tile.Workbench.name=Établi
 tile.ButtonWood.name=Bouton de bois
+tile.Firepit.name=Feu de camp
+tile.LogPile.name=Pile de bois
+tile.Charcoal.name=Charbon de bois
+tile.StoneDetailed.name=Détaillé
+tile.stoneStairs.name=Marche
+tile.stoneSlabs.name=Dalle
+tile.stoneStalac.name=Stalactite
+tile.WoodConstruct.name=Planche
+tile.MetalTrapDoor.name=Trappe
+tile.Vessel.name=Grand vase
+tile.Grill.name=Grill
+
+tile.Sulfur.name=Soufre
+tile.Reeds.name=Roseau
 
 #= Misc. Plants =
 item.Sugarcane.name=Canne à sucre
@@ -1928,6 +2035,7 @@ tile.Fungi.mushroom_brown.name=Champignon brun
 tile.Fungi.mushroom_red.name=Champignon rouge
 tile.Cactus.name=Cactus
 tile.Pumpkin.name=Citrouille
+tile.LitPumpkin.name=Citrouille-lanterne
 tile.Moss.name=Mousse
 tile.Thatch.name=Thatch
 tile.Flora.Golden Rod.name=Verge d'or
@@ -1961,10 +2069,18 @@ tile.Flowers2.flower_tulip_white.name=Tulipe blanche
 tile.Flowers2.flower_tulip_pink.name=Tulipe rose
 tile.Flowers2.flower_oxeye_daisy.name=Marguerite
 
+tile.SaltWater.name=Eau salée
+tile.SaltWaterStationary.name=Eau salée
+tile.FreshWater.name=Eau douce
+tile.FreshWaterStationary.name=Eau douce
+tile.HotWater.name=Eau thermale
+tile.HotWaterStationary.name=Eau thermale
+tile.Lava.name=Lave
+tile.LavaStationary.name=Lave
+
 #=======
 #= GUI =
 #=======
-gui.badnbt=MAUVAIS Info
 
 #== Anvil GUI ==
 gui.Anvil.Plans=Plan
@@ -2026,15 +2142,11 @@ gui.Anvil.Rule42=Courber, trois derniers
 gui.Anvil.Rule43=Courber, pas dernier
 
 #== Tools/Weapons/Armor GUI ==
-gui.Armor.Advanced=Avancé
-gui.Armor.Shift=Shift
 gui.Armor.ForgedBy=Forgé par
-gui.Armor.Hold=Tenir
 gui.Armor.Crush=Écraser
 gui.Armor.Pierce=Percer
 gui.Armor.Slash=Tailler
 
-gui.Bow.Advanced=Avancé
 gui.Bow.Javelins=Javelots
 gui.Bow.Arrows=Flèches
 gui.Bow.ForgedBy=Fabriqué par
@@ -2053,11 +2165,13 @@ gui.Barrel.ToggleOn=Remplir
 gui.Barrel.SealedOn=Sceau actif
 gui.Barrel.Solid=Entreposage de solide
 gui.Barrel.Liquid=Entreposage de liquide
+gui.barrel.pickling=Mariner
+gui.barrel.brining=Saumurer
+gui.barrel.preserving=Préserver
 
 #== Bloomery GUI ==
 gui.Bloomery.Charcoal=Charbon de bois
 gui.Bloomery.Ore=Minerai
-gui.Bloomery.Output=Résultat
 
 #== Calendar GUI ==
 gui.Calendar.Calendar=Calendrier
@@ -2111,12 +2225,14 @@ gui.Calendar.1Week=1 semaine
 gui.Calendar.1Month=1 mois
 gui.Calendar.1Year=1 an
 
-#== Food Prep GUI ==
+#== Food GUI ==
 gui.FoodPrep.CreateMeal=Créer un repas
 gui.FoodPrep.Effect=Effet
 gui.FoodPrep.Energy=Énergie
 gui.FoodPrep.Filling=Consistant
 gui.FoodPrep.Power=Pouvoir
+gui.FoodPrep.Sandwich=Sandwich
+gui.FoodPrep.Salad=Salade
 
 #== Metals ==
 gui.metal.Bismuth=Bismuth
@@ -2164,7 +2280,7 @@ gui.plans.legsplate=Jambières
 gui.plans.mace=Mace
 gui.plans.pickaxe=Pioche
 gui.plans.propick=Pioche de prospecteur
-gui.plans.refinebloom=Rafiner
+gui.plans.refinebloom=Raffiner
 gui.plans.saw=Scie
 gui.plans.scythe=Faux
 gui.plans.sheet=Feuille
@@ -2174,24 +2290,37 @@ gui.plans.sword=Épée
 gui.plans.tuyere=Tuyère
 gui.plans.grill=Grill
 gui.plans.shears=Cisailles
+gui.plans.trapdoor=Trappe
 
 #== Misc GUI ==
 gui.Blueprint=Dessin technique
-gui.Nametag=
+gui.Nametag=Étiquette
 gui.fertilized=Fertilisé
 gui.Inventory=Inventaire
 gui.ClearSlot=Vider un espace de sortie.
 gui.LogPile=Corde de bois
+gui.Output=Résultat
 gui.done=Terminé
+gui.cancel=Annuler
 gui.Sluice.Soil=Sol
-gui.Sluice=Rampe de lavage
+gui.Sluice.Overworked=Surtravaillé
 gui.Workbench.Crafting=Artisanat
+gui.overburdened=*Surchargé*
+
+gui.badnbt=MAUVAIS Info
 
 #== Tooltips ==
+gui.Advanced=Avancé
+gui.Shift=Shift
+gui.Hold=Tenir
+
+gui.slot=Emplacement
+gui.slot.back=Dos
+
 gui.ShowHelp=§8Aide: (Tenir §fShift§8)
 gui.Help=§8Aide:
 gui.Clay.Inst0=§bClique droit §7avec 5 dans une pile pour façonner.
-gui.Knife.Inst0=§bClique droit §7sur le dessus d'un bloc
+gui.Knife.Inst0=§bClique droit §7sur le dessus d'un bloc (autre que sol)
 gui.Knife.Inst1=pour créer un surface de préparation.
 gui.Leather.Inst0=§bClique droit §7avec un couteau dans l'inventaire pour couper.
 gui.LooseRock.Inst0=§bClique droit §7avec 2 dans une pile pour façonner.
@@ -2199,7 +2328,15 @@ gui.MeltedMetal.Inst0=§bClique droit §7pour verser dans un moule d'outil ou po
 gui.PotteryBase.Inst0=S'accroupir et §bclique droit §7 pour placer l'objet.
 gui.PotteryVesselSmall.Inst0=Ou §bClique droit §7pour ouvrir l'inventaire.
 gui.RawHide.Inst0=????
+gui.Chisel.Inst0=Nécéssite un marteau dans la barre d'outils.
 gui.Barrel.MoreItems=§8Plus... (Tenir §fShift§8)
+
+gui.Nutrient.A=Nutriment A
+gui.Nutrient.B=Nutriment B
+gui.Nutrient.C=Nutriment C
+
+gui.stage1=Étape 1
+gui.stage2=Étape 2
 
 gui.Size.Tiny=Minuscule
 gui.Size.VerySmall=Très petit
@@ -2217,6 +2354,11 @@ gui.Reach.Short=Court
 gui.Reach.Medium=Moyen
 gui.Reach.Far=Long
 
+gui.hoursRemaining=heures restantes
+gui.daysRemaining=jours restants
+gui.infinite=Infinit
+
+#== Food ==
 gui.food.fruit=Fruit
 gui.food.vegetable=Légumes
 gui.food.grain=Céréales
@@ -2228,90 +2370,6 @@ gui.food.salted=Salé
 
 gui.FoodHeat.Cold=Froid
 gui.FoodHeat.Warm=Chaud
-
-gui.Torch.CatchingFire=Prends en feu
-gui.Torch.Lit=Allumé
-
-gui.ItemHeat.Liquid=Liquide
-gui.ItemHeat.Solidified=Solidifié
-gui.ItemHeat.Caution=Attention
-gui.ItemHeat.Warming=Tiède
-gui.ItemHeat.Hot=Chaud
-gui.ItemHeat.VeryHot=Très chaud
-gui.ItemHeat.FaintRed=Rouge pâle
-gui.ItemHeat.DarkRed=Rouge foncé
-gui.ItemHeat.BrightRed=Rouge brillant
-gui.ItemHeat.Orange=Orange
-gui.ItemHeat.Yellow=Jaune
-gui.ItemHeat.YellowWhite=Jaune-blanc
-gui.ItemHeat.White=Blanc
-gui.ItemHeat.BrilliantWhite=Blanc brillant
-
-gui.ingot.workable=Peut être travaillé
-gui.ingot.weldable=Peut être brasé
-gui.ingot.danger=**Danger**
-
-gui.milk.fresh=Frais
-gui.milk.old=Vieux
-gui.milk.sour=Caillé
-
-gui.units=unités
-
-#== Chat Messages ==
-gui.GoldPan.UseFull=Doit être utilisé sous de l'eau en mouvement.
-gui.goldpan.overused=Ce secteur semble avoir été beaucoup travaillé. Vous ne trouverez probablement rien.
-
-gui.ProPick.Found=Trouvé
-gui.ProPick.FoundTraces=Trouvé des traces de
-gui.ProPick.FoundSmall=Trouvé un petit échantillon de
-gui.ProPick.FoundMedium=Trouvé un échantillon moyen de
-gui.ProPick.FoundLarge=Trouvè un grand échantillon de
-gui.ProPick.FoundVeryLarge=Trouvé un très grand échantillon de
-gui.ProPick.FoundNothing=Rien trouvé d'intérêt.
-
-#== Creative Tabs ==
-itemGroup.TFCArmor=(TFC) Armure
-itemGroup.TFCMaterials=(TFC) Matériaux
-itemGroup.TFCMisc=(TFC) Divers
-itemGroup.TFCPottery=(TFC) Potterie
-itemGroup.TFCTools=(TFC) Outils
-itemGroup.TFCWeapons=(TFC) Armes
-itemGroup.TFCDevices=(TFC) Appareils
-itemGroup.TFCFoods=(TFC) Nourriture
-itemGroup.TFCBuilding=(TFC) Blocs de construction
-itemGroup.TFCDecoration=(TFC) Blocs décoratifs
-
-#== Skill GUI ==
-skill.armorsmith=Forge d'armure
-skill.gensmith=Forge général
-skill.toolsmith=Forge d'outil
-skill.weaponsmith=Forge d'armes
-skill.agriculture=Agriculture
-skill.cooking=Cuisine
-skill.prospecting=Prospection
-skill.butchering=Boucherie
-
-#=====================================================
-#========Add New Stuff Here To Be Sorted Later========
-#=====================================================
-fluid.freshwater=Eau douce
-fluid.saltwater=Eau salée
-fluid.lavatfc=Lave
-fluid.hotwater=Eau thermale
-fluid.beer=Bière
-fluid.cider=Cidre
-fluid.rum=Rhum
-fluid.ryewhiskey=Rye whisky
-fluid.sake=Vodka
-fluid.vodka=Vodka
-fluid.whiskey=Whisky
-fluid.cornwhiskey=Whisky de maïs
-fluid.milk=Lait
-fluid.milkcurdled=Lait caillé
-fluid.limewater=Eau de chaux
-fluid.tannin=Tanin
-fluid.vinegar=Vinaigre
-fluid.brine=Saumure
 
 gui.showtaste=§8Goût: (Tenir §fL-Ctrl§8)
 gui.taste=§8Goût:
@@ -2373,27 +2431,13 @@ gui.taste.6=Vraiment
 gui.taste.7=Extrêmement
 gui.taste.8=Ridiculement
 
-gui.skill.novice=Novice
-gui.skill.adept=Adepte
-gui.skill.expert=Expert
-gui.skill.master=Maître
-gui.skillpage=Compétence
-tile.MetalTrapDoor.name=
-item.Mud Brick.name=Brique de boue
-item.Wet Mud Brick.name=Brique de boue humide
-gui.overburdened=*Surchargé*
-gui.slot=
-gui.slot.back=Dos
 word.pickled=Mariné
 word.brined=Saumuré
 word.cooked=Cuit
 word.salted=Salé
 word.smoked=Fumé
 word.dried=Séché
-gui.barrel.pickling=Mariner
-gui.barrel.brining=Saumurer
-tile.Vessel.name=Grand vase
-tile.Grill.name=Grill
+
 food.cooked.rare=Saignant
 food.cooked.medrare=Mi-saignant
 food.cooked.med=À point
@@ -2404,13 +2448,117 @@ food.cooked.1=Léger
 food.cooked.2=Moyen
 food.cooked.3=Foncé
 food.cooked.4=Très foncé
-gui.FoodPrep.Sandwich=Sandwich
-gui.FoodPrep.Salad=Salade
-item.Sandwich.name=Sandwich
-item.Salad.name=Salade
-item.ClayBowl.Ceramic Bowl.name=Bol de céramique
-item.ClayBowl.Clay Bowl.name=Bol d'argile
-item.Sugar.name=Sucre
-item.Sea Weed.name=Algue
-word.stage1=Étape 1
-word.stage2=Étape 2
+
+gui.Torch.CatchingFire=Prend en feu
+gui.Torch.Lit=Allumée
+
+gui.ItemHeat.Liquid=Liquide
+gui.ItemHeat.Solidified=Solidifié
+gui.ItemHeat.Caution=Attention
+gui.ItemHeat.Warming=Tiède
+gui.ItemHeat.Hot=Chaud
+gui.ItemHeat.VeryHot=Très chaud
+gui.ItemHeat.FaintRed=Rouge pâle
+gui.ItemHeat.DarkRed=Rouge foncé
+gui.ItemHeat.BrightRed=Rouge brillant
+gui.ItemHeat.Orange=Orange
+gui.ItemHeat.Yellow=Jaune
+gui.ItemHeat.YellowWhite=Jaune-blanc
+gui.ItemHeat.White=Blanc
+gui.ItemHeat.BrilliantWhite=Blanc brillant
+
+gui.ingot.workable=Peut être travaillé
+gui.ingot.weldable=Peut être brasé
+gui.ingot.danger=**Danger**
+
+gui.milk.fresh=Frais
+gui.milk.old=Vieux
+gui.milk.sour=Caillé
+
+gui.units=unités
+
+#== WAILA ==
+gui.useless=Innutile
+gui.growth=Poussé
+gui.mature=Mature
+gui.metal.Iron=Fer
+gui.tier=Rang
+gui.fuel=Essence
+gui.Green Apple=Pommier (vert)
+gui.Red Apple=Pommier (rouge)
+gui.Banana=Bananier
+gui.Cherry=Cerisier
+gui.Lemon=Citronier
+gui.Olive=Olivier
+gui.Orange=Oranger
+gui.Peach=Pêcher
+gui.Plum=Prunier
+gui.pile=Pile
+gui.weaving=Tisser
+gui.eggs=Oeufs
+gui.fertEggs=Oeufs fertilisé
+gui.logs=Bûches
+gui.gems=Pierre précieuse
+
+#== Chat Messages ==
+gui.GoldPan.UseFull=Doit être utilisé sous de l'eau en mouvement.
+gui.goldpan.overused=Ce secteur semble avoir été beaucoup travaillé. Vous ne trouverez probablement rien.
+gui.seeds.failedTemp=C'est trop froit pour planter ici, ça ne survivrait pas longtemps.
+gui.seeds.failedSun=Il n'y a pas assez de soleil pour planter ici, ça ne survrait surement pas longtemps.
+
+gui.ProPick.Found=Trouvé
+gui.ProPick.FoundTraces=Trouvé des traces de
+gui.ProPick.FoundSmall=Trouvé un petit échantillon de
+gui.ProPick.FoundMedium=Trouvé un échantillon moyen de
+gui.ProPick.FoundLarge=Trouvè un grand échantillon de
+gui.ProPick.FoundVeryLarge=Trouvé un très grand échantillon de
+gui.ProPick.FoundNothing=Rien trouvé d'intérêt.
+
+#== Creative Tabs ==
+itemGroup.TFCArmor=(TFC) Armure
+itemGroup.TFCMaterials=(TFC) Matériaux
+itemGroup.TFCMisc=(TFC) Divers
+itemGroup.TFCPottery=(TFC) Potterie
+itemGroup.TFCTools=(TFC) Outils
+itemGroup.TFCWeapons=(TFC) Armes
+itemGroup.TFCDevices=(TFC) Appareils
+itemGroup.TFCFoods=(TFC) Nourriture
+itemGroup.TFCBuilding=(TFC) Blocs de construction
+itemGroup.TFCDecoration=(TFC) Blocs décoratifs
+
+#== Skill GUI ==
+skill.armorsmith=Forge d'armure
+skill.gensmith=Forge général
+skill.toolsmith=Forge d'outil
+skill.weaponsmith=Forge d'armes
+skill.agriculture=Agriculture
+skill.cooking=Cuisine
+skill.prospecting=Prospection
+skill.butchering=Boucherie
+gui.skill.novice=Novice
+gui.skill.adept=Adepte
+gui.skill.expert=Expert
+gui.skill.master=Maître
+gui.skillpage=Compétence
+
+#==================
+#= Error Messages =
+#==================
+error.error=ERREUR : 
+error.NBT=les informations NBT sont manquantes.
+error.OreCFG=Le bloc suivant est invalide dans TFCOre.cfg :
+error.Contact=Merci de le rapporter dans la section Support du Forum de TerraFirmaCraft.
+
+#=====================================================
+#========Add New Stuff Here To Be Sorted Later========
+#=====================================================
+tile.Hopper.name=Entonnoir
+fluid.oliveoil=Huile d'olive
+tile.OilLamp.Gold.name=Lampe à huile en or
+tile.OilLamp.Platinum.name=Lampe à huile en platine
+tile.OilLamp.RoseGold.name=Lampe à huile en or rose
+tile.OilLamp.Silver.name=Lampe à huile en argent
+tile.OilLamp.SterlingSilver.name=Lampe à huile en argent sterling
+tile.OilLamp.BlueSteel.name=Lampe à huile en acier bleu
+gui.plans.hopper=Entonnoir
+gui.plans.oillamp=Lampe à huile

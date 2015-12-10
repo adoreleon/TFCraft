@@ -26,33 +26,33 @@ public class ModelStand extends ModelBiped {
 	{
 		this.bipedHeadwear.rotateAngleY = 0;
 		this.bipedHeadwear.rotateAngleX = this.bipedHead.rotateAngleX;
-		this.bipedRightArm.rotateAngleX = (MathHelper.cos(par1 * 0.6662F + (float)Math.PI) * 2.0F * par2 * 0.5F)+0.001F;
-		this.bipedLeftArm.rotateAngleX = (MathHelper.cos(par1 * 0.6662F) * 2.0F * par2 * 0.5F)+0.001F;
+		this.bipedRightArm.rotateAngleX = MathHelper.cos(par1 * 0.6662F + (float) Math.PI) * 2.0F * par2 * 0.5F + 0.001F;
+		this.bipedLeftArm.rotateAngleX = MathHelper.cos(par1 * 0.6662F) * 2.0F * par2 * 0.5F + 0.001F;
 		this.bipedRightArm.rotateAngleZ = 0.00F;
 		this.bipedLeftArm.rotateAngleZ = 0.00F;
-		this.bipedRightLeg.rotateAngleX = (MathHelper.cos(par1 * 0.6662F) * 1.4F * par2)+0.001F;
+		this.bipedRightLeg.rotateAngleX = MathHelper.cos(par1 * 0.6662F) * 1.4F * par2 + 0.001F;
 		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(par1 * 0.6662F + (float)Math.PI) * 1.4F * par2;
 		this.bipedRightLeg.rotateAngleY = 0.0F;
 		this.bipedLeftLeg.rotateAngleY = 0.0F;
 
 		if (this.heldItemLeft != 0)
 		{
-			this.bipedLeftArm.rotateAngleX = this.bipedLeftArm.rotateAngleX * 0.5F - ((float)Math.PI / 10F) * (float)this.heldItemLeft;
+			this.bipedLeftArm.rotateAngleX = this.bipedLeftArm.rotateAngleX * 0.5F - ((float) Math.PI / 10F) * this.heldItemLeft;
 		}
 
 		if (this.heldItemRight != 0)
 		{
-			this.bipedRightArm.rotateAngleX = this.bipedRightArm.rotateAngleX * 0.5F - ((float)Math.PI / 10F) * (float)this.heldItemRight;
+			this.bipedRightArm.rotateAngleX = this.bipedRightArm.rotateAngleX * 0.5F - ((float) Math.PI / 10F) * this.heldItemRight;
 		}
 
 		this.bipedRightArm.rotateAngleY = 0.0F;
 		this.bipedLeftArm.rotateAngleY = 0.0F;
-		float f6;
-		float f7;
+		//float f6;
+		//float f7;
 
 		if (this.onGround > -9990.0F)
 		{
-			f6 = this.onGround;
+			//f6 = this.onGround;
 			this.bipedBody.rotateAngleY = 0;
 			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
 			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;

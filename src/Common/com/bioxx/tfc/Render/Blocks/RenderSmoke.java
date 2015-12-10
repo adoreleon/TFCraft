@@ -5,19 +5,20 @@ import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
+
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class RenderSmoke  implements ISimpleBlockRenderingHandler 
 {
-	static float pixel3 = 3f/16f;
-	static float pixel5 = 5f/16f;
-	static float pixel12 = 12f/16f;
-	static float pixel14 = 14f/16f;
+	/*private static float pixel3 = 3f / 16f;
+	private static float pixel5 = 5f / 16f;
+	private static float pixel12 = 12f / 16f;
+	private static float pixel14 = 14f / 16f;*/
 
 	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer)
 	{
-		IBlockAccess blockAccess = renderer.blockAccess;
+		//IBlockAccess blockAccess = renderer.blockAccess;
 		renderer.enableAO = false;
 		Tessellator tessellator = Tessellator.instance;
 		boolean flag = false;
@@ -47,7 +48,7 @@ public class RenderSmoke  implements ISimpleBlockRenderingHandler
 		{
 			tessellator.setBrightness(renderer.renderMinY > 0.0D ? l : block.getMixedBrightnessForBlock(renderer.blockAccess, x, y - 1, z));
 			tessellator.setColorRGBA_F(f10, f13, f16, alpha);
-			renderer.renderFaceYNeg(block, (double)x, (double)y, (double)z, renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 0));
+			renderer.renderFaceYNeg(block, x, y, z, renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 0));
 			flag = true;
 		}
 
@@ -55,7 +56,7 @@ public class RenderSmoke  implements ISimpleBlockRenderingHandler
 		{
 			tessellator.setBrightness(renderer.renderMaxY < 1.0D ? l : block.getMixedBrightnessForBlock(renderer.blockAccess, x, y + 1, z));
 			tessellator.setColorRGBA_F(f7, f8, f9, alpha);
-			renderer.renderFaceYPos(block, (double)x, (double)y, (double)z, renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 1));
+			renderer.renderFaceYPos(block, x, y, z, renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 1));
 			flag = true;
 		}
 
@@ -65,7 +66,7 @@ public class RenderSmoke  implements ISimpleBlockRenderingHandler
 			tessellator.setBrightness(renderer.renderMinZ > 0.0D ? l : block.getMixedBrightnessForBlock(renderer.blockAccess, x, y, z - 1));
 			tessellator.setColorRGBA_F(f11, f14, f17, alpha);
 			iicon = renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 2);
-			renderer.renderFaceZNeg(block, (double)x, (double)y, (double)z, iicon);
+			renderer.renderFaceZNeg(block, x, y, z, iicon);
 			flag = true;
 		}
 
@@ -74,7 +75,7 @@ public class RenderSmoke  implements ISimpleBlockRenderingHandler
 			tessellator.setBrightness(renderer.renderMaxZ < 1.0D ? l : block.getMixedBrightnessForBlock(renderer.blockAccess, x, y, z + 1));
 			tessellator.setColorRGBA_F(f11, f14, f17, alpha);
 			iicon = renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 3);
-			renderer.renderFaceZPos(block, (double)x, (double)y, (double)z, iicon);
+			renderer.renderFaceZPos(block, x, y, z, iicon);
 			flag = true;
 		}
 
@@ -83,7 +84,7 @@ public class RenderSmoke  implements ISimpleBlockRenderingHandler
 			tessellator.setBrightness(renderer.renderMinX > 0.0D ? l : block.getMixedBrightnessForBlock(renderer.blockAccess, x - 1, y, z));
 			tessellator.setColorRGBA_F(f12, f15, f18, alpha);
 			iicon = renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 4);
-			renderer.renderFaceXNeg(block, (double)x, (double)y, (double)z, iicon);
+			renderer.renderFaceXNeg(block, x, y, z, iicon);
 			flag = true;
 		}
 
@@ -92,10 +93,10 @@ public class RenderSmoke  implements ISimpleBlockRenderingHandler
 			tessellator.setBrightness(renderer.renderMaxX < 1.0D ? l : block.getMixedBrightnessForBlock(renderer.blockAccess, x + 1, y, z));
 			tessellator.setColorRGBA_F(f12, f15, f18, alpha);
 			iicon = renderer.getBlockIcon(block, renderer.blockAccess, x, y, z, 5);
-			renderer.renderFaceXPos(block, (double)x, (double)y, (double)z, iicon);
+			renderer.renderFaceXPos(block, x, y, z, iicon);
 			flag = true;
 		}
-		return true;
+		return flag;
 	}
 
 	@Override

@@ -3,30 +3,21 @@ package com.bioxx.tfc.ASM;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import com.bioxx.tfc.TFCASMLoadingPlugin;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-
-import com.bioxx.tfc.TFCASMLoadingPlugin;
-
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import org.objectweb.asm.tree.*;
 
 public class ClassTransformer implements net.minecraft.launchwrapper.IClassTransformer
 {
-	protected HashMap<String, Patch> mcpMethodNodes = new HashMap<String, Patch>();
-	protected HashMap<String, Patch> obfMethodNodes = new HashMap<String, Patch>();
+	public static final Logger LOG = LogManager.getLogger("TerraFirmaCraft ASM");
+	protected Map<String, Patch> mcpMethodNodes = new HashMap<String, Patch>();
+	protected Map<String, Patch> obfMethodNodes = new HashMap<String, Patch>();
 	protected String mcpClassName;
 	protected String obfClassName;
 
@@ -34,7 +25,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] bytes)
 	{
-		// System.out.println("transforming: " + name);
+		// log.info("transforming: " + name);
 		if (name.equals(obfClassName))
 		{
 			return transform(bytes);
@@ -47,13 +38,13 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 		return bytes;
 	}
 
-	static int numInsertions = 0;
+	public static int numInsertions;
 	protected byte[] transform(byte[] bytes)
 	{
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
 		classReader.accept(classNode, 0);
-		System.out.println("Attempting to Transform: "+ classNode.name + " | Found " + getMethodNodeList().size() + " injections");
+		LOG.info("Attempting to Transform: " + classNode.name + " | Found " + getMethodNodeList().size() + " injections");
 		// find method to inject into
 		Iterator<MethodNode> methods = classNode.methods.iterator();
 		while (methods.hasNext())
@@ -65,15 +56,16 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 				Patch mPatch = getMethodNodeList().get(m.name + " | " + m.desc);
 				List<InstrSet> instructions = mPatch.instructions;
 				InstrSet target = null;
-				if(instructions.size() > 0) {
+				if (!instructions.isEmpty())
+				{
 					target = instructions.get(0);
 				} else {
-					System.out.println("Error in: {"+m.name + " | " + m.desc+"} No Instructions");
+					LOG.error("Error in: {" + m.name + " | " + m.desc + "} No Instructions");
 				}
 				//Run this is we plan to just modify the method
 				if(mPatch.opType == PatchOpType.Modify)
 				{
-					for (int index = 0; index < m.instructions.size() && instructions.size() > 0; index++)
+					for (int index = 0; index < m.instructions.size() && !instructions.isEmpty(); index++ )
 					{
 						numInsertions = 0;
 						while(target != null)
@@ -91,7 +83,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 							}
 
 
-							if(instructions.size() > 0) 
+							if (!instructions.isEmpty())
 							{
 								target = instructions.get(0);
 							} 
@@ -104,8 +96,8 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 				}
 				else if(mPatch.opType == PatchOpType.Replace)
 				{
-					InsnList old = new InsnList();
-					if(target.offset != -1)
+					//InsnList old = new InsnList();
+					if (target != null && target.offset != -1)
 					{
 						for (int index = 0; index < m.instructions.size();)
 						{
@@ -115,7 +107,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 						}
 
 					}
-					for (int index = 0; index < m.instructions.size() && instructions.size() > 0; index++)
+					for (int index = 0; index < m.instructions.size() && !instructions.isEmpty(); index++ )
 					{
 						numInsertions = 0;
 						while(target != null)
@@ -133,7 +125,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 							}
 
 
-							if(instructions.size() > 0) 
+							if (!instructions.isEmpty())
 							{
 								target = instructions.get(0);
 							} 
@@ -145,10 +137,10 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 						m.instructions.add(new InsnNode(Opcodes.RETURN));
 					}
 				}
-				System.out.println("Inserted: "+ classNode.name +" : {"+m.name + " | " + m.desc+"}");
+				LOG.info("Inserted: " + classNode.name + " : {" + m.name + " | " + m.desc + "}");
 			}
 		}
-		System.out.println("Attempting to Transform: "+ classNode.name + " Complete");
+		LOG.info("Attempting to Transform: " + classNode.name + " Complete");
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		classNode.accept(writer);
 		return writer.toByteArray();
@@ -166,7 +158,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 		return -1;
 	}
 
-	private int findLabel(InsnList methodList, int line)
+	/*private int findLabel(InsnList methodList, int line)
 	{
 		for (int index = 0; index < methodList.size(); index++)
 		{
@@ -176,9 +168,9 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 			}
 		}
 		return -1;
-	}
+	}*/
 
-	private boolean isLabel(AbstractInsnNode current, int line)
+	/*private boolean isLabel(AbstractInsnNode current, int line)
 	{
 		if(current instanceof LineNumberNode)
 		{
@@ -189,32 +181,32 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 			}
 		}
 		return false;
-	}
+	}*/
 
 	private void performDirectOperation(InsnList methodInsn, InstrSet input)
 	{
-		AbstractInsnNode _current = methodInsn.get(input.offset+numInsertions);
+		AbstractInsnNode current = methodInsn.get(input.offset+numInsertions);
 		switch(input.opType)
 		{
 		case InsertAfter:
 			numInsertions+=input.iList.size();
-			methodInsn.insert(_current, input.iList);
+			methodInsn.insert(current, input.iList);
 			break;
 		case InsertBefore:
 			numInsertions+=input.iList.size();
-			methodInsn.insertBefore(_current, input.iList);
+			methodInsn.insertBefore(current, input.iList);
 			break;
 		case Remove:
 			numInsertions--;
-			methodInsn.remove(_current);
+			methodInsn.remove(current);
 			break;
 		case Replace:
-			if(_current instanceof JumpInsnNode && input.iList.get(0) instanceof JumpInsnNode)
+			if(current instanceof JumpInsnNode && input.iList.get(0) instanceof JumpInsnNode)
 			{
-				((JumpInsnNode)input.iList.get(0)).label = ((JumpInsnNode)_current).label;
+				((JumpInsnNode)input.iList.get(0)).label = ((JumpInsnNode)current).label;
 			}
-			methodInsn.insert(_current, input.iList);
-			methodInsn.remove(_current);
+			methodInsn.insert(current, input.iList);
+			methodInsn.remove(current);
 			break;
 		default:
 			break;
@@ -223,28 +215,28 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 
 	private void performAnchorOperation(InsnList methodInsn, InstrSet input, int anchor)
 	{
-		AbstractInsnNode _current = methodInsn.get(anchor + input.offset + numInsertions);
+		AbstractInsnNode current = methodInsn.get(anchor + input.offset + numInsertions);
 		if(input.iList.get(0) instanceof JumpInsnNode)
 		{
-			input.iList.set(input.iList.get(0), new JumpInsnNode(input.iList.get(0).getOpcode(), (LabelNode)_current.getPrevious()));
+			input.iList.set(input.iList.get(0), new JumpInsnNode(input.iList.get(0).getOpcode(), (LabelNode)current.getPrevious()));
 		}
 		switch(input.opType)
 		{
 		case InsertAfter:
 			numInsertions+=input.iList.size();
-			methodInsn.insert(_current, input.iList);
+			methodInsn.insert(current, input.iList);
 			break;
 		case InsertBefore:
 			numInsertions+=input.iList.size();
-			methodInsn.insertBefore(_current, input.iList);
+			methodInsn.insertBefore(current, input.iList);
 			break;
 		case Remove:
 			numInsertions--;
-			methodInsn.remove(_current);
+			methodInsn.remove(current);
 			break;
 		case Replace:
-			methodInsn.insert(_current, input.iList);
-			methodInsn.remove(_current);
+			methodInsn.insert(current, input.iList);
+			methodInsn.remove(current);
 			break;
 		case Switch:
 			/**
@@ -252,19 +244,19 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 			 * and then move back one, grab that node and move it to the original location
 			 * */
 			int otherAnchor = findLine(methodInsn, input.offsetLine);
-			AbstractInsnNode _other = methodInsn.get(otherAnchor + input.offsetSwitch + numInsertions);
-			methodInsn.remove(_current);
-			methodInsn.insert(_other, _current);
-			_current = methodInsn.get(anchor + input.offset + numInsertions);
-			methodInsn.remove(_other);
-			methodInsn.insertBefore(_current, _other);
+			AbstractInsnNode other = methodInsn.get(otherAnchor + input.offsetSwitch + numInsertions);
+			methodInsn.remove(current);
+			methodInsn.insert(other, current);
+			current = methodInsn.get(anchor + input.offset + numInsertions);
+			methodInsn.remove(other);
+			methodInsn.insertBefore(current, other);
 			break;
 		default:
 			break;
 		}
 	}
 
-	protected HashMap<String, Patch> getMethodNodeList()
+	protected Map<String, Patch> getMethodNodeList()
 	{
 		if(TFCASMLoadingPlugin.runtimeDeobf)
 		{
@@ -286,7 +278,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 		return false;
 	}
 
-	private boolean CompareNodes(AbstractInsnNode current,AbstractInsnNode target){
+	/*private boolean compareNodes(AbstractInsnNode current,AbstractInsnNode target){
 		if(current.getType() != target.getType()) {
 			return false;
 		}
@@ -311,13 +303,13 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 		}
 		}
 		return false;
-	}
+	}*/
 
-	private AbstractInsnNode deobf(AbstractInsnNode obf){
-		/*boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
-		if(!needDeobf){
-			return obf;
-		}*/
+	/*private AbstractInsnNode deobf(AbstractInsnNode obf){
+		//boolean needDeobf=tfc_carpentersblocks_adapter.coremod.TFC_CarpBlock_IFMLLoadingPlugin.runtimeDeobf;
+		//if(!needDeobf){
+			//return obf;
+		//}
 		FMLDeobfuscatingRemapper mapper=FMLDeobfuscatingRemapper.INSTANCE;
 		String owner,name,desc;
 		switch(obf.getType()){
@@ -343,34 +335,34 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 		default:
 			return obf;
 		}
-	}
+	}*/
 
 	public class InstrSet
 	{
 		/**
 		 * InsnList of instructions that should be inserted at the specified point
 		 */
-		InsnList iList;
+		public InsnList iList;
 
 		/**
 		 * Insertion offset to from either the top of the file, or from the provided startLine
 		 */
-		int offset;
+		public int offset;
 
 		/**
 		 * The line number of the LineNumberNode to use as the starting offset, also known as the anchor point. 
 		 * If this is -1 then the top of the method is used as the anchor point
 		 */
-		int startLine = -1;
+		public int startLine = -1;
 
 		/**
 		 * The type of operation that should be performed at the given offset
 		 */
-		InstrOpType opType;
+		public InstrOpType opType;
 
 
-		int offsetSwitch = -1;
-		int offsetLine = -1;
+		public int offsetSwitch = -1;
+		public int offsetLine = -1;
 
 		public InstrSet(InsnList list, int off, InstrOpType op)
 		{
@@ -447,7 +439,7 @@ public class ClassTransformer implements net.minecraft.launchwrapper.IClassTrans
 
 	public class JumpNode extends JumpInsnNode
 	{
-		int line = 0;
+		public int line;
 		public JumpNode(int opcode, LabelNode label) {
 			super(opcode, label);
 		}

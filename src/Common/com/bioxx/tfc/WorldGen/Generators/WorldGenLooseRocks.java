@@ -10,16 +10,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.common.IWorldGenerator;
+
 import com.bioxx.tfc.Blocks.Terrain.BlockOre;
 import com.bioxx.tfc.Core.TFC_Climate;
-import com.bioxx.tfc.Core.Util.BlockMeta;
 import com.bioxx.tfc.TileEntities.TEWorldItem;
 import com.bioxx.tfc.WorldGen.DataLayer;
 import com.bioxx.tfc.WorldGen.TFCBiome;
-
-import cpw.mods.fml.common.IWorldGenerator;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 
 public class WorldGenLooseRocks implements IWorldGenerator
 {
@@ -29,7 +28,7 @@ public class WorldGenLooseRocks implements IWorldGenerator
 
 	private boolean generateRocks(World world, Random random, int i, int j, int k)
 	{
-		if ((world.isAirBlock(i, j + 1, k) || world.getBlock(i, j + 1, k) == Blocks.snow || world.getBlock(i, j + 1, k) == TFCBlocks.TallGrass) && 
+		if ((world.isAirBlock(i, j + 1, k) || world.getBlock(i, j + 1, k) == Blocks.snow || world.getBlock(i, j + 1, k) == TFCBlocks.tallGrass) && 
 				(world.getBlock(i, j, k).getMaterial() == Material.grass || world.getBlock(i, j, k).getMaterial() == Material.rock) && world.getBlock(i, j, k).isOpaqueCube())
 		{
 			if(world.setBlock(i, j+1, k, TFCBlocks.worldItem, 0, 2))
@@ -43,8 +42,8 @@ public class WorldGenLooseRocks implements IWorldGenerator
 				else
 				{
 					DataLayer dl = TFC_Climate.getRockLayer(world, i, j, k, 0);
-					BlockMeta rockLayer = new BlockMeta(dl.block, dl.data2);
-					te.storage[0] = new ItemStack(TFCItems.LooseRock, 1, dl.data1);
+					//BlockMeta rockLayer = new BlockMeta(dl.block, dl.data2);
+					te.storage[0] = new ItemStack(TFCItems.looseRock, 1, dl.data1);
 				}
 			}
 		}
@@ -53,8 +52,8 @@ public class WorldGenLooseRocks implements IWorldGenerator
 
 	private ItemStack getCoreSample(World world, int xCoord, int yCoord, int zCoord)
 	{
-		ArrayList coreSample = new ArrayList<Item>();
-		ArrayList coreSampleStacks = new ArrayList<ItemStack>();
+		ArrayList<Item> coreSample = new ArrayList<Item>();
+		ArrayList<ItemStack> coreSampleStacks = new ArrayList<ItemStack>();
 		int x1 = (xCoord >> 4) << 4;
 		int z1 = (zCoord >> 4) << 4;
 		for(int x = 0; x <= 15; x++)
@@ -63,7 +62,7 @@ public class WorldGenLooseRocks implements IWorldGenerator
 			{
 				for(int y = yCoord; y > yCoord-35; y--)
 				{
-					if(world.getBlock(x1 + x, y, z1 + z) == TFCBlocks.Ore)
+					if(world.getBlock(x1 + x, y, z1 + z) == TFCBlocks.ore)
 					{
 						int m = world.getBlockMetadata(x1 + x, y, z1 + z);
 						if(!coreSample.contains(BlockOre.getDroppedItem(m)))
@@ -78,8 +77,8 @@ public class WorldGenLooseRocks implements IWorldGenerator
 				}
 			}
 		}
-		if(coreSampleStacks.size() > 0)
-			return (ItemStack)coreSampleStacks.get(world.rand.nextInt(coreSampleStacks.size()));
+		if (!coreSampleStacks.isEmpty())
+			return coreSampleStacks.get(world.rand.nextInt(coreSampleStacks.size()));
 		return null;
 	}
 
@@ -89,9 +88,13 @@ public class WorldGenLooseRocks implements IWorldGenerator
 	{
 		chunkX *= 16;
 		chunkZ *= 16;
-		TFCBiome biome = (TFCBiome) world.getBiomeGenForCoords(chunkX, chunkZ);
-		if(biome == TFCBiome.ocean)
-			return;
+
+		if (world.getBiomeGenForCoords(chunkX, chunkZ) instanceof TFCBiome) // Fixes ClassCastException
+		{
+			TFCBiome biome = (TFCBiome) world.getBiomeGenForCoords(chunkX, chunkZ);
+			if (biome == TFCBiome.OCEAN || biome == TFCBiome.DEEP_OCEAN)
+				return;
+		}
 
 		//rocks/ore
 		for (int var2 = 0; var2 < 8; var2++)
@@ -112,17 +115,20 @@ public class WorldGenLooseRocks implements IWorldGenerator
 
 	private boolean generateSticks(World world, Random random, int i, int j, int k)
 	{
-		if ((world.isAirBlock(i, j + 1, k) || world.getBlock(i, j + 1, k) == Blocks.snow || world.getBlock(i, j + 1, k) == TFCBlocks.TallGrass) && 
+		if ((world.isAirBlock(i, j + 1, k) || world.getBlock(i, j + 1, k) == Blocks.snow || world.getBlock(i, j + 1, k) == TFCBlocks.tallGrass) && 
 				(world.getBlock(i, j, k).getMaterial() == Material.grass || world.getBlock(i, j, k).getMaterial() == Material.rock ||
 				world.getBlock(i, j, k) .getMaterial() == Material.sand || world.getBlock(i, j, k).getMaterial() == Material.ground) && world.getBlock(i, j, k).isOpaqueCube())
 		{
-			TFCBiome biome = (TFCBiome) world.getBiomeGenForCoords(i, k);
-			if((biome == TFCBiome.beach || biome == TFCBiome.gravelbeach || biome == TFCBiome.ocean || biome == TFCBiome.river || isNearTree(world, i, j, k)) && 
-					world.setBlock(i, j + 1, k, TFCBlocks.worldItem, 0, 2))
+			if (world.getBiomeGenForCoords(i, k) instanceof TFCBiome) // Fixes ClassCastException
 			{
-				TEWorldItem te =(TEWorldItem) world.getTileEntity(i, j + 1, k);
-				//BlockMeta rockLayer = TFC_Climate.getRockLayer(i, j, k, 0);
-				te.storage[0] = new ItemStack(TFCItems.Stick, 1);
+				TFCBiome biome = (TFCBiome) world.getBiomeGenForCoords(i, k);
+				if ((biome == TFCBiome.DEEP_OCEAN || biome == TFCBiome.BEACH || biome == TFCBiome.GRAVEL_BEACH || biome == TFCBiome.OCEAN || biome == TFCBiome.RIVER || isNearTree(world, i, j, k)) &&
+						world.setBlock(i, j + 1, k, TFCBlocks.worldItem, 0, 2))
+				{
+					TEWorldItem te = (TEWorldItem) world.getTileEntity(i, j + 1, k);
+					//BlockMeta rockLayer = TFC_Climate.getRockLayer(i, j, k, 0);
+					te.storage[0] = new ItemStack(TFCItems.stick, 1);
+				}
 			}
 		}
 		return true;
@@ -136,15 +142,12 @@ public class WorldGenLooseRocks implements IWorldGenerator
 				world.getBlock(i, j + 3, k + 5).getMaterial() == Material.leaves ||
 				world.getBlock(i, j + 3, k - 5).getMaterial() == Material.leaves)
 			return true;
-
-		if(world.getBlock(i, j + 6, k).getMaterial() == Material.leaves ||
+		else
+			return world.getBlock(i, j + 6, k).getMaterial() == Material.leaves ||
 				world.getBlock(i + 5, j + 6, k).getMaterial() == Material.leaves ||
 				world.getBlock(i - 5, j + 6, k).getMaterial() == Material.leaves ||
 				world.getBlock(i, j + 6, k + 5).getMaterial() == Material.leaves ||
-				world.getBlock(i, j + 6, k - 5).getMaterial() == Material.leaves)
-			return true;
-
-		return false;
+				world.getBlock(i, j + 6, k - 5).getMaterial() == Material.leaves;
 	}
 
 }

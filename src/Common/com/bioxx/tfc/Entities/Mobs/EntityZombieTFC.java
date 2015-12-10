@@ -2,6 +2,7 @@ package com.bioxx.tfc.Entities.Mobs;
 
 import java.util.Random;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityLivingData;
@@ -16,22 +17,24 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.living.ZombieEvent.SummonAidEvent;
 
-import com.bioxx.tfc.TFCItems;
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_MobData;
 import com.bioxx.tfc.Food.CropIndex;
 import com.bioxx.tfc.Food.ItemFoodTFC;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Interfaces.ICausesDamage;
 import com.bioxx.tfc.api.Interfaces.IInnateArmor;
-
-import cpw.mods.fml.common.eventhandler.Event.Result;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInnateArmor
 {
@@ -44,8 +47,22 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(TFC_MobData.ZombieDamage);
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(TFC_MobData.ZombieHealth);//MaxHealth
+		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(TFC_MobData.ZOMBIE_DAMAGE);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(TFC_MobData.ZOMBIE_HEALTH);//MaxHealth
+	}
+
+	@Override
+	public boolean getCanSpawnHere()
+	{
+		int x = MathHelper.floor_double(this.posX);
+		int y = MathHelper.floor_double(this.boundingBox.minY);
+		int z = MathHelper.floor_double(this.posZ);
+		Block b = this.worldObj.getBlock(x, y, z);
+
+		if(b == TFCBlocks.leaves || b == TFCBlocks.leaves2 || b == TFCBlocks.thatch)
+			return false;
+
+		return super.getCanSpawnHere();
 	}
 
 	/**
@@ -66,34 +83,37 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 		switch (this.rand.nextInt(3))
 		{
 		case 0:
-			this.dropItem(TFCItems.WroughtIronIngot, 1);
+			Random r0 = new Random();
+			if (r0.nextInt(3) == 0)
+				this.dropItem(TFCItems.wroughtIronIngot, 1);
 			break;
 		case 1:
-			ItemStack is1 = new ItemStack(TFCItems.Carrot);
-			Random R1 = new Random();
-			if(R1.nextInt(100) < 100)
+			ItemStack is1 = new ItemStack(TFCItems.carrot);
+			Random r1 = new Random();
+			if(r1.nextInt(100) < 100)
 			{
-				float weight = CropIndex.getWeight(30.0f, R1);
+				float weight = CropIndex.getWeight(30.0f, r1);
 				ItemFoodTFC.createTag(is1, weight, weight/2);
 				entityDropItem(is1, 0);
 			}
 			break;
 		case 2:
-			ItemStack is2 = new ItemStack(TFCItems.Potato);
-			Random R2 = new Random();
-			if(R2.nextInt(100) < 100)
+			ItemStack is2 = new ItemStack(TFCItems.potato);
+			Random r2 = new Random();
+			if(r2.nextInt(100) < 100)
 			{
-				float weight = CropIndex.getWeight(55.0f, R2);
+				float weight = CropIndex.getWeight(55.0f, r2);
 				ItemFoodTFC.createTag(is2, weight, weight/2);
 				entityDropItem(is2, 0);
 			}
+			break;
 		}
 	}
 
 	@Override
 	protected void addRandomArmor()
 	{
-		super.addRandomArmor();
+		this.setCurrentItemOrArmor(0, null);
 		this.setCurrentItemOrArmor(1, null);
 		this.setCurrentItemOrArmor(2, null);
 		this.setCurrentItemOrArmor(3, null);
@@ -103,9 +123,9 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 		{
 			int var1 = this.rand.nextInt(3);
 			if (var1 == 0)
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.BronzePick));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.bronzePick));
 			else
-				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.BronzeShovel));
+				this.setCurrentItemOrArmor(0, new ItemStack(TFCItems.bronzeShovel));
 		}
 	}
 
@@ -126,7 +146,7 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 	}
 
 	@Override
-	public EnumDamageType GetDamageType() 
+	public EnumDamageType getDamageType() 
 	{
 		return EnumDamageType.SLASHING;
 	}
@@ -230,7 +250,7 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 					}
 					else
 					{
-						this.attackedAtYaw = (float)((int)(Math.random() * 2.0D) * 180);
+						this.attackedAtYaw = (int) (Math.random() * 2.0D) * 180;
 					}
 				}
 
@@ -276,7 +296,7 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 		{
 			return;
 		}
-		else if (summonAid.getResult() == Result.ALLOW || entitylivingbase != null && this.worldObj.difficultySetting == EnumDifficulty.HARD && (double)this.rand.nextFloat() < this.getEntityAttribute(field_110186_bp).getAttributeValue())
+		else if (summonAid.getResult() == Result.ALLOW || entitylivingbase != null && this.worldObj.difficultySetting == EnumDifficulty.HARD && this.rand.nextFloat() < this.getEntityAttribute(field_110186_bp).getAttributeValue())
 		{
 			EntityZombie entityzombie;
 			if (summonAid.customSummonedAid != null && summonAid.getResult() == Result.ALLOW)
@@ -296,7 +316,7 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 
 				if (World.doesBlockHaveSolidTopSurface(this.worldObj, i1, j1 - 1, k1) && this.worldObj.getBlockLightValue(i1, j1, k1) < 10 && TFC_Core.getCDM(worldObj).getData(i1 >> 4, k1 >> 4).getSpawnProtectionWithUpdate() <= 0)
 				{
-					entityzombie.setPosition((double)i1, (double)j1, (double)k1);
+					entityzombie.setPosition(i1, j1, k1);
 
 					if (this.worldObj.checkNoEntityCollision(entityzombie.boundingBox) && this.worldObj.getCollidingBoundingBoxes(entityzombie, entityzombie.boundingBox).isEmpty() && !this.worldObj.isAnyLiquid(entityzombie.boundingBox))
 					{
@@ -313,19 +333,19 @@ public class EntityZombieTFC extends EntityZombie implements ICausesDamage, IInn
 	}
 
 	@Override
-	public int GetCrushArmor()
+	public int getCrushArmor()
 	{
 		return 1000;//equates to ~50% less damage taken
 	}
 
 	@Override
-	public int GetSlashArmor()
+	public int getSlashArmor()
 	{
 		return -335;//equates to ~50% more damage taken
 	}
 
 	@Override
-	public int GetPierceArmor()
+	public int getPierceArmor()
 	{
 		return 0;
 	}

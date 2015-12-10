@@ -3,23 +3,22 @@ package com.bioxx.tfc.WorldGen.Generators.Trees;
 import java.util.Random;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class WorldGenPineTall extends WorldGenerator
 {
-	Block blockLeaf, blockWood;
-	final int metaLeaf, metaWood;
+	private final Block blockLeaf, blockWood;
+	private final int metaLeaf, metaWood;
 	public WorldGenPineTall(int id)
 	{
 		metaLeaf = id;
-		blockLeaf = TFCBlocks.Leaves;
+		blockLeaf = TFCBlocks.leaves;
 		metaWood = id;
-		blockWood = TFCBlocks.LogNatural;
+		blockWood = TFCBlocks.logNatural;
 	}
 
 	@Override
@@ -42,8 +41,6 @@ public class WorldGenPineTall extends WorldGenerator
 
 			for (y = yCoord; y <= yCoord + 1 + treeHeight && isValid; ++y)
 			{
-				boolean var12 = true;
-
 				if (y - yCoord < var7)
 					var18 = 0;
 				else
@@ -56,7 +53,7 @@ public class WorldGenPineTall extends WorldGenerator
 						if (y >= 0 && y < 256)
 						{
 							block = world.getBlock(x, y, z);
-							if (block != Blocks.air && block != null && !block.isLeaves(world, x, y, z) && !block.isReplaceable(world, x, y, z))
+							if (!block.isAir(world, x, y, z) && !block.isLeaves(world, x, y, z) && !block.isReplaceable(world, x, y, z))
 								isValid = false;
 						}
 						else
@@ -74,12 +71,13 @@ public class WorldGenPineTall extends WorldGenerator
 			else
 			{
 				block = world.getBlock(xCoord, yCoord - 1, zCoord);
-				Block dirt =  TFC_Core.getTypeForDirtFromGrass(block);
-				int dirtMeta =  world.getBlockMetadata(xCoord, yCoord-1, zCoord);
 
 				if (TFC_Core.isSoil(block) && yCoord < world.getActualHeight() - treeHeight - 1)
 				{
-					this.setBlockAndNotifyAdequately(world, xCoord, yCoord - 1, zCoord, dirt, dirtMeta);
+					Block soil = TFC_Core.getTypeForSoil(block);
+					int soilMeta = world.getBlockMetadata(xCoord, yCoord - 1, zCoord);
+
+					this.setBlockAndNotifyAdequately(world, xCoord, yCoord - 1, zCoord, soil, soilMeta);
 					var18 = 0;
 
 					for (x = yCoord + treeHeight; x >= yCoord + var7; --x)
@@ -108,12 +106,7 @@ public class WorldGenPineTall extends WorldGenerator
 
 					for (x = 0; x < treeHeight - 1; ++x)
 					{
-						block = world.getBlock(xCoord, yCoord + x, zCoord);
-						if (block == Blocks.air || block == null || block.isLeaves(world, xCoord, yCoord + x, zCoord) || 
-								block.canBeReplacedByLeaves(world, xCoord, yCoord + x, zCoord))
-						{
-							this.setBlockAndNotifyAdequately(world, xCoord, yCoord + x, zCoord, blockWood, metaWood);
-						}
+						this.setBlockAndNotifyAdequately(world, xCoord, yCoord + x, zCoord, blockWood, metaWood);
 					}
 					return true;
 				}

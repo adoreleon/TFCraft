@@ -8,15 +8,16 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFC_Core;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCOptions;
 
 public class MapGenRavineTFC extends MapGenBaseTFC
 {
-	private float[] field_35627_a = new float[1024];
-	private byte[] metaArray;
-	private int height = 0;
-	private int variability = 0;
+	private float[] multipliers = new float[1024];
+	//private byte[] metaArray;
+	private final int height;
+	private final int variability;
 
 	public MapGenRavineTFC(int h, int v)
 	{
@@ -26,7 +27,7 @@ public class MapGenRavineTFC extends MapGenBaseTFC
 
 	public void generate(IChunkProvider par1IChunkProvider, World par2World, int par3, int par4, Block[] idsBig, byte[] metaBig)
 	{
-		metaArray = metaBig;
+		//metaArray = metaBig;
 		super.generate(par1IChunkProvider, par2World, par3, par4, idsBig);
 	}
 
@@ -37,7 +38,7 @@ public class MapGenRavineTFC extends MapGenBaseTFC
 		double chunkMidZ = chunkZ * 16 + 8;
 		float var24 = 0.0F;
 		float var25 = 0.0F;
-		Block block;
+		//Block block;
 
 		if (par16 <= 0)
 		{
@@ -57,7 +58,7 @@ public class MapGenRavineTFC extends MapGenBaseTFC
 		{
 			if (var28 == 0 || var19.nextInt(3) == 0)
 				var27 = 1.0F + var19.nextFloat() * var19.nextFloat() * 1.0F;
-			this.field_35627_a[var28] = var27 * var27;
+			this.multipliers[var28] = var27 * var27;
 		}
 
 		for (; par15 < par16; ++par15)
@@ -130,7 +131,7 @@ public class MapGenRavineTFC extends MapGenBaseTFC
 
 								if (y >= 0 && y < 256)
 								{
-									if (blockArray[index] == TFCBlocks.SaltWaterStationary ||  blockArray[index] == TFCBlocks.FreshWaterStationary)
+									if (blockArray[index] == TFCBlocks.saltWaterStationary ||  blockArray[index] == TFCBlocks.freshWaterStationary)
 										isBlocked = true;
 									if (y != minY - 1 && x != xMin && x != xMax - 1 && z != zMin && z != zMax - 1)
 										y = minY;
@@ -155,7 +156,7 @@ public class MapGenRavineTFC extends MapGenBaseTFC
 									for (int var49 = maxY - 1; var49 >= minY; --var49)
 									{
 										double var50 = (var49 + 0.5D - yCoord) / var30;
-										if ((var59 * var59 + var45 * var45) * this.field_35627_a[var49] + var50 * var50 / 6.0D < 1.0D)
+										if ((var59 * var59 + var45 * var45) * this.multipliers[var49] + var50 * var50 / 6.0D < 1.0D)
 										{
 											if (TFC_Core.isGround(blockArray[index2]))
 											{
@@ -191,7 +192,7 @@ public class MapGenRavineTFC extends MapGenBaseTFC
 	@Override
 	protected void recursiveGenerate(World par1World, int chunkX, int chunkZ, int par4, int par5, Block[] par6)
 	{
-		if (this.rand.nextInt(100) == 0)
+		if (TFCOptions.ravineRarity > 0 && this.rand.nextInt(TFCOptions.ravineRarity) == 0)
 		{
 			double startX = chunkX * 16 + this.rand.nextInt(16);
 			double startY = this.rand.nextInt(variability) + height;

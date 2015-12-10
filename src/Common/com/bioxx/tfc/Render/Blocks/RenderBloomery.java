@@ -1,14 +1,15 @@
 package com.bioxx.tfc.Render.Blocks;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.Blocks.Devices.BlockEarlyBloomery;
-import com.bioxx.tfc.TileEntities.TEBloomery;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
+
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+
+import com.bioxx.tfc.Blocks.Devices.BlockEarlyBloomery;
+import com.bioxx.tfc.TileEntities.TEBloomery;
+import com.bioxx.tfc.api.TFCBlocks;
 
 public class RenderBloomery implements ISimpleBlockRenderingHandler
 {
@@ -24,9 +25,9 @@ public class RenderBloomery implements ISimpleBlockRenderingHandler
 			if(te.isFlipped)
 				dir = BlockEarlyBloomery.flipDir(dir);
 		float f = 0.125F;
-		float xMin = 0.0625f;
-		float yMin = 0.0625f;
-		float zMin = 0.0625f;
+		//float xMin = 0.0625f;
+		//float yMin = 0.0625f;
+		//float zMin = 0.0625f;
 
 		if (!BlockEarlyBloomery.isOpen(meta))
 		{

@@ -13,6 +13,7 @@ import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
 
+import com.bioxx.tfc.TerraFirmaCraft;
 import com.bioxx.tfc.Chunkdata.ChunkData;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Entities.Mobs.EntityFishTFC;
@@ -37,7 +38,7 @@ public final class SpawnerAnimalsTFC
 		else
 		{
 			Block b = par1World.getBlock(par2, par3 - 1, par4);
-			boolean spawnBlock = (b != null && b.canCreatureSpawn(par0EnumCreatureType, par1World, par2, par3 - 1, par4));
+			boolean spawnBlock = b != null && b.canCreatureSpawn(par0EnumCreatureType, par1World, par2, par3 - 1, par4);
 			return spawnBlock && b != Blocks.bedrock &&
 					!par1World.getBlock(par2, par3, par4).isNormalCube() &&
 					!par1World.getBlock(par2, par3, par4).getMaterial().isLiquid() &&
@@ -71,25 +72,25 @@ public final class SpawnerAnimalsTFC
 						int l2 = world.getTopSolidOrLiquidBlock(j1, k1);
 						if (canCreatureTypeSpawnAtLocation(EnumCreatureType.creature, world, j1, l2, k1))
 						{
-							float f = j1 + 0.5F;
-							float f1 = l2;
-							float f2 = k1 + 0.5F;
 							EntityLiving entityliving;
-
 							try
 							{
 								entityliving = (EntityLiving)spawnlistentry.entityClass.getConstructor(new Class[] {World.class}).newInstance(new Object[] {world});
 							}
 							catch (Exception exception)
 							{
-								exception.printStackTrace();
+								TerraFirmaCraft.LOG.catching(exception);
 								continue;
 							}
 							if(entityliving instanceof EntityFishTFC){
-								if(entityliving.getRNG().nextInt((int)ChunkData.fishPopMax) > TFC_Core.getCDM(world).getFishPop(j1 >> 4, k1 >> 4)){
+								if(entityliving.getRNG().nextInt((int)ChunkData.FISH_POP_MAX) > TFC_Core.getCDM(world).getFishPop(j1 >> 4, k1 >> 4)){
 									return;
 								}
 							}
+
+							float f = j1 + 0.5F;
+							float f1 = l2;
+							float f2 = k1 + 0.5F;
 							entityliving.setLocationAndAngles(f, f1, f2, par6Random.nextFloat() * 360.0F, 0.0F);
 							world.spawnEntityInWorld(entityliving);
 							entitylivingdata = entityliving.onSpawnWithEgg(entitylivingdata);

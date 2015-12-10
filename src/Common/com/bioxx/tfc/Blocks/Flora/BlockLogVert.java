@@ -13,18 +13,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.Blocks.BlockTerra;
-import com.bioxx.tfc.Core.Recipes;
-import com.bioxx.tfc.api.Constant.Global;
+import net.minecraftforge.oredict.OreDictionary;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.Blocks.BlockTerra;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
+import com.bioxx.tfc.api.Constant.Global;
+
 public class BlockLogVert extends BlockTerra
 {
-	String[] woodNames;
+	protected String[] woodNames;
 	public BlockLogVert()
 	{
 		super(Material.wood);
@@ -35,39 +36,37 @@ public class BlockLogVert extends BlockTerra
 	@Override
 	public void harvestBlock(World world, EntityPlayer entityplayer, int x, int y, int z, int meta)
 	{
-		//we need to make sure teh palyer has the correct tool out
+		//we need to make sure the player has the correct tool out
 		boolean isAxeorSaw = false;
 		boolean isHammer = false;
 		ItemStack equip = entityplayer.getCurrentEquippedItem();
-		if(equip!=null)
+		if (equip != null)
 		{
-			for(int cnt = 0; cnt < Recipes.Axes.length && !isAxeorSaw; cnt++)
+			int[] equipIDs = OreDictionary.getOreIDs(equip);
+			for (int id : equipIDs)
 			{
-				if(equip.getItem() == Recipes.Axes[cnt])
+				String name = OreDictionary.getOreName(id);
+				if (name.startsWith("itemAxe") || name.startsWith("itemSaw"))
+				{
 					isAxeorSaw = true;
-			}
-
-			for(int cnt = 0; cnt < Recipes.Saws.length && !isAxeorSaw; cnt++)
-			{
-				if(equip.getItem() == Recipes.Saws[cnt])
-					isAxeorSaw = true;
-			}
-
-			for(int cnt = 0; cnt < Recipes.Hammers.length && !isAxeorSaw; cnt++)
-			{
-				if(equip.getItem() == Recipes.Hammers[cnt])
+					break;
+				}
+				else if (name.startsWith("itemHammer"))
+				{
 					isHammer = true;
+					break;
+				}
 			}
-		}
 
-		if(isAxeorSaw)
-		{
-			super.harvestBlock(world, entityplayer, x, y, z, meta);
-		}
-		else if(isHammer)
-		{
-			EntityItem item = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.Stick, 1 + world.rand.nextInt(3)));
-			world.spawnEntityInWorld(item);
+			if (isAxeorSaw)
+			{
+				super.harvestBlock(world, entityplayer, x, y, z, meta);
+			}
+			else if (isHammer)
+			{
+				EntityItem item = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, new ItemStack(TFCItems.stick, 1 + world.rand.nextInt(3)));
+				world.spawnEntityInWorld(item);
+			}
 		}
 		else
 		{
@@ -79,19 +78,19 @@ public class BlockLogVert extends BlockTerra
 	public int damageDropped(int dmg)
 	{
 		return dmg;
-	}	
+	}
 
 	@Override
-	public Item getItemDropped(int i, Random R, int j)
+	public Item getItemDropped(int i, Random r, int j)
 	{
-		return TFCItems.Logs;
+		return TFCItems.logs;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int side, int meta)
 	{
-		return TFCBlocks.LogNatural.getIcon(side, meta);
+		return TFCBlocks.logNatural.getIcon(side, meta);
 	}
 
 	@SideOnly(Side.CLIENT)

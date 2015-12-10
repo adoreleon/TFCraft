@@ -1,10 +1,10 @@
 package com.bioxx.tfc.Entities.Mobs;
 
-import com.bioxx.tfc.Core.TFC_MobData;
-
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityBlaze;
 import net.minecraft.world.World;
+
+import com.bioxx.tfc.Core.TFC_MobData;
 
 public class EntityBlazeTFC extends EntityBlaze
 {
@@ -17,7 +17,7 @@ public class EntityBlazeTFC extends EntityBlaze
 	protected void applyEntityAttributes()
 	{
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(TFC_MobData.BlazeDamage);
-		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(TFC_MobData.BlazeHealth);//MaxHealth
+		this.getEntityAttribute(SharedMonsterAttributes.attackDamage).setBaseValue(TFC_MobData.BLAZE_DAMAGE);
+		this.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(TFC_MobData.BLAZE_HEALTH);//MaxHealth
 	}
 }

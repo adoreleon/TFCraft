@@ -8,28 +8,28 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
-import com.bioxx.tfc.TerraFirmaCraft;
-import com.bioxx.tfc.Core.TFCFluid;
-import com.bioxx.tfc.TileEntities.TESluice;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import com.bioxx.tfc.TerraFirmaCraft;
+import com.bioxx.tfc.TileEntities.TESluice;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCFluids;
+import com.bioxx.tfc.api.TFCItems;
+
 public class BlockSluice extends BlockContainer
 {
-	public static final int headBlockToFootBlockMap[][] = { {0, 1}, {-1, 0}, {0, -1}, {1, 0} };
+	public static final int HEAD_FOOT_BLOCKMAP[][] = { {0, 1}, {-1, 0}, {0, -1}, {1, 0} };
 
 	public BlockSluice()
 	{
@@ -56,11 +56,11 @@ public class BlockSluice extends BlockContainer
 	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int par6, float par7, float par8, float par9)
 	{
 		int meta = world.getBlockMetadata(i, j, k);
-		int xCoord = i;
-		int yCoord = j;
-		int zCoord = k;
+		//int xCoord = i;
+		//int yCoord = j;
+		//int zCoord = k;
 		//Minecraft mc = ModLoader.getMinecraftInstance();
-		TileEntity te = world.getTileEntity(i, j, k);
+		//TileEntity te = world.getTileEntity(i, j, k);
 
 		if(world.isRemote)
 			return true;
@@ -72,7 +72,7 @@ public class BlockSluice extends BlockContainer
 					TESluice tileentitysluice;
 					tileentitysluice = (TESluice)world.getTileEntity(i, j, k);
 					ItemStack is =entityplayer.getCurrentEquippedItem();
-					if(is != null && is.getItem() == TFCItems.GoldPan && is.getItemDamage() != 0)
+					if(is != null && is.getItem() == TFCItems.goldPan && is.getItemDamage() != 0)
 					{
 						tileentitysluice.soilAmount+=7;
 						tileentitysluice.soilType = (byte) is.getItemDamage();
@@ -96,9 +96,9 @@ public class BlockSluice extends BlockContainer
 	public IIcon getIcon(int side, int meta)
 	{
 		if((meta & 4) != 0 && side == 1)
-			return TFCFluid.SALTWATER.getFlowingIcon();
+			return TFCFluids.SALTWATER.getFlowingIcon();
 		else
-			return TFCBlocks.WoodSupportH.getIcon(side, 8);
+			return TFCBlocks.woodSupportH.getIcon(side, 8);
 	}
 
 	@Override
@@ -132,8 +132,7 @@ public class BlockSluice extends BlockContainer
 
 	public String getItemNameIS(ItemStack itemstack) 
 	{
-		String s = "Sluice";
-		return s;
+		return "Sluice";
 	}
 
 	@Override
@@ -146,7 +145,7 @@ public class BlockSluice extends BlockContainer
 	public Item getItemDropped(int i, Random random, int j)
 	{
 		if(!isBlockFootOfBed(i))
-			return TFCItems.SluiceItem;
+			return TFCItems.sluiceItem;
 		else
 			return null;
 	}
@@ -193,29 +192,27 @@ public class BlockSluice extends BlockContainer
 	}
 
 	@Override
-	public boolean canPlaceBlockAt(World par1World, int par2, int par3, int par4)
+	public boolean canPlaceBlockAt(World world, int x, int y, int z)
 	{
-		Block var5 = par1World.getBlock(par2, par3, par4);
+		Block block = world.getBlock(x, y, z);
 
-		int dir = getDirectionFromMetadata(par1World.getBlockMetadata(par2, par3, par4));
-		int[] offset = headBlockToFootBlockMap[dir];
+		int dir = getDirectionFromMetadata(world.getBlockMetadata(x, y, z));
+		int[] offset = HEAD_FOOT_BLOCKMAP[dir];
 
-		boolean stay = (canStay(par1World, par2,par3,par4,false,dir) && 
-				canStay(par1World, par2+offset[0],par3,par4+offset[1],true,dir)) && 
-				(var5 == Blocks.air || var5.getMaterial().isReplaceable());
+		boolean stay = canStay(world, x, y, z, false, dir) && canStay(world, x + offset[0], y, z + offset[1], true, dir) && 
+				(block.isAir(world, x, y, z) || block.getMaterial().isReplaceable());
 
 		return stay;
 	}
 
 	public boolean canPlace(World world, int i, int j, int k,int dir)
 	{
-		int[] offset = headBlockToFootBlockMap[dir];
+		int[] offset = HEAD_FOOT_BLOCKMAP[dir];
 		Block topBlock = world.getBlock(i, j, k);
 		Block footBlock = world.getBlock(i+offset[0],j,k+offset[1]);
-		boolean stay = (canStay(world, i,j,k,false,dir) && 
-				canStay(world, i+offset[0],j,k+offset[1],true,dir)) && 
-				(topBlock == Blocks.air || topBlock.getMaterial().isReplaceable()) &&
-				(footBlock == Blocks.air || footBlock.getMaterial().isReplaceable());
+		boolean stay = canStay(world, i, j, k, false, dir) && canStay(world, i + offset[0], j, k + offset[1], true, dir) && 
+				(topBlock.isAir(world, i, j, k) || topBlock.getMaterial().isReplaceable()) &&
+				(footBlock.isAir(world, i+offset[0],j,k+offset[1]) || footBlock.getMaterial().isReplaceable());
 
 		return stay;
 	}
@@ -300,10 +297,10 @@ public class BlockSluice extends BlockContainer
 
 		if(isBlockFootOfBed(i1))
 		{
-			if(world.getBlock(i - headBlockToFootBlockMap[j1][0], j, k - headBlockToFootBlockMap[j1][1]) != this || !canStay(world, i, j, k,true,j1))
+			if(world.getBlock(i - HEAD_FOOT_BLOCKMAP[j1][0], j, k - HEAD_FOOT_BLOCKMAP[j1][1]) != this || !canStay(world, i, j, k,true,j1))
 				world.setBlockToAir(i, j, k);
 		}
-		else if(world.getBlock(i + headBlockToFootBlockMap[j1][0], j, k + headBlockToFootBlockMap[j1][1]) != this || !canStay(world, i, j, k,false,j1))
+		else if(world.getBlock(i + HEAD_FOOT_BLOCKMAP[j1][0], j, k + HEAD_FOOT_BLOCKMAP[j1][1]) != this || !canStay(world, i, j, k,false,j1))
 		{
 			world.setBlockToAir(i, j, k);
 			if(!world.isRemote)
@@ -325,5 +322,11 @@ public class BlockSluice extends BlockContainer
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegisterer)
 	{
+	}
+
+	@Override
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
+	{
+		return new ItemStack(TFCItems.sluiceItem);
 	}
 }

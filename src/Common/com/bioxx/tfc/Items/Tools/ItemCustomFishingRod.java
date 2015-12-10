@@ -2,8 +2,6 @@ package com.bioxx.tfc.Items.Tools;
 
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +12,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import com.bioxx.tfc.Reference;
 import com.bioxx.tfc.Core.TFCTabs;
 import com.bioxx.tfc.Core.TFC_Time;
@@ -23,9 +24,6 @@ import com.bioxx.tfc.api.Enums.EnumItemReach;
 import com.bioxx.tfc.api.Enums.EnumSize;
 import com.bioxx.tfc.api.Enums.EnumWeight;
 import com.bioxx.tfc.api.Interfaces.ISize;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 {
@@ -38,7 +36,7 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 		super();
 		this.setMaxDamage(64);
 		this.setMaxStackSize(1);
-		this.setCreativeTab(TFCTabs.TFCTools);
+		this.setCreativeTab(TFCTabs.TFC_TOOLS);
 		setNoRepair();
 	}
 
@@ -113,17 +111,18 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 		return is;
 	}
 
-	public boolean onItemUse(ItemStack is, EntityPlayer player, World p_77648_3_, int p_77648_4_, int p_77648_5_, int p_77648_6_, int p_77648_7_, float p_77648_8_, float p_77648_9_, float p_77648_10_)
+	@Override
+	public boolean onItemUse(ItemStack is, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	{
 		if(player.fishEntity instanceof EntityFishHookTFC)
 		{
 			((EntityFishHookTFC)(player.fishEntity)).reelInBobber(player, is);
 		}
-		else
+		/*else
 		{
 			//player.setItemInUse(is, 1);
 			//player.swingItem();
-		}
+		}*/
 		return false;
 	}
 
@@ -151,7 +150,8 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 	/**
 	 * How long it takes to use or consume an item
 	 */
-	public int getMaxItemUseDuration(ItemStack p_77626_1_)
+	@Override
+	public int getMaxItemUseDuration(ItemStack is)
 	{
 		return 72000;
 	}
@@ -164,9 +164,9 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 		uncastIconArray = new IIcon[3];
 		castIconArray = new IIcon[8];
 		for (int i = 0; i < castIconArray.length; ++i)
-			castIconArray[i] = par1IconRegister.registerIcon(Reference.ModID+":"+this.getIconString() +"_cast_" + i);
+			castIconArray[i] = par1IconRegister.registerIcon(Reference.MOD_ID+":"+this.getIconString() +"_cast_" + i);
 		for (int i = 0; i < uncastIconArray.length; ++i)
-			uncastIconArray[i] = par1IconRegister.registerIcon(Reference.ModID+":"+this.getIconString() +"_uncast_" + i);
+			uncastIconArray[i] = par1IconRegister.registerIcon(Reference.MOD_ID+":"+this.getIconString() +"_uncast_" + i);
 		this.itemIcon = uncastIconArray[0];
 	}
 
@@ -193,7 +193,7 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 		}
 
 		if(!cast){
-			int j = Math.max((Math.min(this.getMaxItemUseDuration(is) - useRemaining + 10,60)/20)-1,0);
+			int j = Math.max(Math.min(this.getMaxItemUseDuration(is) - useRemaining + 10, 60) / 20 - 1, 0);
 			if(!is.hasTagCompound()){
 				is.setTagCompound(new NBTTagCompound());
 			}
@@ -206,7 +206,7 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 				tension = is.stackTagCompound.getInteger("tension");
 			}
 			int originalTex = tension / 100;
-			int texShift = ((tension%100)+1)%31;
+			int texShift = (tension % 100 + 1) % 31;
 			return getItemIconForUseDuration(Math.min(originalTex + (texShift == 10?1:0),castIconArray.length-1),cast);
 		}
 	}
@@ -241,6 +241,7 @@ public class ItemCustomFishingRod extends ItemFishingRod implements ISize
 	/**
 	 * returns the action that specifies what animation to play when the items is being used
 	 */
+	@Override
 	public EnumAction getItemUseAction(ItemStack is)
 	{
 		if (is.stackTagCompound != null && is.stackTagCompound.hasKey("fishing") && is.stackTagCompound.getBoolean("fishing"))

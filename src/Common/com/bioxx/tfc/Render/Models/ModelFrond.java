@@ -5,6 +5,7 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.Tessellator;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -13,11 +14,11 @@ public class ModelFrond extends ModelBox
 	/**
      * The (x,y,z) vertex positions and (u,v) texture coordinates for each of the 8 points on a cube
      */
-    private PositionTextureVertex[] vertexPositions;
+	//private PositionTextureVertex[] vertexPositions;
     private Object[] blades;
 
-    private float lengthMod = 0.75f;
-    private float length = 8 * lengthMod;
+	private float lengthMod;
+	private float length;
 
     /** An array of 6 TexturedQuads, one for each face of a cube */
     private TexturedQuad[] quadList;
@@ -26,6 +27,8 @@ public class ModelFrond extends ModelBox
 			float originX, float originY, float originZ, int width, int height, int depth,
 			float scale) {
 		super(renderer, textureOffsetX, textureOffsetY, originX, originY, originZ, width, height, depth, scale);
+		this.lengthMod = 0.75f;
+		this.length = 8 * lengthMod;
 		/*
         this.vertexPositions = new PositionTextureVertex[8];
         this.quadList = new TexturedQuad[6];
@@ -71,11 +74,11 @@ public class ModelFrond extends ModelBox
 	*/
 		blades = new Object[30];
 		for(int i = 0; i < 6;i++){
-			blades[i] = createBlade(originX,originY,originZ,((i/3f)-2)*lengthMod,0,1.2f*i);
+			blades[i] = createBlade(originX, originY, originZ, (i / 3f - 2) * lengthMod, 0, 1.2f * i);
 		}
 		for(int i = 0; i < 18;i++){
 			//blades[i+6] = createBlade(originX,originY,originZ,i<9?((i/2f)-((i/9f)*3))+(float)Math.pow((9-i)/9f,1.1):((18-i)/2f)-(((18-i)/9f)*3),1.2f*(i+6));
-			blades[i+6] = createBlade(originX,originY,originZ,(3-((float)Math.pow((i-12),2)/60f))*lengthMod,0,1.2f*(i+6));
+			blades[i + 6] = createBlade(originX, originY, originZ, (3 - ((float) Math.pow(i - 12, 2) / 60f)) * lengthMod, 0, 1.2f * (i + 6));
 		}
 		for(int i = 0; i < 6; i ++){
 			blades[i+24] = createBlade(originX,originY,originZ,(2-(float)Math.pow(i,2)/4)*lengthMod,0,1.2f*(i+24));

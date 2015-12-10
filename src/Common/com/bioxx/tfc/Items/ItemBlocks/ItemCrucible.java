@@ -1,21 +1,6 @@
 package com.bioxx.tfc.Items.ItemBlocks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
-import com.bioxx.tfc.Core.Metal.Alloy;
-import com.bioxx.tfc.Core.Metal.AlloyManager;
-import com.bioxx.tfc.Core.Metal.AlloyMetal;
-import com.bioxx.tfc.Core.Metal.MetalPair;
-import com.bioxx.tfc.Core.Metal.MetalRegistry;
-import com.bioxx.tfc.Items.ItemTerra;
-import com.bioxx.tfc.api.Metal;
-import com.bioxx.tfc.api.Constant.Global;
-import com.bioxx.tfc.api.Enums.EnumSize;
-import com.bioxx.tfc.api.Enums.EnumWeight;
-import com.bioxx.tfc.api.Interfaces.ISize;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,9 +10,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 
+import com.bioxx.tfc.Core.Metal.*;
+import com.bioxx.tfc.Items.ItemTerra;
+import com.bioxx.tfc.api.Metal;
+import com.bioxx.tfc.api.Constant.Global;
+import com.bioxx.tfc.api.Enums.EnumSize;
+import com.bioxx.tfc.api.Enums.EnumWeight;
+import com.bioxx.tfc.api.Interfaces.ISize;
+
 public class ItemCrucible extends ItemTerraBlock implements ISize
 {
-	public HashMap metals = new HashMap();
+	public Map<String, MetalPair> metals = new HashMap<String, MetalPair>();
 	private Alloy currentAlloy; 
 	public ItemCrucible(Block par1) 
 	{
@@ -42,10 +35,10 @@ public class ItemCrucible extends ItemTerraBlock implements ISize
 		readFromItemNBT(is.getTagCompound(), arraylist);
 	}
 
-	public void readFromItemNBT(NBTTagCompound nbt, List arraylist)
+	public void readFromItemNBT(NBTTagCompound nbt, List<String> arraylist)
 	{
 		currentAlloy = null;
-		metals = new HashMap();
+		metals = new HashMap<String, MetalPair>();
 		if(nbt != null && nbt.hasKey("Metals"))
 		{
 			NBTTagList nbttaglist = nbt.getTagList("Metals", 9);
@@ -64,13 +57,13 @@ public class ItemCrucible extends ItemTerraBlock implements ISize
 
 		if(currentAlloy != null)
 		{
-			for(int c = 0; c < currentAlloy.AlloyIngred.size(); c++)
+			for(int c = 0; c < currentAlloy.alloyIngred.size(); c++)
 			{
-				double m = currentAlloy.AlloyIngred.get(c).metal;
+				double m = currentAlloy.alloyIngred.get(c).metal;
 				m = Math.round(m * 100d)/100d;
-				if(currentAlloy.AlloyIngred.get(c).metalType != null)
+				if(currentAlloy.alloyIngred.get(c).metalType != null)
 				{
-					arraylist.add(EnumChatFormatting.DARK_GRAY + currentAlloy.AlloyIngred.get(c).metalType.Name + " " + EnumChatFormatting.DARK_GREEN + m + "%");
+					arraylist.add(EnumChatFormatting.DARK_GRAY + currentAlloy.alloyIngred.get(c).metalType.name + " " + EnumChatFormatting.DARK_GREEN + m + "%");
 				}
 			}
 		}
@@ -78,15 +71,15 @@ public class ItemCrucible extends ItemTerraBlock implements ISize
 
 	public boolean addMetal(Metal m, float amt)
 	{
-		if(getTotalMetal()+amt <= 3000 && m.Name != "Unknown")
+		if (getTotalMetal() + amt <= 3000 && !"Unknown".equals(m.name))
 		{
-			if(metals.containsKey(m.Name))
+			if(metals.containsKey(m.name))
 			{
-				((MetalPair)metals.get(m.Name)).amount += amt;
+				metals.get(m.name).amount += amt;
 			}
 			else
 			{
-				metals.put(m.Name, new MetalPair(m, amt));
+				metals.put(m.name, new MetalPair(m, amt));
 			}
 
 			updateCurrentAlloy();
@@ -128,16 +121,16 @@ public class ItemCrucible extends ItemTerraBlock implements ISize
 			}
 		}
 
-		Metal match = AlloyManager.instance.matchesAlloy(a, Alloy.EnumTier.TierV);
+		Metal match = AlloyManager.INSTANCE.matchesAlloy(a, Alloy.EnumTier.TierV);
 		if(match != null)
 		{
 			currentAlloy = new Alloy(match, totalAmount); 
-			currentAlloy.AlloyIngred = a;
+			currentAlloy.alloyIngred = a;
 		}
 		else 
 		{
 			currentAlloy = new Alloy(Global.UNKNOWN, totalAmount);
-			currentAlloy.AlloyIngred = a;
+			currentAlloy.alloyIngred = a;
 		}
 	}
 

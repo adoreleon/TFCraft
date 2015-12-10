@@ -4,30 +4,33 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import org.lwjgl.opengl.GL11;
 
-import com.bioxx.tfc.TFCBlocks;
-import com.bioxx.tfc.TFCItems;
 import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Time;
+import com.bioxx.tfc.Core.Player.PlayerInfo;
 import com.bioxx.tfc.Core.Player.PlayerManagerTFC;
 import com.bioxx.tfc.Core.Player.SkillStats.SkillRank;
 import com.bioxx.tfc.Food.CropIndex;
+import com.bioxx.tfc.Food.CropIndexPepper;
 import com.bioxx.tfc.Food.CropManager;
 import com.bioxx.tfc.Items.Tools.ItemCustomHoe;
 import com.bioxx.tfc.TileEntities.TECrop;
 import com.bioxx.tfc.TileEntities.TEFarmland;
+import com.bioxx.tfc.api.TFCBlocks;
+import com.bioxx.tfc.api.TFCItems;
 import com.bioxx.tfc.api.TFCOptions;
 import com.bioxx.tfc.api.Constant.Global;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class FarmlandHighlightHandler
 {
 	@SubscribeEvent
-	public void DrawBlockHighlightEvent(DrawBlockHighlightEvent evt)
+	public void drawBlockHighlightEvent(DrawBlockHighlightEvent evt)
 	{
 		World world = evt.player.worldObj;
 		double var8 = evt.player.lastTickPosX + (evt.player.posX - evt.player.lastTickPosX) * evt.partialTicks;
@@ -37,25 +40,30 @@ public class FarmlandHighlightHandler
 		boolean isMetalHoe = false;
 
 		if(evt.currentItem != null &&
-				evt.currentItem.getItem() != TFCItems.IgInHoe &&
-				evt.currentItem.getItem() != TFCItems.IgExHoe &&
-				evt.currentItem.getItem() != TFCItems.SedHoe &&
-				evt.currentItem.getItem() != TFCItems.MMHoe)
+				evt.currentItem.getItem() != TFCItems.igInHoe &&
+				evt.currentItem.getItem() != TFCItems.igExHoe &&
+				evt.currentItem.getItem() != TFCItems.sedHoe &&
+				evt.currentItem.getItem() != TFCItems.mMHoe)
 		{
 			isMetalHoe = true;
 		}
 
+		PlayerManagerTFC manager = PlayerManagerTFC.getInstance();
+		PlayerInfo playerInfo = manager != null ? manager.getClientPlayer() : null;
+		int hoeMode = playerInfo != null ? playerInfo.hoeMode : -1;
 
-
-		if(evt.currentItem != null && evt.currentItem.getItem() instanceof ItemCustomHoe && isMetalHoe && PlayerManagerTFC.getInstance().getClientPlayer().hoeMode == 1)
+		if (evt.currentItem != null && evt.currentItem.getItem() instanceof ItemCustomHoe && isMetalHoe && hoeMode == 1)
 		{
-			SkillRank sr = TFC_Core.getSkillStats(evt.player).getSkillRank(Global.SKILL_AGRICULTURE);
-			if(sr != SkillRank.Expert && sr != SkillRank.Master)
-				return;
+			if (TFC_Core.getSkillStats(evt.player) != null)
+			{
+				SkillRank sr = TFC_Core.getSkillStats(evt.player).getSkillRank(Global.SKILL_AGRICULTURE);
+				if (sr != SkillRank.Expert && sr != SkillRank.Master)
+					return;
+			}
 
 			Block b = world.getBlock(evt.target.blockX,evt.target.blockY,evt.target.blockZ);
 			int crop = 0;
-			if(b == TFCBlocks.Crops && (
+			if(b == TFCBlocks.crops && (
 					world.getBlock(evt.target.blockX, evt.target.blockY - 1, evt.target.blockZ) == TFCBlocks.tilledSoil ||
 					world.getBlock(evt.target.blockX, evt.target.blockY - 1, evt.target.blockZ) == TFCBlocks.tilledSoil2))
 			{
@@ -182,12 +190,11 @@ public class FarmlandHighlightHandler
 						).expand(0.002F, 0.002F, 0.002F).getOffsetBoundingBox(-var8, -var10, -var12));
 			}
 		}
-		else if(evt.currentItem != null && evt.currentItem.getItem() instanceof ItemCustomHoe && 
-				PlayerManagerTFC.getInstance().getClientPlayer().hoeMode == 2)
+		else if (evt.currentItem != null && evt.currentItem.getItem() instanceof ItemCustomHoe && hoeMode == 2)
 		{
 			Block b = world.getBlock(evt.target.blockX,evt.target.blockY,evt.target.blockZ);
 			int crop = 0;
-			if(b == TFCBlocks.Crops && (
+			if(b == TFCBlocks.crops && (
 					world.getBlock(evt.target.blockX,evt.target.blockY-1,evt.target.blockZ) == TFCBlocks.tilledSoil ||
 					world.getBlock(evt.target.blockX,evt.target.blockY-1,evt.target.blockZ) == TFCBlocks.tilledSoil2))
 			{
@@ -222,17 +229,16 @@ public class FarmlandHighlightHandler
 				GL11.glEnable(GL11.GL_CULL_FACE);
 			}
 		}
-		else if(evt.currentItem != null && evt.currentItem.getItem() instanceof ItemCustomHoe && 
-				PlayerManagerTFC.getInstance().getClientPlayer().hoeMode == 3)
+		else if (evt.currentItem != null && evt.currentItem.getItem() instanceof ItemCustomHoe && hoeMode == 3)
 		{
 			Block b = world.getBlock(evt.target.blockX,evt.target.blockY,evt.target.blockZ);
-			if(b == TFCBlocks.Crops && (
+			if(b == TFCBlocks.crops && (
 					world.getBlock(evt.target.blockX,evt.target.blockY-1,evt.target.blockZ) == TFCBlocks.tilledSoil ||
 					world.getBlock(evt.target.blockX,evt.target.blockY-1,evt.target.blockZ) == TFCBlocks.tilledSoil2))
 			{
 				TECrop te = (TECrop) world.getTileEntity(evt.target.blockX, evt.target.blockY, evt.target.blockZ);
 				CropIndex index = CropManager.getInstance().getCropFromId(te.cropId);
-				boolean fullyGrown = te.growth >= index.numGrowthStages;
+				boolean fullyGrown = index instanceof CropIndexPepper ? te.growth >= index.numGrowthStages - 1 : te.growth >= index.numGrowthStages;
 
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -259,7 +265,7 @@ public class FarmlandHighlightHandler
 		}
 	}
 
-	void drawFace(AxisAlignedBB par1AxisAlignedBB)
+	public void drawFace(AxisAlignedBB par1AxisAlignedBB)
 	{
 		Tessellator var2 = Tessellator.instance;
 
@@ -272,7 +278,7 @@ public class FarmlandHighlightHandler
 		var2.draw();
 	}
 
-	void drawBox(AxisAlignedBB par1AxisAlignedBB)
+	public void drawBox(AxisAlignedBB par1AxisAlignedBB)
 	{
 		Tessellator var2 = Tessellator.instance;
 
@@ -317,7 +323,7 @@ public class FarmlandHighlightHandler
 		var2.draw();
 	}
 
-	void drawOutlinedBoundingBox(AxisAlignedBB par1AxisAlignedBB)
+	public void drawOutlinedBoundingBox(AxisAlignedBB par1AxisAlignedBB)
 	{
 		Tessellator var2 = Tessellator.instance;
 		var2.startDrawing(3);

@@ -2,6 +2,7 @@ package com.bioxx.tfc.Items.Tools;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -12,15 +13,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.bioxx.tfc.Reference;
-import com.bioxx.tfc.TFCBlocks;
 import com.bioxx.tfc.Core.TFCTabs;
+import com.bioxx.tfc.Core.TFC_Core;
 import com.bioxx.tfc.Core.TFC_Textures;
 import com.bioxx.tfc.Items.ItemTerra;
-import com.bioxx.tfc.api.TFCOptions;
+import com.bioxx.tfc.api.TFCBlocks;
 import com.bioxx.tfc.api.Crafting.AnvilManager;
 import com.bioxx.tfc.api.Enums.EnumDamageType;
 import com.bioxx.tfc.api.Enums.EnumItemReach;
@@ -44,7 +44,7 @@ public class ItemWeapon extends ItemSword implements ISize, ICausesDamage
 		this.setMaxDamage(par2.getMaxUses());
 		weaponBaseDamage = damage;
 		this.toolMat = par2;
-		setCreativeTab(TFCTabs.TFCWeapons);
+		setCreativeTab(TFCTabs.TFC_WEAPONS);
 		setNoRepair();
 	}
 
@@ -59,7 +59,7 @@ public class ItemWeapon extends ItemSword implements ISize, ICausesDamage
 	{
 		NBTTagCompound nbt = stack.getTagCompound();
 		if(pass == 1 && nbt != null && nbt.hasKey("broken"))
-			return TFC_Textures.BrokenItem;
+			return TFC_Textures.brokenItem;
 		else
 			return getIconFromDamageForRenderPass(stack.getItemDamage(), pass);
 	}
@@ -73,31 +73,19 @@ public class ItemWeapon extends ItemSword implements ISize, ICausesDamage
 		ItemTerra.addHeatInformation(is, arraylist);
 
 		if(is.getItem() instanceof ICausesDamage)
-			arraylist.add(EnumChatFormatting.AQUA + StatCollector.translateToLocal(((ICausesDamage)this).GetDamageType().toString()));
-
-		addItemInformation(is, player, arraylist);
+			arraylist.add(EnumChatFormatting.AQUA + TFC_Core.translate(((ICausesDamage) this).getDamageType().toString()));
+		ItemTerraTool.addSmithingBonusInformation(is, arraylist);
 		addExtraInformation(is, player, arraylist);
-
-		if(TFCOptions.enableDebugMode)
-		{
-			NBTTagCompound nbt = is.getTagCompound();
-			if(nbt != null && nbt.hasKey("craftingTag") && nbt.getCompoundTag("craftingTag").hasKey("durabuff"))
-				arraylist.add("durabuff=" + is.getMaxDamage()+ "/" + is.getItem().getMaxDamage(is));
-		}
 	}
 
-	public void addItemInformation(ItemStack is, EntityPlayer player, List arraylist)
-	{
-	}
-
-	public void addExtraInformation(ItemStack is, EntityPlayer player, List arraylist)
+	public void addExtraInformation(ItemStack is, EntityPlayer player, List<String> arraylist)
 	{
 	}
 
 	@Override
 	public void registerIcons(IIconRegister registerer)
 	{
-		this.itemIcon = registerer.registerIcon(Reference.ModID + ":" + "tools/"+this.getUnlocalizedName().replace("item.", ""));
+		this.itemIcon = registerer.registerIcon(Reference.MOD_ID + ":" + "tools/"+this.getUnlocalizedName().replace("item.", ""));
 	}
 
 	@Override
@@ -117,7 +105,7 @@ public class ItemWeapon extends ItemSword implements ISize, ICausesDamage
 	{
 		MovingObjectPosition mop = Helper.getMouseOverObject(player, player.worldObj);
 
-		if(mop != null && world.getBlock(mop.blockX, mop.blockY, mop.blockZ) == TFCBlocks.ToolRack)
+		if(mop != null && world.getBlock(mop.blockX, mop.blockY, mop.blockZ) == TFCBlocks.toolRack)
 			return is;
 
 		player.setItemInUse(is, this.getMaxItemUseDuration(is));
@@ -143,7 +131,7 @@ public class ItemWeapon extends ItemSword implements ISize, ICausesDamage
 	}
 
 	@Override
-	public EnumDamageType GetDamageType() 
+	public EnumDamageType getDamageType() 
 	{
 		return damageType;
 	}
@@ -165,6 +153,13 @@ public class ItemWeapon extends ItemSword implements ISize, ICausesDamage
 	public int getMaxDamage(ItemStack is)
 	{
 		return (int) Math.floor(getMaxDamage() + (getMaxDamage() * AnvilManager.getDurabilityBuff(is)));
+	}
+
+	@Override
+	public float getDigSpeed(ItemStack stack, Block block, int meta)
+	{
+		float digSpeed = super.getDigSpeed(stack, block, meta);
+		return digSpeed + (digSpeed * AnvilManager.getDurabilityBuff(stack));
 	}
 
 	@Override
